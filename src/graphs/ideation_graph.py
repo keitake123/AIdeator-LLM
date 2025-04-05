@@ -19,6 +19,8 @@ class IdeationState(TypedDict):
     waiting_for_input: bool
     awaiting_choice: bool  # Track if we're waiting for user to choose between statements
     input_instructions: Dict[str, str]  # Instructions for UI/CLI on what inputs to collect
+    regenerate_problem_statement_1: bool  # Flag to indicate regeneration of problem_statement_1
+    regenerate_problem_statement_2: bool  # Flag to indicate regeneration of problem_statement_2
 
 # Initialize the LLM
 llm = ChatOpenAI(
@@ -44,7 +46,8 @@ Your response must be:
 2. Include the target audience and problem
 3. Include the preferred outcome of the solution in the end
 4. End with a question mark
-5. No additional text or explanations
+5. No longer than 20 words
+6. No additional text or explanations
 
 Example:
 Input: Target Audience: college students, Problem: difficulty connecting with industry professionals
@@ -65,22 +68,21 @@ PROBLEM_REFINEMENT_PROMPT = ChatPromptTemplate.from_messages([
    - Write down the original statement.
 
 2. Extract the Preferable Outcome
-   - Ask yourself: “After this problem is solved, what do we want to see happening? What’s the ideal situation or behavior?”
+   - Ask yourself: "After this problem is solved, what do we want to see happening? What's the ideal situation or behavior?"
    - Write this down as your `preferable_outcome`.
 
 3. Brainstorm an Alternate Way to Achieve the Same Outcome
    - Think of another method or approach that would also fulfill the `preferable_outcome`.
 
 4. Create a Second Problem Statement, and form `problem_statement_2`
-   - Using the alternate approach, form another “How might we…” statement:
+   - Using the alternate approach, form another "How might we…" statement:
      "How might we + [alternate method] + [preferable_outcome]?"
 
 5. **Output Requirement:**
-   - Output only the `problem_statement_2` (the newly formed “How might we…” statement), as a single sentence.
-   - Do not include any explanation or additional text.""")
+   - Output only the `problem_statement_2` (the newly formed "How might we…" statement), as a single sentence.
+   - Do not include any explanation or additional text.
+   - No longer than 20 words.""")
 ])
-
-# No longer needed since we're not using LLM for choice request
 
 # Define the prompt template for confirming the final problem statement
 CONFIRM_STATEMENT_PROMPT = ChatPromptTemplate.from_messages([
@@ -104,6 +106,8 @@ def request_input(state: IdeationState) -> IdeationState:
     
     state["waiting_for_input"] = True
     state["awaiting_choice"] = False
+    state["regenerate_problem_statement_1"] = False
+    state["regenerate_problem_statement_2"] = False
     
     return state
 
@@ -127,8 +131,19 @@ def generate_problem_statement(state: IdeationState) -> IdeationState:
         
         # Update state with response
         state["problem_statement"] = formatted_response
-        state["messages"].append(AIMessage(content=f"Statement 1: {formatted_response}"))
+        
+        # If this is the initial generation or a regeneration
+        if not any(msg.content.startswith("Statement 1:") for msg in state["messages"] if isinstance(msg, AIMessage)):
+            state["messages"].append(AIMessage(content=f"Statement 1: {formatted_response}"))
+        else:
+            # Replace the existing Statement 1 message
+            for i, msg in enumerate(state["messages"]):
+                if isinstance(msg, AIMessage) and msg.content.startswith("Statement 1:"):
+                    state["messages"][i] = AIMessage(content=f"Statement 1: {formatted_response}")
+                    break
+        
         state["waiting_for_input"] = False
+        state["regenerate_problem_statement_1"] = False
         
         return state
 
@@ -143,6 +158,7 @@ def generate_problem_statement_2(state: IdeationState) -> IdeationState:
         return state
 
     try:
+        # Debug - commented out but kept for future use
         # print(f"\nDEBUG - Original problem statement: {state['problem_statement']}")
         
         # Create prompt with the current problem statement
@@ -150,12 +166,12 @@ def generate_problem_statement_2(state: IdeationState) -> IdeationState:
             problem_statement=state["problem_statement"]
         )
         
-        # Debug: Print the actual content being sent to the LLM
-        #print("\nDEBUG - Prompt being sent to LLM:")
-        #for message in prompt:
-        #    print(f"Role: {message.type}")
-        #    content_preview = message.content[:200] + "..." if len(message.content) > 200 else message.content
-        #    print(f"Content preview: {content_preview}\n")
+        # Debug: Print the actual content being sent to the LLM - commented out but kept
+        # print("\nDEBUG - Prompt being sent to LLM:")
+        # for message in prompt:
+        #     print(f"Role: {message.type}")
+        #     content_preview = message.content[:200] + "..." if len(message.content) > 200 else message.content
+        #     print(f"Content preview: {content_preview}\n")
         
         # Generate response
         response = llm.invoke(prompt)
@@ -170,11 +186,23 @@ def generate_problem_statement_2(state: IdeationState) -> IdeationState:
         
         # Store the second problem statement
         state["problem_statement_2"] = problem_statement_2
-        state["messages"].append(AIMessage(content=f"Statement 2: {problem_statement_2}"))
         
-        # Update instructions for the next user input (choosing between statements)
+        # Only append to messages if it's not a regeneration or if messages doesn't already contain Statement 2
+        if not state["regenerate_problem_statement_2"] or not any(msg.content.startswith("Statement 2:") for msg in state["messages"] if isinstance(msg, AIMessage)):
+            state["messages"].append(AIMessage(content=f"Statement 2: {problem_statement_2}"))
+        else:
+            # Replace the existing Statement 2 message
+            for i, msg in enumerate(state["messages"]):
+                if isinstance(msg, AIMessage) and msg.content.startswith("Statement 2:"):
+                    state["messages"][i] = AIMessage(content=f"Statement 2: {problem_statement_2}")
+                    break
+        
+        # Reset regeneration flag
+        state["regenerate_problem_statement_2"] = False
+        
+        # Update instructions for the next user input (choosing between statements with regeneration option)
         state["input_instructions"] = {
-            "choice": "Select between 'statement 1' or 'statement 2'"
+            "choice": "Select 'statement 1', 'statement 2', or 'regenerate' to get a new alternative statement"
         }
         state["awaiting_choice"] = True
         
@@ -185,23 +213,38 @@ def generate_problem_statement_2(state: IdeationState) -> IdeationState:
         return state
 
 def request_choice(state: IdeationState) -> IdeationState:
-    """Request user to choose between the two problem statements."""
+    """Request user to choose between the two problem statements or regenerate either statement."""
     # Simply prepare the state for user choice without calling the LLM
     state["awaiting_choice"] = True
     state["input_instructions"] = {
-        "choice": "Select between 'statement 1' or 'statement 2'",
+        "choice": "Select between 'statement 1', 'statement 2', 'r1' to regenerate statement 1, or 'r2' to regenerate statement 2",
         "options": {
             "statement 1": state["problem_statement"],
-            "statement 2": state["problem_statement_2"]
+            "statement 2": state["problem_statement_2"],
+            "r1": "Regenerate Statement 1",
+            "r2": "Regenerate Statement 2"
         }
     }
     
     return state
 
 def process_user_choice(state: IdeationState, choice: str) -> IdeationState:
-    """Process user's choice between the two problem statements."""
+    """Process user's choice between the two problem statements or request for regeneration."""
     # Normalize choice to handle different input formats
     normalized_choice = choice.lower().strip()
+    
+    # Check if the user wants to regenerate problem statements
+    if "r1" in normalized_choice or "regenerate 1" in normalized_choice or "regenerate statement 1" in normalized_choice:
+        state["regenerate_problem_statement_1"] = True
+        # Save message about regeneration request
+        state["messages"].append(HumanMessage(content="I'd like to regenerate the first problem statement."))
+        return state
+    
+    if "r2" in normalized_choice or "regenerate 2" in normalized_choice or "regenerate statement 2" in normalized_choice:
+        state["regenerate_problem_statement_2"] = True
+        # Save message about regeneration request
+        state["messages"].append(HumanMessage(content="I'd like to regenerate the alternative problem statement."))
+        return state
     
     # Set the final problem statement based on user choice
     if "1" in normalized_choice or "statement 1" in normalized_choice:
@@ -219,6 +262,8 @@ def process_user_choice(state: IdeationState, choice: str) -> IdeationState:
     # Add user choice to messages
     state["messages"].append(HumanMessage(content=f"I choose {choice_text}."))
     state["awaiting_choice"] = False
+    state["regenerate_problem_statement_1"] = False
+    state["regenerate_problem_statement_2"] = False
     state["input_instructions"] = {}  # Clear input instructions
     
     return state
@@ -259,7 +304,9 @@ def run_cli_workflow():
         "final_problem_statement": "",
         "waiting_for_input": False,
         "awaiting_choice": False,
-        "input_instructions": {}
+        "input_instructions": {},
+        "regenerate_problem_statement_1": False,  # New flag for regenerating statement 1
+        "regenerate_problem_statement_2": False   # Flag for regenerating statement 2
     }
     
     # Step 1: Request input (get instructions on what to collect)
@@ -280,22 +327,41 @@ def run_cli_workflow():
     state = generate_problem_statement(state)
     print(f"Statement 1: {state['problem_statement']}\n")
     
-    # Step 3: Generate problem statement 2
-    print("Generating problem statement 2...")
-    state = generate_problem_statement_2(state)
-    print(f"Statement 2: {state['problem_statement_2']}\n")
+    # Loop until user selects a final problem statement
+    final_statement_selected = False
     
-    # Step 4: Get user choice
-    print("Please choose which problem statement to use:")
-    print(f"1. Statement 1: {state['problem_statement']}")
-    print(f"2. Statement 2: {state['problem_statement_2']}")
+    while not final_statement_selected:
+        # Check if we need to regenerate statements
+        if state["regenerate_problem_statement_1"]:
+            print("Regenerating problem statement 1...")
+            state = generate_problem_statement(state)
+            print(f"Statement 1: {state['problem_statement']}\n")
+            state["regenerate_problem_statement_1"] = False
+        
+        if not state["problem_statement_2"] or state["regenerate_problem_statement_2"]:
+            print("Generating problem statement 2...")
+            state = generate_problem_statement_2(state)
+            print(f"Statement 2: {state['problem_statement_2']}\n")
+            state["regenerate_problem_statement_2"] = False
+        
+        # Display choices to user
+        print("Please choose which problem statement to use:")
+        print(f"1. Statement 1: {state['problem_statement']}")
+        print(f"2. Statement 2: {state['problem_statement_2']}")
+        print("r1. Regenerate Statement 1")
+        print("r2. Regenerate Statement 2")
+        
+        choice = input("Enter '1', '2', 'r1', or 'r2': ").lower()
+        
+        # Process user choice
+        state = process_user_choice(state, choice)
+        
+        # Check if we need to regenerate or proceed
+        if state["regenerate_problem_statement_1"] or state["regenerate_problem_statement_2"]:
+            continue
+        else:
+            final_statement_selected = True
     
-    choice = ""
-    while not ("1" in choice or "2" in choice or "statement 1" in choice.lower() or "statement 2" in choice.lower()):
-        choice = input("Enter 'statement 1'/'1' or 'statement 2'/'2': ")
-    
-    # Process user choice
-    state = process_user_choice(state, choice)
     print(f"\nYou selected: {choice}")
     print(f"Final problem statement: {state['final_problem_statement']}\n")
     
@@ -317,15 +383,24 @@ workflow = StateGraph(IdeationState)
 # Add nodes
 workflow.add_node("request_input", request_input)
 workflow.add_node("generate_problem_statement", generate_problem_statement)
-workflow.add_node("generate_problem_statement_2", generate_problem_statement_2)  # Renamed from refine_problem_statement
+workflow.add_node("generate_problem_statement_2", generate_problem_statement_2)
 workflow.add_node("request_choice", request_choice)
 workflow.add_node("confirm_problem_statement", confirm_problem_statement)
 
-# Add edges
+# Add edges with conditional logic for regeneration
 workflow.add_edge("request_input", "generate_problem_statement")
-workflow.add_edge("generate_problem_statement", "generate_problem_statement_2")  # Update edge
-workflow.add_edge("generate_problem_statement_2", "request_choice")  # Update edge
-workflow.add_edge("request_choice", "confirm_problem_statement")
+workflow.add_edge("generate_problem_statement", "generate_problem_statement_2")
+workflow.add_edge("generate_problem_statement_2", "request_choice")
+
+# Add conditional edges for regeneration
+workflow.add_conditional_edges(
+    "request_choice",
+    lambda state: {
+        "generate_problem_statement": state["regenerate_problem_statement_1"],
+        "generate_problem_statement_2": state["regenerate_problem_statement_2"],
+        "confirm_problem_statement": not (state["regenerate_problem_statement_1"] or state["regenerate_problem_statement_2"])
+    }
+)
 
 # Set entry point
 workflow.set_entry_point("request_input")
@@ -345,7 +420,9 @@ def start_ideation_session() -> IdeationState:
         "final_problem_statement": "",
         "waiting_for_input": False,
         "awaiting_choice": False,
-        "input_instructions": {}
+        "input_instructions": {},
+        "regenerate_problem_statement_1": False,  # Flag for regenerating statement 1
+        "regenerate_problem_statement_2": False   # Flag for regenerating statement 2
     }
     
     # Add the system message to start fresh
