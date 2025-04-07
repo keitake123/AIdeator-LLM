@@ -1,4 +1,4 @@
-from typing import TypedDict, Annotated, Sequence, List, Dict
+from typing import TypedDict, Annotated, Sequence, List, Dict, Optional
 from langgraph.graph import Graph, StateGraph
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -21,6 +21,13 @@ class IdeationState(TypedDict):
     input_instructions: Dict[str, str]  # Instructions for UI/CLI on what inputs to collect
     regenerate_problem_statement_1: bool  # Flag to indicate regeneration of problem_statement_1
     regenerate_problem_statement_2: bool  # Flag to indicate regeneration of problem_statement_2
+    
+    # New fields for exploration options
+    threads: Dict[str, Dict]  # Store the three exploration approaches
+    active_thread: Optional[str]  # Track the selected exploration approach
+    awaiting_thread_choice: bool  # Track if we're waiting for user to choose an exploration approach
+    mindmap: Dict  # For future mindmap structure
+    current_step: str  # Track current step in workflow
 
 # Initialize the LLM
 llm = ChatOpenAI(
@@ -84,15 +91,43 @@ PROBLEM_REFINEMENT_PROMPT = ChatPromptTemplate.from_messages([
    - No longer than 20 words.""")
 ])
 
-# Define the prompt template for confirming the final problem statement
-CONFIRM_STATEMENT_PROMPT = ChatPromptTemplate.from_messages([
+# Template for "Emotional Root Causes" exploration - placeholder for future implementation
+EMOTIONAL_ROOT_CAUSES_PROMPT = ChatPromptTemplate.from_messages([
     SystemMessage(content=SYSTEM_TEMPLATE),
-    MessagesPlaceholder(variable_name="messages"),
-    ("human", """Great! We'll use the following problem statement for our ideation session:
+    MessagesPlaceholder(variable_name="thread_messages"),
+    ("human", """Let's explore the emotional root causes of our problem statement:
 
-{final_statement}
+{problem_statement}
 
-Let's start by exploring potential directions and solutions for this problem statement. What key areas should we consider exploring?""")
+[YOUR EMOTIONAL ROOT CAUSES PROMPT WILL GO HERE]
+
+Generate 4-5 distinct branches that explore the underlying emotional needs, fears, or motivations related to this problem.""")
+])
+
+# Template for "Unconventional Associations" exploration - placeholder for future implementation
+UNCONVENTIONAL_ASSOCIATIONS_PROMPT = ChatPromptTemplate.from_messages([
+    SystemMessage(content=SYSTEM_TEMPLATE),
+    MessagesPlaceholder(variable_name="thread_messages"),
+    ("human", """Let's explore unconventional associations related to our problem statement:
+
+{problem_statement}
+
+[YOUR UNCONVENTIONAL ASSOCIATIONS PROMPT WILL GO HERE]
+
+Generate 4-5 distinct branches that connect this problem to unexpected domains, metaphors, or analogies.""")
+])
+
+# Template for "Imaginary Customers' Feedback" exploration - placeholder for future implementation
+IMAGINARY_FEEDBACK_PROMPT = ChatPromptTemplate.from_messages([
+    SystemMessage(content=SYSTEM_TEMPLATE),
+    MessagesPlaceholder(variable_name="thread_messages"),
+    ("human", """Let's imagine potential customer feedback for solutions to our problem statement:
+
+{problem_statement}
+
+[YOUR IMAGINARY CUSTOMERS' FEEDBACK PROMPT WILL GO HERE]
+
+Generate 4-5 distinct branches that represent different feedback perspectives or reactions to potential solutions.""")
 ])
 
 def request_input(state: IdeationState) -> IdeationState:
@@ -108,6 +143,7 @@ def request_input(state: IdeationState) -> IdeationState:
     state["awaiting_choice"] = False
     state["regenerate_problem_statement_1"] = False
     state["regenerate_problem_statement_2"] = False
+    state["current_step"] = "initial_input"
     
     return state
 
@@ -144,6 +180,7 @@ def generate_problem_statement(state: IdeationState) -> IdeationState:
         
         state["waiting_for_input"] = False
         state["regenerate_problem_statement_1"] = False
+        state["current_step"] = "generate_problem_statement_2"
         
         return state
 
@@ -158,20 +195,10 @@ def generate_problem_statement_2(state: IdeationState) -> IdeationState:
         return state
 
     try:
-        # Debug - commented out but kept for future use
-        # print(f"\nDEBUG - Original problem statement: {state['problem_statement']}")
-        
         # Create prompt with the current problem statement
         prompt = PROBLEM_REFINEMENT_PROMPT.format_messages(
             problem_statement=state["problem_statement"]
         )
-        
-        # Debug: Print the actual content being sent to the LLM - commented out but kept
-        # print("\nDEBUG - Prompt being sent to LLM:")
-        # for message in prompt:
-        #     print(f"Role: {message.type}")
-        #     content_preview = message.content[:200] + "..." if len(message.content) > 200 else message.content
-        #     print(f"Content preview: {content_preview}\n")
         
         # Generate response
         response = llm.invoke(prompt)
@@ -205,6 +232,7 @@ def generate_problem_statement_2(state: IdeationState) -> IdeationState:
             "choice": "Select 'statement 1', 'statement 2', or 'regenerate' to get a new alternative statement"
         }
         state["awaiting_choice"] = True
+        state["current_step"] = "request_choice"
         
         return state
 
@@ -225,6 +253,7 @@ def request_choice(state: IdeationState) -> IdeationState:
             "r2": "Regenerate Statement 2"
         }
     }
+    state["current_step"] = "await_choice"
     
     return state
 
@@ -238,12 +267,14 @@ def process_user_choice(state: IdeationState, choice: str) -> IdeationState:
         state["regenerate_problem_statement_1"] = True
         # Save message about regeneration request
         state["messages"].append(HumanMessage(content="I'd like to regenerate the first problem statement."))
+        state["current_step"] = "generate_problem_statement"
         return state
     
     if "r2" in normalized_choice or "regenerate 2" in normalized_choice or "regenerate statement 2" in normalized_choice:
         state["regenerate_problem_statement_2"] = True
         # Save message about regeneration request
         state["messages"].append(HumanMessage(content="I'd like to regenerate the alternative problem statement."))
+        state["current_step"] = "generate_problem_statement_2"
         return state
     
     # Set the final problem statement based on user choice
@@ -266,28 +297,182 @@ def process_user_choice(state: IdeationState, choice: str) -> IdeationState:
     state["regenerate_problem_statement_2"] = False
     state["input_instructions"] = {}  # Clear input instructions
     
+    # Move to presenting exploration options instead of confirming
+    state["current_step"] = "present_exploration_options"
+    
     return state
 
-def confirm_problem_statement(state: IdeationState) -> IdeationState:
-    """Confirm the final problem statement and transition to ideation."""
+def present_exploration_options(state: IdeationState) -> IdeationState:
+    """Present the three fixed exploration options to the user."""
+    # Display confirmation of the selected problem statement
+    state["messages"].append(AIMessage(content=f"We'll use the following problem statement for our ideation session: {state['final_problem_statement']}"))
+    
+    # Initialize the mindmap with the problem statement as the central node
+    state["mindmap"] = {
+        "id": "root",
+        "name": state["final_problem_statement"],
+        "children": []
+    }
+    
+    # Define the three fixed exploration options
+    threads = [
+        ("Emotional Root Causes", "Explore the underlying emotional needs, fears, or motivations"),
+        ("Unconventional Associations", "Connect the problem to unexpected domains, metaphors, or analogies"),
+        ("Imaginary Customers' Feedback", "Imagine different feedback perspectives on potential solutions")
+    ]
+    
+    # Initialize the threads structure
+    state["threads"] = {}
+    for i, (name, description) in enumerate(threads, 1):
+        thread_id = f"thread_{i}"
+        state["threads"][thread_id] = {
+            "id": thread_id,
+            "name": name,
+            "description": description,
+            "messages": [SystemMessage(content=SYSTEM_TEMPLATE)]  # Each thread has its own message history
+        }
+        
+        # Add to mindmap
+        state["mindmap"]["children"].append({
+            "id": thread_id,
+            "name": name,
+            "description": description,
+            "children": []
+        })
+    
+    # Set up for thread choice
+    state["awaiting_thread_choice"] = True
+    state["input_instructions"] = {
+        "thread_choice": "Choose an exploration approach:",
+        "options": {
+            "1": "Emotional Root Causes",
+            "2": "Unconventional Associations", 
+            "3": "Imaginary Customers' Feedback"
+        }
+    }
+    state["current_step"] = "await_thread_choice"
+    
+    return state
+
+
+def process_thread_choice_multi(state: IdeationState, choice: str) -> IdeationState:
+    """Process the user's choice of which exploration approach to use without ending the session."""
+    # Reset switching flag
+    state["switch_thread"] = False
+    
+    # Check for "stop" command
+    if choice.lower().strip() == "stop":
+        state["current_step"] = "end_session"
+        state["feedback"] = "Ending the ideation session as requested."
+        return state
+    
+    # Normalize and validate choice
     try:
-        # Create prompt to confirm the final statement
-        prompt = CONFIRM_STATEMENT_PROMPT.format_messages(
-            messages=state["messages"],
-            final_statement=state["final_problem_statement"]
-        )
+        thread_num = int(choice.strip())
+        if thread_num < 1 or thread_num > 3:
+            raise ValueError("Thread choice must be 1, 2, or 3")
+    except ValueError:
+        # Try to match by name
+        thread_map = {
+            "emotional": "1",
+            "emotional root": "1",
+            "emotional root causes": "1",
+            "root causes": "1",
+            "unconventional": "2",
+            "unconventional associations": "2",
+            "associations": "2",
+            "imaginary": "3",
+            "feedback": "3",
+            "imaginary customers": "3",
+            "customers feedback": "3",
+            "imaginary customers' feedback": "3"
+        }
+        normalized_choice = choice.lower().strip()
+        thread_choice = thread_map.get(normalized_choice)
+        if thread_choice:
+            thread_num = int(thread_choice)
+        else:
+            state["feedback"] = "Invalid choice. Please select 1 (Emotional Root Causes), 2 (Unconventional Associations), or 3 (Imaginary Customers' Feedback)."
+            state["switch_thread"] = True  # Return to thread selection
+            return state
+    
+    # Set the active thread
+    thread_id = f"thread_{thread_num}"
+    state["active_thread"] = thread_id
+    
+    # Only add messages if this is the first time selecting this thread
+    if len(state["threads"][thread_id]["messages"]) <= 1:  # Only has system message
+        # Add user choice to main messages
+        state["messages"].append(HumanMessage(content=f"I choose to explore {state['threads'][thread_id]['name']}."))
         
-        # Generate response
-        response = llm.invoke(prompt)
+        # Add the choice to thread-specific messages
+        thread_message = HumanMessage(content=f"Let's explore the problem statement through the lens of {state['threads'][thread_id]['name']}.")
+        state["threads"][thread_id]["messages"].append(thread_message)
         
-        # Update state
-        state["messages"].append(response)
-        
+        # For now, just acknowledge the selection in a simplified workflow
+        thread_name = state["threads"][thread_id]["name"]
+        state["messages"].append(AIMessage(content=f"Great! We'll explore '{state['final_problem_statement']}' through the {thread_name} approach. This thread now has its own separate conversation history."))
+    
+    # In the future, this would set up for branch generation
+    state["current_step"] = "thread_exploration"  # Mark that we're in thread exploration mode
+    
+    return state
+
+def thread_exploration(state: IdeationState) -> IdeationState:
+    """Handle exploration within a specific thread."""
+    # This is a placeholder for actual thread exploration logic
+    thread_id = state["active_thread"]
+    if not thread_id:
+        state["feedback"] = "No active thread selected."
         return state
-        
-    except Exception as e:
-        state["feedback"] = f"Error confirming problem statement: {str(e)}"
-        return state
+    
+    thread_name = state["threads"][thread_id]["name"]
+    
+    # Here you would normally get an LLM response based on the thread type
+    # For now, just adding a placeholder response
+    response = f"This is where the {thread_name} exploration would happen, using a specialized prompt for this approach."
+    
+    # Add the response to the thread-specific messages
+    state["threads"][thread_id]["messages"].append(AIMessage(content=response))
+    
+    # Add feedback for the user
+    state["feedback"] = f"Explored the {thread_name} approach."
+    
+    return state
+
+def end_session(state: IdeationState) -> IdeationState:
+    """End the ideation session."""
+    # Count explored threads
+    explored_threads = []
+    for thread_id, thread in state["threads"].items():
+        if len(thread["messages"]) > 1:  # More than just the system message
+            explored_threads.append(thread["name"])
+    
+    # Create a summary message
+    if explored_threads:
+        explored_list = ", ".join(explored_threads)
+        summary = f"""
+Ideation Session Summary:
+
+Problem Statement: {state['final_problem_statement']}
+
+Explored Approaches: {explored_list}
+
+Each exploration approach has its own separate conversation history for future development.
+"""
+    else:
+        summary = f"""
+Ideation Session Summary:
+
+Problem Statement: {state['final_problem_statement']}
+
+No exploration approaches were selected.
+"""
+    
+    # Add summary to messages
+    state["messages"].append(AIMessage(content=summary))
+    
+    return state
 
 def run_cli_workflow():
     """Run the ideation workflow as a CLI application."""
@@ -306,7 +491,14 @@ def run_cli_workflow():
         "awaiting_choice": False,
         "input_instructions": {},
         "regenerate_problem_statement_1": False,  # New flag for regenerating statement 1
-        "regenerate_problem_statement_2": False   # Flag for regenerating statement 2
+        "regenerate_problem_statement_2": False,  # Flag for regenerating statement 2
+        # New fields for exploration options
+        "threads": {},
+        "active_thread": None,
+        "awaiting_thread_choice": False,
+        "switch_thread": False,  # Flag for switching between threads
+        "mindmap": {},
+        "current_step": "initial_input"
     }
     
     # Step 1: Request input (get instructions on what to collect)
@@ -365,13 +557,77 @@ def run_cli_workflow():
     print(f"\nYou selected: {choice}")
     print(f"Final problem statement: {state['final_problem_statement']}\n")
     
-    # Step 5: Confirm problem statement
-    print("Confirming problem statement and starting ideation...")
-    state = confirm_problem_statement(state)
+    # Step 3: Present exploration options (instead of confirming problem statement)
+    print("Now let's explore this problem from different angles.")
+    state = present_exploration_options(state)
     
-    # Print the final response
-    final_response = state["messages"][-1].content
-    print(f"\nAssistant: {final_response}\n")
+    # Start multi-thread exploration using state graph workflow
+    exploring = True
+    
+    while exploring:
+        # Show the exploration options
+        print("\nPlease choose an exploration approach:")
+        
+        # Show current status of each thread
+        for i in range(1, 4):
+            thread_id = f"thread_{i}"
+            thread = state["threads"][thread_id]
+            thread_name = thread["name"]
+            status = " (current)" if state["active_thread"] == thread_id else ""
+            status += " (explored)" if len(thread["messages"]) > 1 else ""
+            print(f"{i}. {thread_name}{status}")
+        
+        # Get user choice for exploration approach
+        exploration_choice = input("\nEnter '1', '2', '3', or 'stop': ").lower()
+        
+        # Set up context for process_thread_choice_multi
+        state["context"]["thread_choice"] = exploration_choice
+        
+        # Process using state graph workflow
+        old_thread = state["active_thread"]
+        old_step = state["current_step"]
+        
+        # Invoke the state graph
+        state = process_thread_choice_multi(state, exploration_choice)
+        
+        # If stopping, break the loop
+        if state["current_step"] == "end_session":
+            exploring = False
+            continue
+            
+        # If switching threads, continue the loop to show options again
+        if state.get("switch_thread", False):
+            continue
+            
+        # If we selected a thread to explore, simulate the thread exploration
+        if state["current_step"] == "thread_exploration":
+            thread_id = state["active_thread"]
+            thread_name = state["threads"][thread_id]["name"]
+            
+            print(f"\nNow exploring: {thread_name}")
+            print(f"This thread has its own separate conversation history.")
+            
+            # Simulate thread exploration
+            state = thread_exploration(state)
+            
+            # Display feedback
+            if state["feedback"]:
+                print(f"\n{state['feedback']}")
+                state["feedback"] = ""
+    
+    # End session and display summary
+    state = end_session(state)
+    final_message = state["messages"][-1].content
+    
+    print("\n===== IDEATION SESSION SUMMARY =====\n")
+    print(final_message)
+    
+    # Show thread-specific message counts
+    print("\nThread Activity Summary:")
+    for thread_id, thread in state["threads"].items():
+        # Count only non-system messages
+        message_count = sum(1 for msg in thread["messages"] if not isinstance(msg, SystemMessage))
+        print(f"- {thread['name']}: {message_count} messages")
     
     print("\n===== WORKFLOW COMPLETED =====\n")
     
@@ -385,27 +641,46 @@ workflow.add_node("request_input", request_input)
 workflow.add_node("generate_problem_statement", generate_problem_statement)
 workflow.add_node("generate_problem_statement_2", generate_problem_statement_2)
 workflow.add_node("request_choice", request_choice)
-workflow.add_node("confirm_problem_statement", confirm_problem_statement)
+workflow.add_node("present_exploration_options", present_exploration_options)
+workflow.add_node("process_thread_choice", lambda state: process_thread_choice_multi(state, state["context"].get("thread_choice", "")))
+workflow.add_node("thread_exploration", thread_exploration)
+workflow.add_node("end_session", end_session)
 
 # Add edges with conditional logic for regeneration
 workflow.add_edge("request_input", "generate_problem_statement")
 workflow.add_edge("generate_problem_statement", "generate_problem_statement_2")
 workflow.add_edge("generate_problem_statement_2", "request_choice")
 
-# Add conditional edges for regeneration
+# Add conditional edges for problem statement workflow
 workflow.add_conditional_edges(
     "request_choice",
     lambda state: {
         "generate_problem_statement": state["regenerate_problem_statement_1"],
         "generate_problem_statement_2": state["regenerate_problem_statement_2"],
-        "confirm_problem_statement": not (state["regenerate_problem_statement_1"] or state["regenerate_problem_statement_2"])
+        "present_exploration_options": not (state["regenerate_problem_statement_1"] or state["regenerate_problem_statement_2"])
     }
 )
+
+# Add conditional edges for exploration options workflow
+workflow.add_edge("present_exploration_options", "process_thread_choice")
+
+# Add conditional edges for thread exploration and switching
+workflow.add_conditional_edges(
+    "process_thread_choice",
+    lambda state: {
+        "present_exploration_options": state.get("switch_thread", False),  # Switch to another thread
+        "thread_exploration": not state.get("switch_thread", False) and state["current_step"] != "end_session",  # Explore the selected thread
+        "end_session": state["current_step"] == "end_session"  # End the session
+    }
+)
+
+# Add edge from thread exploration back to thread selection
+workflow.add_edge("thread_exploration", "present_exploration_options")
 
 # Set entry point
 workflow.set_entry_point("request_input")
 
-# Compile the graph
+# Compile the graph (only once)
 app = workflow.compile()
 
 # Example usage function
@@ -416,42 +691,25 @@ def start_ideation_session() -> IdeationState:
         "feedback": "",
         "context": {},
         "problem_statement": "",
-        "problem_statement_2": "",  # Renamed from refined_problem_statement
+        "problem_statement_2": "",
         "final_problem_statement": "",
         "waiting_for_input": False,
         "awaiting_choice": False,
         "input_instructions": {},
-        "regenerate_problem_statement_1": False,  # Flag for regenerating statement 1
-        "regenerate_problem_statement_2": False   # Flag for regenerating statement 2
+        "regenerate_problem_statement_1": False,
+        "regenerate_problem_statement_2": False,
+        # New fields for exploration options
+        "threads": {},
+        "active_thread": None,
+        "awaiting_thread_choice": False, 
+        "mindmap": {},
+        "current_step": "initial_input"
     }
     
     # Add the system message to start fresh
     initial_state["messages"].append(SystemMessage(content=SYSTEM_TEMPLATE))
     
     return app.invoke(initial_state)
-
-def process_human_input(state: IdeationState, target_audience: str, problem: str) -> IdeationState:
-    """Process human input and generate problem statement."""
-    # Update context with human input
-    state["context"]["target_audience"] = target_audience
-    state["context"]["problem"] = problem
-    
-    # Add human input to messages
-    state["messages"].append(HumanMessage(content=f"Target audience: {target_audience}\nProblem: {problem}"))
-    
-    # Set waiting for input to false
-    state["waiting_for_input"] = False
-    
-    # Continue with the workflow from the current state
-    return app.invoke(state)
-
-def process_choice(state: IdeationState, choice: str) -> IdeationState:
-    """Process user's choice and continue the workflow."""
-    # Process the choice first
-    updated_state = process_user_choice(state, choice)
-    
-    # Continue with the workflow from the updated state
-    return app.invoke(updated_state)
 
 # If this file is run directly, execute the CLI workflow
 if __name__ == "__main__":
