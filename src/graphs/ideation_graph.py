@@ -95,39 +95,120 @@ PROBLEM_REFINEMENT_PROMPT = ChatPromptTemplate.from_messages([
 EMOTIONAL_ROOT_CAUSES_PROMPT = ChatPromptTemplate.from_messages([
     SystemMessage(content=SYSTEM_TEMPLATE),
     MessagesPlaceholder(variable_name="thread_messages"),
-    ("human", """Let's explore the emotional root causes of our problem statement:
+    ("human", """Please follow these steps to explore the emotional root causes behind {problem_statement}. Return only valid JSON in the exact structure specified below. Use concise phrasing (one or two sentences per field). 
+a. Emotional Seeds
+1. Task: Identify 3 core emotional root causes leading to the problem. What feelings (e.g., anxiety, longing, excitement) do people experience? Why do these emotions arise?
+2. Add-on: For each root cause, suggest one product direction that addresses or harnesses the emotion to improve the user experience.
+3. Tip: Seek genuinely empathetic insights. Consider social context, personal identity, and psychological triggers. Avoid generic or superficial explanations.
 
-{problem_statement}
+b. Habit & Heuristic Alignment
+1. Task: List 2 key human habits or heuristics relevant to the domain (e.g., preference for consistency, aversion to steep learning curves, love for quick feedback).
+2. Add-on: Brainstorm 1 direction that cleverly leverages or strengthens these habits.
+3. Tip: Think beyond the obvious. Explore how established routines, comfort zones, or mental shortcuts can be nudged in creative ways to improve engagement and satisfaction.
 
-[YOUR EMOTIONAL ROOT CAUSES PROMPT WILL GO HERE]
+c. Delightful Subversion
+1. Task: Identify 2 commonly negative or taboo perceptions/frustrations in this context.
+2. Add-on: Suggest how each could be flipped into something playful, intriguing, or surprisingly positive. Keep suggestions concise and open-ended.
+3. Tip: Push your creativity here! Consider surprise-and-delight mechanics, or turning negative emotions into rewards that reshape the user’s emotional journey.
 
-Generate 4-5 distinct branches that explore the underlying emotional needs, fears, or motivations related to this problem.""")
+Please follow this example of valid output:
+{
+  "emotionalSeeds": [
+    {
+      "heading": "Fear of letting others down",
+      "explanation": "Social and professional pressures can make people fear judgment from peers.",
+      "productDirection": "Use progress-sharing with supportive feedback loops instead of performance scores."
+    },
+  ],
+  "habitHeuristicAlignment": [
+    {
+      "heading": "Preference for social proof",
+      "explanation": "People tend to feel safer engaging when they see others like them participating.",
+      "productDirection": "Showcase student testimonials and photos of real cultural meetups to spark FOMO-driven curiosity."
+    },
+  ],
+  "delightfulSubversion": [
+    {
+      "heading": "Fear of making social mistakes",
+      "explanation": "Missteps in unfamiliar social norms can cause embarrassment or withdrawal.",
+      "productDirection": "Gamify social learning with humorous 'oops cards' that turn faux pas into laughable, teachable moments."
+    },
+  ],
+}""")
 ])
 
 # Template for "Unconventional Associations" exploration - placeholder for future implementation
 UNCONVENTIONAL_ASSOCIATIONS_PROMPT = ChatPromptTemplate.from_messages([
     SystemMessage(content=SYSTEM_TEMPLATE),
     MessagesPlaceholder(variable_name="thread_messages"),
-    ("human", """Let's explore unconventional associations related to our problem statement:
+    ("human", """Please follow these steps to explore the unconventional associations behind {problem_statement}. Please return only valid JSON in the exact structure specified below. Use concise phrasing (one or two sentences per field). 
 
-{problem_statement}
-
-[YOUR UNCONVENTIONAL ASSOCIATIONS PROMPT WILL GO HERE]
-
-Generate 4-5 distinct branches that connect this problem to unexpected domains, metaphors, or analogies.""")
+a. Attribute-Based Bridging
+Identify Attributes: Choose 3 defining attributes or characteristics of the problem concept (e.g., “it requires active maintenance,” “it thrives on collaboration,” or “it’s quick to appear but slow to sustain”).
+Cross-Domain Link: For each attribute, select one concept from a completely different field—technology, biology, art, history, sports, etc.—that also exhibits or relies on this same attribute.
+Insight & Product Direction: Explain how the unexpected link can spark new understanding or design ideas for the problem. Propose one product direction based on this analogy.
+     
+b. Broader Domains
+Explore from 2 different perspectives (eg. psychologist, historian, poet, child, philosopher). Feel free to adapt or replace these perspectives to suit the context. Under each perspective, summarize their core concepts as headings, and then describe how each uniquely interprets the problem.
+For each perspective, propose one idea or feature that draws inspiration from that viewpoint.
+     
+c. Metaphorical Links
+Present 2 conceptual or symbolic metaphors that could reframe the problem on psychological, spiritual, emotional, or other layers.
+Summarize the metaphor and provide one feature or design suggestion that arises from it.
+Please follow this example of valid output:
+{
+  "attributeBasedBridging": [
+    {
+      "heading": "Maintains Momentum (Sailing a Boat)",
+      "explanation": "Both focus and sailing require active navigation of changing conditions to stay on course.",
+      "productDirection": "Implement a 'drift alert' that nudges users when they stray from tasks, suggesting immediate refocus strategies."
+    },
+   ],
+"broaderDomains": [
+    {
+      "heading": "Cognitive load affecting concentration",
+      "explanation": "Psychologists explore cognitive load and how stress levels affect sustained concentration over time.",
+      "productDirection": "Include periodic check-ins for emotional wellbeing, offering calming exercises before focus-intensive tasks."
+    },
+  ],
+"metaphoricalLinks": [
+    {
+      "heading": "Focus as a Muscle",
+      "explanation": "It strengthens with repetition but requires rest and recovery to grow effectively.",
+      "productDirection": "Provide a 'cooldown timer' suggesting short breaks after intense work sessions to prevent fatigue."
+    },
+  ],
+ }
+""")
 ])
 
 # Template for "Imaginary Customers' Feedback" exploration - placeholder for future implementation
 IMAGINARY_FEEDBACK_PROMPT = ChatPromptTemplate.from_messages([
     SystemMessage(content=SYSTEM_TEMPLATE),
     MessagesPlaceholder(variable_name="thread_messages"),
-    ("human", """Let's imagine potential customer feedback for solutions to our problem statement:
+    ("human", """Please follow these steps to explore the unconventional associations behind {problem_statement}. Please return only valid JSON in the exact structure specified below. Use concise phrasing (one or two sentences per field).
+a. Create 4 Imaginary Target Users & Their Feedback
+Invent Personas: Come up with 4 distinct user profiles, each having a short description (e.g., name, age, occupation). Making sure they are differentiated enough.
+Background: Write one sentence summarizing the persona’s daily life, habits, and tech savviness.
+Feedback: List one struggle, pain point, or initial thought the persona might have about the problem as the heading. Ensure each pain point reflects a distinct perspective—mental, physical, emotional, etc.—and is not overlapping. Then, explain this pain point in a single concise sentence.
 
-{problem_statement}
+b. Respond with Potential Product Directions
+Link to Feedback: For each feedback item, propose a concise product direction that addresses or alleviates the user’s struggle.
+Practical Innovations: Focus on new features, design improvements, or creative innovations that respond to the user’s specific needs or pain points.
 
-[YOUR IMAGINARY CUSTOMERS' FEEDBACK PROMPT WILL GO HERE]
-
-Generate 4-5 distinct branches that represent different feedback perspectives or reactions to potential solutions.""")
+Please follow this example of valid output:
+[
+  {
+    "heading": "Notifications are very distracting.",
+    "userProfile": "Emma, 26, Remote Designer. Works from coffee shops, juggling multiple freelance clients and productivity tools.",
+    "feedback": [
+      {
+        "explanation": "I can get distracted by notifications from different platforms fairly easy",
+        "productDirection": "Implement an automatic 'focus mode' that silences unrelated notifications during task time."
+      },
+    ]
+  },
+ ]""")
 ])
 
 def request_input(state: IdeationState) -> IdeationState:
