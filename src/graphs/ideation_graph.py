@@ -3,7 +3,7 @@ from langgraph.graph import Graph, StateGraph
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
-import os
+import os 
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -112,29 +112,29 @@ c. Delightful Subversion
 3. Tip: Push your creativity here! Consider surprise-and-delight mechanics, or turning negative emotions into rewards that reshape the user’s emotional journey.
 
 Please follow this example of valid output:
-{
+{{
   "emotionalSeeds": [
-    {
+    {{
       "heading": "Fear of letting others down",
       "explanation": "Social and professional pressures can make people fear judgment from peers.",
       "productDirection": "Use progress-sharing with supportive feedback loops instead of performance scores."
-    },
+    }}
   ],
   "habitHeuristicAlignment": [
-    {
+    {{
       "heading": "Preference for social proof",
       "explanation": "People tend to feel safer engaging when they see others like them participating.",
       "productDirection": "Showcase student testimonials and photos of real cultural meetups to spark FOMO-driven curiosity."
-    },
+    }}
   ],
   "delightfulSubversion": [
-    {
+    {{
       "heading": "Fear of making social mistakes",
       "explanation": "Missteps in unfamiliar social norms can cause embarrassment or withdrawal.",
       "productDirection": "Gamify social learning with humorous 'oops cards' that turn faux pas into laughable, teachable moments."
-    },
-  ],
-}""")
+    }}
+  ]
+}}""")
 ])
 
 # Template for "Unconventional Associations" exploration - placeholder for future implementation
@@ -156,30 +156,29 @@ c. Metaphorical Links
 Present 2 conceptual or symbolic metaphors that could reframe the problem on psychological, spiritual, emotional, or other layers.
 Summarize the metaphor and provide one feature or design suggestion that arises from it.
 Please follow this example of valid output:
-{
+{{
   "attributeBasedBridging": [
-    {
+    {{
       "heading": "Maintains Momentum (Sailing a Boat)",
       "explanation": "Both focus and sailing require active navigation of changing conditions to stay on course.",
       "productDirection": "Implement a 'drift alert' that nudges users when they stray from tasks, suggesting immediate refocus strategies."
-    },
-   ],
-"broaderDomains": [
-    {
+    }}
+  ],
+  "broaderDomains": [
+    {{
       "heading": "Cognitive load affecting concentration",
       "explanation": "Psychologists explore cognitive load and how stress levels affect sustained concentration over time.",
       "productDirection": "Include periodic check-ins for emotional wellbeing, offering calming exercises before focus-intensive tasks."
-    },
+    }}
   ],
-"metaphoricalLinks": [
-    {
+  "metaphoricalLinks": [
+    {{
       "heading": "Focus as a Muscle",
       "explanation": "It strengthens with repetition but requires rest and recovery to grow effectively.",
       "productDirection": "Provide a 'cooldown timer' suggesting short breaks after intense work sessions to prevent fatigue."
-    },
-  ],
- }
-""")
+    }}
+  ]
+}}""")
 ])
 
 # Template for "Imaginary Customers' Feedback" exploration - placeholder for future implementation
@@ -198,16 +197,16 @@ Practical Innovations: Focus on new features, design improvements, or creative i
 
 Please follow this example of valid output:
 [
-  {
+  {{
     "heading": "Notifications are very distracting.",
     "userProfile": "Emma, 26, Remote Designer. Works from coffee shops, juggling multiple freelance clients and productivity tools.",
     "feedback": [
-      {
+      {{
         "explanation": "I can get distracted by notifications from different platforms fairly easy",
         "productDirection": "Implement an automatic 'focus mode' that silences unrelated notifications during task time."
-      },
+      }}
     ]
-  },
+  }}
  ]""")
 ])
 
@@ -500,8 +499,7 @@ def process_thread_choice_multi(state: IdeationState, choice: str) -> IdeationSt
     return state
 
 def thread_exploration(state: IdeationState) -> IdeationState:
-    """Handle exploration within a specific thread."""
-    # This is a placeholder for actual thread exploration logic
+    """Handle exploration within a specific thread using the appropriate prompt template."""
     thread_id = state["active_thread"]
     if not thread_id:
         state["feedback"] = "No active thread selected."
@@ -509,17 +507,84 @@ def thread_exploration(state: IdeationState) -> IdeationState:
     
     thread_name = state["threads"][thread_id]["name"]
     
-    # Here you would normally get an LLM response based on the thread type
-    # For now, just adding a placeholder response
-    response = f"This is where the {thread_name} exploration would happen, using a specialized prompt for this approach."
+    # Select the appropriate prompt template based on the thread
+    prompt_template = None
+    if thread_id == "thread_1":  # Emotional Root Causes
+        prompt_template = EMOTIONAL_ROOT_CAUSES_PROMPT
+    elif thread_id == "thread_2":  # Unconventional Associations
+        prompt_template = UNCONVENTIONAL_ASSOCIATIONS_PROMPT
+    elif thread_id == "thread_3":  # Imaginary Customers' Feedback
+        prompt_template = IMAGINARY_FEEDBACK_PROMPT
+    else:
+        state["feedback"] = f"Unknown thread type: {thread_name}"
+        return state
     
-    # Add the response to the thread-specific messages
-    state["threads"][thread_id]["messages"].append(AIMessage(content=response))
-    
-    # Add feedback for the user
-    state["feedback"] = f"Explored the {thread_name} approach."
-    
-    return state
+    try:
+        # Get the messages from the thread
+        thread_messages = state["threads"][thread_id]["messages"]
+        
+        # Format the prompt with the problem statement and thread-specific messages
+        prompt = prompt_template.format_messages(
+            problem_statement=state["final_problem_statement"],
+            thread_messages=thread_messages
+        )
+        
+        # Invoke the LLM
+        response = llm.invoke(prompt)
+        response_content = response.content.strip()
+        
+        # DEBUG: Print the raw response for debugging (you can remove this later)
+        # print("\n----- RAW LLM RESPONSE -----")
+        # print(response_content)
+        # print("----------------------------\n")
+        
+        # Add the LLM response to the thread messages
+        state["threads"][thread_id]["messages"].append(AIMessage(content=response_content))
+        
+        # Add a notification to the main message history
+        notification = f"Explored '{state['final_problem_statement']}' through the {thread_name} approach."
+        state["messages"].append(AIMessage(content=notification))
+        
+        # Try to parse JSON from the response
+        try:
+            import json
+            import re
+            
+            # First try to parse the whole response as JSON
+            try:
+                json_data = json.loads(response_content)
+            except json.JSONDecodeError:
+                # If that fails, try to extract JSON using regex
+                json_pattern = re.search(r'(\{.*\}|\[.*\])', response_content, re.DOTALL)
+                if json_pattern:
+                    potential_json = json_pattern.group(0)
+                    json_data = json.loads(potential_json)
+                else:
+                    raise Exception("No valid JSON found in the response")
+            
+            # Store the parsed JSON in the thread
+            state["threads"][thread_id]["exploration_data"] = json_data
+            
+            # Find the thread node in the mindmap and add the data
+            thread_node = next((node for node in state["mindmap"]["children"] if node["id"] == thread_id), None)
+            if thread_node:
+                thread_node["exploration_data"] = json_data
+            
+            state["feedback"] = f"Successfully explored the {thread_name} approach and captured structured data."
+            
+        except Exception as json_error:
+            # JSON parsing failed, but the response is still saved
+            print(f"Note: Could not parse JSON from response: {str(json_error)}")
+            state["feedback"] = f"Explored the {thread_name} approach, but couldn't extract structured data."
+        
+        return state
+        
+    except Exception as e:
+        # Handle any other errors that might occur
+        import traceback
+        print(traceback.format_exc())
+        state["feedback"] = f"Error during {thread_name} exploration: {str(e)}"
+        return state
 
 def end_session(state: IdeationState) -> IdeationState:
     """End the ideation session."""
@@ -690,12 +755,25 @@ def run_cli_workflow():
             
             # Simulate thread exploration
             state = thread_exploration(state)
+
+            # Display exploration results in a user-friendly way
+            thread_id = state["active_thread"]
+            thread_data = state["threads"][thread_id].get("exploration_data")
+
+            if thread_data:
+                import json
+                print("\n===== EXPLORATION RESULTS =====")
+                print(json.dumps(thread_data, indent=2))
+                print("===============================\n")
+            else:
+                print("\nExploration complete. Raw response saved to thread history.")
             
             # Display feedback
             if state["feedback"]:
                 print(f"\n{state['feedback']}")
                 state["feedback"] = ""
     
+
     # End session and display summary
     state = end_session(state)
     final_message = state["messages"][-1].content
