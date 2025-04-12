@@ -16,7 +16,8 @@ class IdeationState(TypedDict):
     feedback: str
     context: Dict[str, str]
     problem_statement: str
-    problem_statement_2: str  # Renamed from refined_problem_statement to problem_statement_2
+    problem_statement_2: str  # Refined_problem_statement
+    explanation: str  # Explanation of how the assumption is flipped
     final_problem_statement: str  # Track the final selected problem statement
     waiting_for_input: bool
     awaiting_choice: bool  # Track if we're waiting for user to choose between statements
@@ -85,20 +86,30 @@ PROBLEM_REFINEMENT_PROMPT = ChatPromptTemplate.from_messages([
    - Write down the original statement.
 
 2. Extract the Preferable Outcome
-   - Ask yourself: "After this problem is solved, what do we want to see happening? What's the ideal situation or behavior?"
+   - Ask yourself: "After this problem is solved, what do we want to see happening? Why do we need to solve this problem in the first place?"
    - Write this down as your `preferable_outcome`.
 
-3. Brainstorm an Alternate Way to Achieve the Same Outcome
-   - Think of another method or approach that would also fulfill the `preferable_outcome`.
+3. Extract the core assumption or idea in the original statement
+	 - Ask yourself: "What is the indispensible part of this problem statement? What is the most conventional way to solve this problem?"
+	 - Write this down as your 'assumption'.
 
-4. Create a Second Problem Statement, and form `problem_statement_2`
+4. Brainstorm an Alternate Way without following the core assumption to Achieve the Same Outcome
+   - Disregard the 'assumption', or completely flip it, and think of another perspective that can still achieve the `preferable_outcome`.
+   - Think outside the box—be wild and bold.
+   - "Gamification" is not the solution to everything. Consider other possibilities first.
+
+5. Create a Second Problem Statement, and form `problem_statement_2`
    - Using the alternate approach, form another "How might we…" statement:
      "How might we + [alternate method] + [preferable_outcome]?"
 
-5. **Output Requirement:**
-   - Output only the `problem_statement_2` (the newly formed "How might we…" statement), as a single sentence.
+6. Output Requirement:
+   - Output only the `problem_statement_2` (the newly formed "How might we…" statement), and a short explanation of how the assumption is flipped, each as a single sentence.
    - Do not include any explanation or additional text.
-   - No longer than 20 words.""")
+   - Each should beo longer than 20 words.
+   - Output format:
+     "problem_statement_2": "How might we…",
+     "explanation": "How the assumption is flipped"
+   """)
 ])
 
 # Template for "Emotional Root Causes" exploration - placeholder for future implementation
@@ -159,12 +170,12 @@ Cross-Domain Link: For each attribute, select one concept from a completely diff
 Insight & Product Direction: Explain how the unexpected link can spark new understanding or design ideas for the problem. Propose one product direction based on this analogy.
      
 b. Broader Domains
-Explore from 2 different perspectives (eg. psychologist, historian, poet, child, philosopher). Feel free to adapt or replace these perspectives to suit the context. Under each perspective, summarize their core concepts as headings, and then describe how each uniquely interprets the problem.
-For each perspective, propose one idea or feature that draws inspiration from that viewpoint.
+Explore the problem from 2 different perspectives (eg. psychologist, historian, poet, child, philosopher). Feel free to adapt or replace these perspectives to suit the context. Summarize the main content into a phrase as 'heading' (DO NOT use ...'s Perspective as the heading, be more specific about content), and then describe how each uniquely interprets the problem as 'explanation'.
+For each perspective, propose one idea or feature that draws inspiration from that viewpoint as 'productDirection'.
      
 c. Metaphorical Links
 Present 2 conceptual or symbolic metaphors that could reframe the problem on psychological, spiritual, emotional, or other layers.
-Summarize the metaphor and provide one feature or design suggestion that arises from it.
+Summarize the metaphor and provide one feature or design suggestion that arises from it as 'productDirection'.
 Please follow this example of valid output:
 {{
   "attributeBasedBridging": [
@@ -310,9 +321,10 @@ def generate_problem_statement(state: IdeationState) -> IdeationState:
         return state
 
 def generate_problem_statement_2(state: IdeationState) -> IdeationState:
-    """Generate an alternative problem statement (problem_statement_2)."""
+    """Generate an alternative problem statement (problem_statement_2) with explanation of how the assumption is flipped."""
     if not state.get("problem_statement"):
         state["problem_statement_2"] = "Error: No problem statement to work with."
+        state["explanation"] = ""
         return state
 
     try:
@@ -323,26 +335,95 @@ def generate_problem_statement_2(state: IdeationState) -> IdeationState:
         
         # Generate response
         response = llm.invoke(prompt)
-        problem_statement_2 = response.content.strip()
+        response_content = response.content.strip()
         
-        # Post-process to extract just the "How might we" statement if there's extra content
-        if len(problem_statement_2.split('\n')) > 1 or len(problem_statement_2.split('.')) > 1:
+        # Extract problem statement and explanation
+        problem_statement_2 = ""
+        explanation = ""
+        
+        # Try to parse JSON-like format first
+        try:
+            import json
             import re
-            hmw_statements = re.findall(r"How might we[^.?!]*[.?!]", problem_statement_2)
-            if hmw_statements:
-                problem_statement_2 = hmw_statements[-1].strip()  # Take the last one as it's likely the final statement
+            
+            # Check if the response follows the requested format structure
+            # Looking for "problem_statement_2": "How might we..." and "explanation": "How the assumption..."
+            ps2_match = re.search(r'"problem_statement_2"\s*:\s*"(.*?)"', response_content, re.DOTALL)
+            exp_match = re.search(r'"explanation"\s*:\s*"(.*?)"', response_content, re.DOTALL)
+            
+            if ps2_match and exp_match:
+                problem_statement_2 = ps2_match.group(1).strip()
+                explanation = exp_match.group(1).strip()
+            else:
+                # Alternative pattern: look for key-value pairs without strict JSON syntax
+                ps2_match = re.search(r'problem_statement_2[:\s]+(.*?)(?:,|\n|$)', response_content, re.DOTALL)
+                exp_match = re.search(r'explanation[:\s]+(.*?)(?:,|\n|$)', response_content, re.DOTALL)
+                
+                if ps2_match:
+                    problem_statement_2 = ps2_match.group(1).strip().strip('"\'')
+                if exp_match:
+                    explanation = exp_match.group(1).strip().strip('"\'')
+            
+            # If still not found, try to parse as complete JSON object
+            if not problem_statement_2 or not explanation:
+                # Try to find a JSON object in the response
+                json_pattern = re.search(r'({.*})', response_content, re.DOTALL)
+                if json_pattern:
+                    try:
+                        json_str = json_pattern.group(1)
+                        # Fix common issues in the JSON string
+                        json_str = json_str.replace('problem_statement_2:', '"problem_statement_2":')
+                        json_str = json_str.replace('explanation:', '"explanation":')
+                        json_str = json_str.replace("'", '"')
+                        
+                        # Parse the JSON
+                        json_data = json.loads(json_str)
+                        
+                        if "problem_statement_2" in json_data:
+                            problem_statement_2 = json_data["problem_statement_2"]
+                        if "explanation" in json_data:
+                            explanation = json_data["explanation"]
+                    except json.JSONDecodeError:
+                        pass  # Continue to other methods if JSON parsing fails
+            
+            # If we still don't have a problem statement, look for "How might we" statements
+            if not problem_statement_2:
+                hmw_statements = re.findall(r"How might we[^.?!]*[.?!]", response_content)
+                if hmw_statements:
+                    problem_statement_2 = hmw_statements[-1].strip()
+            
+            # If we still don't have an explanation, try to find anything after "explanation" keyword
+            if not explanation:
+                ex_pattern = re.search(r'[Ee]xplanation:?\s+(.*?)(?:\n\n|\Z)', response_content, re.DOTALL)
+                if ex_pattern:
+                    explanation = ex_pattern.group(1).strip()
         
-        # Store the second problem statement
+        except Exception as e:
+            print(f"Error parsing response in problem statement 2: {str(e)}")
+            # Fallback to simpler approach if parsing fails
+            hmw_statements = re.findall(r"How might we[^.?!]*[.?!]", response_content)
+            if hmw_statements:
+                problem_statement_2 = hmw_statements[-1].strip()
+        
+        # Store the second problem statement and explanation
         state["problem_statement_2"] = problem_statement_2
+        state["explanation"] = explanation
         
         # Only append to messages if it's not a regeneration or if messages doesn't already contain Statement 2
         if not state["regenerate_problem_statement_2"] or not any(msg.content.startswith("Statement 2:") for msg in state["messages"] if isinstance(msg, AIMessage)):
-            state["messages"].append(AIMessage(content=f"Statement 2: {problem_statement_2}"))
+            message_content = f"Statement 2: {problem_statement_2}"
+            if explanation:
+                message_content += f"\nExplanation: {explanation}"
+            state["messages"].append(AIMessage(content=message_content))
         else:
             # Replace the existing Statement 2 message
+            message_content = f"Statement 2: {problem_statement_2}"
+            if explanation:
+                message_content += f"\nExplanation: {explanation}"
+            
             for i, msg in enumerate(state["messages"]):
                 if isinstance(msg, AIMessage) and msg.content.startswith("Statement 2:"):
-                    state["messages"][i] = AIMessage(content=f"Statement 2: {problem_statement_2}")
+                    state["messages"][i] = AIMessage(content=message_content)
                     break
         
         # Reset regeneration flag
@@ -358,13 +439,22 @@ def generate_problem_statement_2(state: IdeationState) -> IdeationState:
         return state
 
     except Exception as e:
+        import traceback
+        print(f"Error in generate_problem_statement_2: {str(e)}")
+        print(traceback.format_exc())
         state["problem_statement_2"] = f"Error generating problem statement 2: {str(e)}"
+        state["explanation"] = ""
         return state
 
 def request_choice(state: IdeationState) -> IdeationState:
     """Request user to choose between the two problem statements or regenerate either statement."""
     # Simply prepare the state for user choice without calling the LLM
     state["awaiting_choice"] = True
+    # Include the explanation in the display if available
+    statement_2_display = state["problem_statement_2"]
+    if state.get("explanation"):
+        statement_2_display += f"\nExplanation: {state['explanation']}"
+
     state["input_instructions"] = {
         "choice": "Select between 'statement 1', 'statement 2', 'r1' to regenerate statement 1, or 'r2' to regenerate statement 2",
         "options": {
@@ -377,6 +467,21 @@ def request_choice(state: IdeationState) -> IdeationState:
     state["current_step"] = "await_choice"
     
     return state
+
+def display_problem_statement_choices(state):
+    """Helper function to display problem statement choices with explanations."""
+    print("Please choose which problem statement to use:")
+    print(f"1. Statement 1: {state['problem_statement']}")
+    
+    # Display statement 2 with explanation if available
+    statement_2_text = f"2. Statement 2: {state['problem_statement_2']}"
+    if state.get("explanation"):
+        statement_2_text += f"\n   Explanation: {state['explanation']}"
+    print(statement_2_text)
+    
+    print("r1. Regenerate Statement 1")
+    print("r2. Regenerate Statement 2")
+    
 
 def process_user_choice(state: IdeationState, choice: str) -> IdeationState:
     """Process user's choice between the two problem statements or request for regeneration."""
@@ -1257,11 +1362,7 @@ def run_cli_workflow():
             state["regenerate_problem_statement_2"] = False
         
         # Display choices to user
-        print("Please choose which problem statement to use:")
-        print(f"1. Statement 1: {state['problem_statement']}")
-        print(f"2. Statement 2: {state['problem_statement_2']}")
-        print("r1. Regenerate Statement 1")
-        print("r2. Regenerate Statement 2")
+        display_problem_statement_choices(state)
         
         choice = input("Enter '1', '2', 'r1', or 'r2': ").lower()
         
@@ -1456,6 +1557,7 @@ def start_ideation_session() -> IdeationState:
         "context": {},
         "problem_statement": "",
         "problem_statement_2": "",
+        "explanation": "",  # Initialize the new field
         "final_problem_statement": "",
         "waiting_for_input": False,
         "awaiting_choice": False,
