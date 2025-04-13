@@ -44,6 +44,10 @@ class IdeationState(TypedDict):
     awaiting_idea_input: bool  # Track if we're waiting for user idea input
     idea_input_context: Dict  # Context for user idea input
 
+    # New fields for branch deletion
+    awaiting_deletion_confirmation: bool  # Track if we're waiting for deletion confirmation
+    deletion_context: Dict  # Context for branch deletion
+
 # Initialize the LLM
 llm = ChatOpenAI(
     model="gpt-3.5-turbo",
@@ -170,17 +174,13 @@ UNCONVENTIONAL_ASSOCIATIONS_PROMPT = ChatPromptTemplate.from_messages([
 
 a. Attribute-Based Bridging
 Identify Attributes: Choose 3 defining attributes or characteristics of the problem concept (e.g., "it requires active maintenance," "it thrives on collaboration," or "it's quick to appear but slow to sustain").
-Cross-Domain Link: For each attribute, select one concept from a completely different field—technology, biology, art, history, sports, etc.—that also exhibits or relies on this same attribute.
+Cross-Domain Link: For each attribute, select one concept from a completely different field—technology, biology, art, history, sports, etc.—that also exhibits or relies on this same attribute. Add the domain name in parenthesis in 'heading'. 
 Insight & Product Direction: Explain how the unexpected link can spark new understanding or design ideas for the problem. Propose one product direction based on this analogy.
      
 b. Broader Domains
-Explore the problem from 2 different perspectives (eg. psychologist, historian, poet, child, philosopher). Feel free to adapt or replace these perspectives to suit the context. Summarize the main content into a phrase as 'heading' (DO NOT use ...'s Perspective as the heading, be more specific about content), and then describe how each uniquely interprets the problem as 'explanation'.
+Explore the problem from 4 different perspectives from experts in different fields. How is their domain knowledge relevant to this topic? Summarize the connection between the problem statement and the domain as 'heading' (DO NOT include '...'s Perspective' in the heading, be more specific about content), and then describe how each uniquely interprets the problem as 'explanation'.
 For each perspective, propose one idea or feature that draws inspiration from that viewpoint as 'productDirection'.
      
-c. Metaphorical Links
-Present 2 conceptual or symbolic metaphors that could reframe the problem on psychological, spiritual, emotional, or other layers.
-Summarize the metaphor and provide one feature or design suggestion that arises from it as 'productDirection'.
-Please follow this example of valid output:
 {{
   "attributeBasedBridging": [
     {{
@@ -194,13 +194,6 @@ Please follow this example of valid output:
       "heading": "Cognitive load affecting concentration",
       "explanation": "Psychologists explore cognitive load and how stress levels affect sustained concentration over time.",
       "productDirection": "Include periodic check-ins for emotional wellbeing, offering calming exercises before focus-intensive tasks."
-    }}
-  ],
-  "metaphoricalLinks": [
-    {{
-      "heading": "Focus as a Muscle",
-      "explanation": "It strengthens with repetition but requires rest and recovery to grow effectively.",
-      "productDirection": "Provide a 'cooldown timer' suggesting short breaks after intense work sessions to prevent fatigue."
     }}
   ]
 }}""")
@@ -979,7 +972,7 @@ def generate_default_guidance(state: IdeationState, branch_id: str) -> str:
 
 
 def display_available_branches(state: IdeationState) -> None:
-    """Format and display available branches for selection."""
+    """Format and display available branches for selection with hierarchy."""
     # Check if there are any branches
     if not state["branches"]:
         print("No branches available yet. Please explore a thread first.")
@@ -1487,6 +1480,184 @@ def process_user_idea(state: IdeationState, user_idea: str) -> IdeationState:
         state["current_step"] = "present_exploration_options"
         return state
 
+def process_delete_request(state: IdeationState, input_text: str) -> IdeationState:
+    """Process user's request to delete a branch."""
+    # Extract branch ID from input (format: "delete bX" where X is the branch number)
+    branch_match = re.search(r'delete\s+b(\d+)', input_text.lower())
+    if not branch_match:
+        state["feedback"] = "Invalid format. Please use 'delete bX' where X is the branch number."
+        return state
+    
+    branch_num = branch_match.group(1)
+    branch_id = f"b{branch_num}"
+    
+    # Check if branch exists
+    if branch_id not in state["branches"]:
+        state["feedback"] = f"Branch {branch_id} does not exist."
+        return state
+    
+    # Get branch info for confirmation
+    branch = state["branches"][branch_id]
+    
+    # Count how many children will also be deleted
+    children_count = count_branch_children(state, branch_id)
+    
+    # Set up for confirmation
+    state["awaiting_deletion_confirmation"] = True
+    state["deletion_context"] = {
+        "branch_id": branch_id,
+        "branch_heading": branch["heading"],
+        "children_count": children_count
+    }
+    
+    # Update input instructions
+    confirmation_message = f"Are you sure you want to delete branch {branch_id}: \"{branch['heading']}\"?"
+    if children_count > 0:
+        confirmation_message += f" This will also delete {children_count} sub-branch{'es' if children_count != 1 else ''}."
+    
+    state["input_instructions"] = {
+        "deletion_confirmation": confirmation_message,
+        "options": {
+            "yes": "Yes, delete this branch",
+            "no": "No, keep this branch"
+        }
+    }
+    
+    state["current_step"] = "await_deletion_confirmation"
+    state["messages"].append(HumanMessage(content=f"I want to delete branch {branch_id}."))
+    
+    return state
+
+def count_branch_children(state: IdeationState, branch_id: str) -> int:
+    """Recursively count all children of a branch."""
+    branch = state["branches"].get(branch_id)
+    if not branch:
+        return 0
+        
+    total_children = len(branch["children"])
+    
+    # Count children of children recursively
+    for child_id in branch["children"]:
+        total_children += count_branch_children(state, child_id)
+    
+    return total_children
+
+def process_deletion_confirmation(state: IdeationState, confirmation: str) -> IdeationState:
+    """Process user's confirmation for branch deletion."""
+    if not state.get("awaiting_deletion_confirmation", False):
+        state["feedback"] = "No deletion in progress."
+        return state
+    
+    # Reset awaiting flag
+    state["awaiting_deletion_confirmation"] = False
+    
+    # Normalize confirmation input
+    confirmation = confirmation.lower().strip()
+    
+    if confirmation in ["yes", "y", "confirm", "delete"]:
+        # User confirmed deletion
+        branch_id = state["deletion_context"]["branch_id"]
+        branch_heading = state["deletion_context"]["branch_heading"]
+        
+        # Perform the deletion
+        delete_branch(state, branch_id)
+        
+        # Add message about deletion
+        state["messages"].append(AIMessage(content=f"Deleted branch {branch_id}: \"{branch_heading}\" and all its sub-branches."))
+        
+        state["feedback"] = f"Successfully deleted branch {branch_id} and all its sub-branches."
+    else:
+        # User cancelled deletion
+        branch_id = state["deletion_context"]["branch_id"]
+        state["messages"].append(AIMessage(content=f"Branch deletion cancelled. Branch {branch_id} was kept."))
+        
+        state["feedback"] = "Branch deletion cancelled."
+    
+    # Clear deletion context
+    state["deletion_context"] = {}
+    
+    # Return to main options
+    state["current_step"] = "present_exploration_options"
+    
+    return state
+
+def delete_branch(state: IdeationState, branch_id: str) -> None:
+    """Delete a branch and all its children recursively."""
+    # Get the branch
+    branch = state["branches"].get(branch_id)
+    if not branch:
+        return
+    
+    # Get the thread_id and parent_branch (if any)
+    thread_id = branch.get("thread_id")
+    parent_branch_id = branch.get("parent_branch")
+    
+    # First recursively delete all children
+    children_to_delete = branch["children"].copy()  # Make a copy to avoid modifying while iterating
+    for child_id in children_to_delete:
+        delete_branch(state, child_id)
+    
+    # Remove from parent's children list if it has a parent
+    if parent_branch_id and parent_branch_id in state["branches"]:
+        parent_branch = state["branches"][parent_branch_id]
+        if branch_id in parent_branch["children"]:
+            parent_branch["children"].remove(branch_id)
+    
+    # Remove from thread's branches
+    if thread_id and thread_id in state["threads"]:
+        thread = state["threads"][thread_id]
+        if branch_id in thread.get("branches", {}):
+            del thread["branches"][branch_id]
+    
+    # Remove from mindmap
+    remove_branch_from_mindmap(state, branch_id)
+    
+    # Remove from global branches registry
+    if branch_id in state["branches"]:
+        del state["branches"][branch_id]
+    
+    # If this was the active branch, reset it
+    if state["active_branch"] == branch_id:
+        state["active_branch"] = None
+
+def remove_branch_from_mindmap(state: IdeationState, branch_id: str) -> None:
+    """Remove a branch from the mindmap recursively."""
+    # Get the branch
+    branch = state["branches"].get(branch_id)
+    if not branch:
+        return
+    
+    # Get the thread_id and parent_branch (if any)
+    thread_id = branch.get("thread_id")
+    parent_branch_id = branch.get("parent_branch")
+    
+    if thread_id:
+        # Find the thread node in the mindmap
+        thread_node = next((node for node in state["mindmap"]["children"] if node["id"] == thread_id), None)
+        if thread_node:
+            if parent_branch_id:
+                # This is a sub-branch, find its parent in the mindmap
+                parent_node = find_branch_node_in_mindmap(thread_node, parent_branch_id)
+                if parent_node and "children" in parent_node:
+                    # Remove the branch from its parent's children
+                    parent_node["children"] = [child for child in parent_node["children"] if child["id"] != branch_id]
+            else:
+                # This is a top-level branch directly under the thread
+                thread_node["children"] = [child for child in thread_node["children"] if child["id"] != branch_id]
+
+def find_branch_node_in_mindmap(parent_node: dict, branch_id: str) -> dict:
+    """Find a branch node in the mindmap by its ID."""
+    # Check if this is the node we're looking for
+    if parent_node.get("id") == branch_id:
+        return parent_node
+    
+    # Check children recursively
+    for child in parent_node.get("children", []):
+        result = find_branch_node_in_mindmap(child, branch_id)
+        if result:
+            return result
+    
+    return None
 
 def end_session(state: IdeationState) -> IdeationState:
     """End the ideation session."""
@@ -1530,7 +1701,10 @@ def run_cli_workflow():
         "concept_expansion_context": {},
         # User idea fields
         "awaiting_idea_input": False,
-        "idea_input_context": {}
+        "idea_input_context": {},
+        # New fields for branch deletion
+        "awaiting_deletion_confirmation": False,
+        "deletion_context": {}
     }
     
     # Step 1: Request input (get instructions on what to collect)
@@ -1607,6 +1781,7 @@ def run_cli_workflow():
         print("1-3: Select a thread (exploration approach)")
         print("b#: Select a branch (e.g., b1, b2, b3)")
         print("add idea b#: Add your own idea to a branch (e.g., add idea b1)")
+        print("delete b#: Delete a branch and all its sub-branches (e.g., delete b1)")
         print("stop: End the ideation session")
         
         # Get user choice
@@ -1620,6 +1795,33 @@ def run_cli_workflow():
         
         # Set up context for processing
         state["context"]["thread_choice"] = user_choice
+
+        # Process deletion request
+        if "delete" in user_choice.lower():
+            # Process deletion request
+            state = process_delete_request(state, user_choice)
+            
+            # If awaiting confirmation
+            if state.get("awaiting_deletion_confirmation", False):
+                # Show confirmation prompt using input instructions
+                confirmation_message = state["input_instructions"]["deletion_confirmation"]
+                options = state["input_instructions"]["options"]
+                
+                print(f"\n{confirmation_message}")
+                for key, value in options.items():
+                    print(f"{key}: {value}")
+                    
+                confirmation = input("\nConfirm (yes/no): ")
+                
+                # Process confirmation
+                state = process_deletion_confirmation(state, confirmation)
+                
+                # Display feedback
+                if state["feedback"]:
+                    print(f"\n{state['feedback']}")
+                    state["feedback"] = ""
+                    
+            continue
         
         # Process add idea request
         if "add idea" in user_choice.lower():
@@ -1727,6 +1929,8 @@ workflow.add_node("expand_concept", expand_concept)
 workflow.add_node("end_session", end_session)
 workflow.add_node("process_add_idea_request", lambda state: process_add_idea_request(state, state["context"].get("thread_choice", "")))
 workflow.add_node("process_user_idea", lambda state: process_user_idea(state, state["context"].get("idea_input", "")))
+workflow.add_node("process_delete_request", lambda state: process_delete_request(state, state["context"].get("thread_choice", "")))
+workflow.add_node("process_deletion_confirmation", lambda state: process_deletion_confirmation(state, state["context"].get("deletion_confirmation", "")))
 
 # Add edges with conditional logic for regeneration
 workflow.add_edge("request_input", "generate_problem_statement")
@@ -1785,6 +1989,18 @@ workflow.add_edge("expand_concept", "present_exploration_options")
 # Add edge from process_user_idea back to present_exploration_options
 workflow.add_edge("process_user_idea", "present_exploration_options")
 
+# Add conditional edges for delete request
+workflow.add_conditional_edges(
+    "process_delete_request",
+    lambda state: {
+        "process_deletion_confirmation": state.get("awaiting_deletion_confirmation", False),
+        "present_exploration_options": not state.get("awaiting_deletion_confirmation", False)
+    }
+)
+
+# Add edge for deletion confirmation
+workflow.add_edge("process_deletion_confirmation", "present_exploration_options")
+
 # Set entry point
 workflow.set_entry_point("request_input")
 
@@ -1823,7 +2039,10 @@ def start_ideation_session() -> IdeationState:
         "switch_thread": False,  # Flag for switching between threads
         # New fields for user idea input
         "awaiting_idea_input": False,
-        "idea_input_context": {}
+        "idea_input_context": {},
+        # New fields for branch deletion
+        "awaiting_deletion_confirmation": False,
+        "deletion_context": {}
     }
     
     # Add the system message to start fresh
