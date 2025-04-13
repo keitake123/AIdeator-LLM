@@ -40,6 +40,10 @@ class IdeationState(TypedDict):
     awaiting_concept_input: bool  # Track if we're waiting for user input for concept expansion
     concept_expansion_context: Dict  # Context for concept expansion
 
+    # New fields for user idea input
+    awaiting_idea_input: bool  # Track if we're waiting for user idea input
+    idea_input_context: Dict  # Context for user idea input
+
 # Initialize the LLM
 llm = ChatOpenAI(
     model="gpt-3.5-turbo",
@@ -241,7 +245,7 @@ Here's the prompt: {user_guidance} Based on the prompt, please provide 3 potenti
 Please return only valid JSON without any extra text or explanation. Format your response as JSON with these sections:
 [
 {{
-  "heading": "Expanded concept name",
+  "heading": "Specific descriptive heading for this direction",
   "explanation": "Deeper analysis of the concept",
   "productDirection": "description of the product concept"
 }}""")
@@ -252,6 +256,26 @@ DEFAULT_GUIDANCE_PROMPT = ChatPromptTemplate.from_messages([
     SystemMessage(content=SYSTEM_TEMPLATE),
     ("human", """Please generate the most relevant and simplest one-sentence question to this concept: {concept_to_expand} that would help expand this single concept into more branches. The output should only include the question, no other text or explanation. Do not include "gamification" or anything related in your answer.
 Good example: What are some typical forms of Fear of Missing Out (FOMO)?""")
+])
+
+USER_IDEA_STRUCTURING_PROMPT = ChatPromptTemplate.from_messages([
+    SystemMessage(content=SYSTEM_TEMPLATE),
+    ("human", """Please structure this user idea into a JSON format with the following fields:
+1. "heading": A concise and faithful description of user input (5-7 words)
+2. "explanation": A brief explanation of this concept (1-2 sentences)
+3. "productDirection": A practical product direction for solving or leveraging this concept (1-2 sentences)
+
+The user's idea is related to this problem: {problem_statement}
+The parent branch is: {parent_heading}: {parent_content}
+
+User idea: {user_idea}
+
+Return ONLY valid JSON without any additional explanation. Example format:
+{{
+  "heading": "Concise and specific descriptive heading of the concept",
+  "explanation": "Brief explanation of what the idea entails.",
+  "productDirection": "Practical implementation direction for the product."
+}}""")
 ])
 
 def request_input(state: IdeationState) -> IdeationState:
@@ -1284,6 +1308,186 @@ def format_expansion_results(json_data: dict, branch_id: str, branch_heading: st
     
     return result
 
+# New function to handle user idea input request
+def process_add_idea_request(state: IdeationState, input_text: str) -> IdeationState:
+    """Process user's request to add an idea to a specific branch."""
+    # Extract branch ID from input (format: "add idea bX" where X is the branch number)
+    branch_match = re.search(r'add idea\s+b(\d+)', input_text.lower())
+    if not branch_match:
+        state["feedback"] = "Invalid format. Please use 'add idea bX' where X is the branch number."
+        return state
+    
+    branch_num = branch_match.group(1)
+    branch_id = f"b{branch_num}"
+    
+    # Check if branch exists
+    if branch_id not in state["branches"]:
+        state["feedback"] = f"Branch {branch_id} does not exist."
+        return state
+    
+    # Set up for idea input
+    state["awaiting_idea_input"] = True
+    state["idea_input_context"] = {
+        "branch_id": branch_id,
+        "parent_branch": state["branches"][branch_id]
+    }
+    
+    # Update input instructions
+    state["input_instructions"] = {
+        "idea_input": f"What idea would you like to add to branch {branch_id}: {state['branches'][branch_id]['heading']}?"
+    }
+    
+    state["current_step"] = "await_idea_input"
+    state["messages"].append(HumanMessage(content=f"I want to add my own idea to branch {branch_id}."))
+    
+    return state
+
+# New function to process the user's idea content
+def process_user_idea(state: IdeationState, user_idea: str) -> IdeationState:
+    """Process the user's idea and convert it to the structured format."""
+    # Get the context for the idea
+    context = state["idea_input_context"]
+    branch_id = context["branch_id"]
+    parent_branch = context["parent_branch"]
+    
+    # Add the user idea to messages
+    state["messages"].append(HumanMessage(content=f"My idea for {branch_id}: {user_idea}"))
+    
+    # Process the idea using the LLM to structure it
+    try:
+        # Prepare the prompt with the user's idea and context
+        prompt = USER_IDEA_STRUCTURING_PROMPT.format_messages(
+            user_idea=user_idea,
+            problem_statement=state["final_problem_statement"],
+            parent_heading=parent_branch["heading"],
+            parent_content=parent_branch["content"]
+        )
+        
+        # Invoke the LLM
+        response = llm.invoke(prompt)
+        response_content = response.content.strip()
+        
+        # Strip markdown code block formatting if present
+        response_content = strip_markdown_code_blocks(response_content)
+        
+        # Parse the JSON
+        try:
+            json_data = json.loads(response_content)
+            
+            # Create a new branch for the user's idea
+            sub_branch_id = f"b{state['branch_counter'] + 1}"
+            state['branch_counter'] += 1
+            
+            # Create the sub-branch
+            sub_branch = {
+                "id": sub_branch_id,
+                "thread_id": parent_branch["thread_id"],
+                "heading": json_data.get("heading", "User Idea"),
+                "content": f"{json_data.get('explanation', '')} Product Direction: {json_data.get('productDirection', '')}",
+                "source": "user_input",
+                "parent_branch": branch_id,
+                "children": [],
+                "expanded": False,
+                "expansion_data": None,
+                "user_created": True,  # Mark as user-created for reference
+                "raw_idea": user_idea  # Store the original user input
+            }
+            
+            # Add to global branches registry
+            state["branches"][sub_branch_id] = sub_branch
+            
+            # Add to parent branch's children list
+            parent_branch["children"].append(sub_branch_id)
+            
+            # Add to mindmap
+            thread_node = next((node for node in state["mindmap"]["children"] if node["id"] == parent_branch["thread_id"]), None)
+            if thread_node:
+                branch_node = next((node for node in thread_node["children"] if node["id"] == branch_id), None)
+                if branch_node:
+                    # Add sub-branch to branch node's children
+                    sub_branch_node = {
+                        "id": sub_branch_id,
+                        "name": sub_branch["heading"],
+                        "content": sub_branch["content"],
+                        "user_created": True,
+                        "children": []
+                    }
+                    branch_node["children"].append(sub_branch_node)
+            
+            # Format a success message
+            success_message = f"Added your idea as branch {sub_branch_id}: {sub_branch['heading']}\n"
+            success_message += f"Explanation: {json_data.get('explanation', '')}\n"
+            success_message += f"Product Direction: {json_data.get('productDirection', '')}"
+            
+            state["messages"].append(AIMessage(content=success_message))
+            state["feedback"] = f"Successfully added your idea as branch {sub_branch_id}."
+            
+        except Exception as json_error:
+            # JSON parsing failed, use a simpler approach
+            print(f"Error parsing JSON: {str(json_error)}")
+            
+            # Create a new branch with minimal structure
+            sub_branch_id = f"b{state['branch_counter'] + 1}"
+            state['branch_counter'] += 1
+            
+            # Create the sub-branch with just the user's raw idea
+            sub_branch = {
+                "id": sub_branch_id,
+                "thread_id": parent_branch["thread_id"],
+                "heading": "User Idea",
+                "content": user_idea,
+                "source": "user_input",
+                "parent_branch": branch_id,
+                "children": [],
+                "expanded": False,
+                "expansion_data": None,
+                "user_created": True,
+                "raw_idea": user_idea  # Store the original input for reference
+            }
+            
+            # Add to global branches registry
+            state["branches"][sub_branch_id] = sub_branch
+            
+            # Add to parent branch's children list
+            parent_branch["children"].append(sub_branch_id)
+            
+            # Add to mindmap
+            thread_node = next((node for node in state["mindmap"]["children"] if node["id"] == parent_branch["thread_id"]), None)
+            if thread_node:
+                branch_node = next((node for node in thread_node["children"] if node["id"] == branch_id), None)
+                if branch_node:
+                    sub_branch_node = {
+                        "id": sub_branch_id,
+                        "name": "User Idea",
+                        "content": user_idea,
+                        "user_created": True,
+                        "children": []
+                    }
+                    branch_node["children"].append(sub_branch_node)
+            
+            state["messages"].append(AIMessage(content=f"Added your idea as branch {sub_branch_id}."))
+            state["feedback"] = f"Added your idea as branch {sub_branch_id}, but couldn't structure it in the standard format."
+        
+        # Reset the awaiting flag and context
+        state["awaiting_idea_input"] = False
+        state["idea_input_context"] = {}
+        
+        # Return to main options
+        state["current_step"] = "present_exploration_options"
+        
+        return state
+        
+    except Exception as e:
+        # Handle any errors
+        import traceback
+        print(traceback.format_exc())
+        state["feedback"] = f"Error processing your idea: {str(e)}"
+        state["awaiting_idea_input"] = False
+        state["idea_input_context"] = {}
+        state["current_step"] = "present_exploration_options"
+        return state
+
+
 def end_session(state: IdeationState) -> IdeationState:
     """End the ideation session."""
     # Simply set the current step to indicate the session has ended
@@ -1323,7 +1527,10 @@ def run_cli_workflow():
         "active_branch": None,
         "awaiting_branch_choice": False,
         "awaiting_concept_input": False,
-        "concept_expansion_context": {}
+        "concept_expansion_context": {},
+        # User idea fields
+        "awaiting_idea_input": False,
+        "idea_input_context": {}
     }
     
     # Step 1: Request input (get instructions on what to collect)
@@ -1399,6 +1606,7 @@ def run_cli_workflow():
         print("\nChoose next action:")
         print("1-3: Select a thread (exploration approach)")
         print("b#: Select a branch (e.g., b1, b2, b3)")
+        print("add idea b#: Add your own idea to a branch (e.g., add idea b1)")
         print("stop: End the ideation session")
         
         # Get user choice
@@ -1413,8 +1621,29 @@ def run_cli_workflow():
         # Set up context for processing
         state["context"]["thread_choice"] = user_choice
         
-        # Process thread or branch choice
-        if user_choice.startswith('b'):
+        # Process add idea request
+        if "add idea" in user_choice.lower():
+            # Process add idea request
+            state = process_add_idea_request(state, user_choice)
+            
+            # If awaiting idea input
+            if state.get("awaiting_idea_input", False):
+                # Get user's idea
+                print(f"\n{state['input_instructions']['idea_input']}")
+                idea_input = input("\nYour idea: ")
+                
+                # Process user's idea
+                state = process_user_idea(state, idea_input)
+                
+                # Display feedback
+                if state["feedback"]:
+                    print(f"\n{state['feedback']}")
+                    state["feedback"] = ""
+                    
+            continue
+            
+        # Process branch selection
+        elif user_choice.startswith('b'):
             # Branch selection
             state = process_branch_selection(state, user_choice)
             
@@ -1496,6 +1725,8 @@ workflow.add_node("process_branch_selection", lambda state: process_branch_selec
 workflow.add_node("process_concept_input", lambda state: process_concept_input(state, state["context"].get("concept_input", "")))
 workflow.add_node("expand_concept", expand_concept)
 workflow.add_node("end_session", end_session)
+workflow.add_node("process_add_idea_request", lambda state: process_add_idea_request(state, state["context"].get("thread_choice", "")))
+workflow.add_node("process_user_idea", lambda state: process_user_idea(state, state["context"].get("idea_input", "")))
 
 # Add edges with conditional logic for regeneration
 workflow.add_edge("request_input", "generate_problem_statement")
@@ -1538,9 +1769,21 @@ workflow.add_conditional_edges(
     }
 )
 
+# Add conditional edges for add idea request
+workflow.add_conditional_edges(
+    "process_add_idea_request",
+    lambda state: {
+        "process_user_idea": state.get("awaiting_idea_input", False),
+        "present_exploration_options": not state.get("awaiting_idea_input", False)
+    }
+)
+
 # Add edges for concept expansion
 workflow.add_edge("process_concept_input", "expand_concept")
 workflow.add_edge("expand_concept", "present_exploration_options")
+
+# Add edge from process_user_idea back to present_exploration_options
+workflow.add_edge("process_user_idea", "present_exploration_options")
 
 # Set entry point
 workflow.set_entry_point("request_input")
@@ -1577,7 +1820,10 @@ def start_ideation_session() -> IdeationState:
         "awaiting_branch_choice": False,
         "awaiting_concept_input": False,
         "concept_expansion_context": {},
-        "switch_thread": False  # Flag for switching between threads
+        "switch_thread": False,  # Flag for switching between threads
+        # New fields for user idea input
+        "awaiting_idea_input": False,
+        "idea_input_context": {}
     }
     
     # Add the system message to start fresh
