@@ -1,0 +1,64 @@
+.mind-map {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+}
+
+.central-question {
+  position: absolute;
+  padding: 20px 40px;
+  background: white;
+  border: 2px solid #000;
+  border-radius: 8px;
+  max-width: 400px;
+  text-align: center;
+  z-index: 2;
+  font-size: 18px;
+  white-space: normal;
+}
+
+.concepts-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.concept {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 10px 20px;
+  border: 2px solid #000;
+  border-radius: 8px;
+  white-space: nowrap;
+  font-size: 16px;
+}
+
+.concept.inactive {
+  border-color: #ccc;
+  color: #999;
+}
+
+/* Position concepts */
+.concept-1 { top: 30%; right: 20%; }
+.concept-2 { top: 70%; right: 30%; }
+.concept-3 { top: 20%; left: 30%; }
+.concept-4 { top: 50%; left: 20%; }
+.concept-5 { top: 80%; left: 25%; }
+
+/* Lines connecting concepts */
+.concept-line {
+  position: absolute;
+  background: #000;
+  height: 2px;
+  transform-origin: 0 0;
+}
+
+.concept-line.inactive {
+  background: #ccc;
+  border-style: dashed;
+} 

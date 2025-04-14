@@ -1,30 +1,32 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useState } from 'react';
 import './App.css';
+import IdeationForm from './components/IdeationForm';
+import MindMap from './components/MindMap';
 
 function App() {
-  return (
-    <Router>
-      <div className="App">
-        <header className="App-header">
-          <h1>AIdeator</h1>
-        </header>
-        <main>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            {/* Add more routes as needed */}
-          </Routes>
-        </main>
-      </div>
-    </Router>
-  );
-}
+  const [mindMapData, setMindMapData] = useState(null);
 
-function Home() {
+  const handleGenerate = async ({ targetAudience, problem }) => {
+    // TODO: Replace with actual API call
+    const question = `How Might We help ${targetAudience} ${problem}?`;
+    const sampleConcepts = ['Concept 1', 'Concept 2', 'Concept 3', 'Concept 4', 'Concept 5'];
+    setMindMapData({ centralQuestion: question, concepts: sampleConcepts });
+  };
+
   return (
-    <div className="home-container">
-      <h2>Welcome to AIdeator</h2>
-      <p>Your AI-powered ideation platform</p>
+    <div className="App">
+      <header className="App-header">
+        <h1>AIdeator</h1>
+      </header>
+      <main className="App-main">
+        <IdeationForm onGenerate={handleGenerate} />
+        {mindMapData && (
+          <MindMap 
+            centralQuestion={mindMapData.centralQuestion}
+            concepts={mindMapData.concepts}
+          />
+        )}
+      </main>
     </div>
   );
 }
