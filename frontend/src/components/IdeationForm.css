@@ -1,12 +1,13 @@
 .ideation-form {
   display: flex;
-  gap: 20px;
-  padding: 20px;
+  gap: 24px;
+  padding: 24px;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 40px;
-  align-items: flex-end;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+  align-items: flex-start;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .form-group {
@@ -16,17 +17,19 @@
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  font-weight: 500;
-  color: #333;
+  font-weight: 600;
+  color: #000;
+  font-size: 16px;
 }
 
 .form-input {
   width: 100%;
-  padding: 12px;
+  padding: 12px 16px;
   border: 1px solid #e0e0e0;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 16px;
-  transition: border-color 0.2s;
+  color: #999;
+  background: #fff;
 }
 
 .form-input:focus {
@@ -36,15 +39,16 @@
 
 .generate-button {
   padding: 12px 24px;
-  background-color: #2196f3;
-  color: white;
-  border: none;
-  border-radius: 4px;
+  background: white;
+  color: #000;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
   font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  margin-top: 24px;
+  transition: all 0.2s;
 }
 
 .generate-button:hover {
-  background-color: #1976d2;
+  background-color: #f5f5f5;
 } 
