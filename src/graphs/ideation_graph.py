@@ -48,6 +48,10 @@ class IdeationState(TypedDict):
     awaiting_deletion_confirmation: bool  # Track if we're waiting for deletion confirmation
     deletion_context: Dict  # Context for branch deletion
 
+    # New fields for concept combination
+    combination_context: Dict  # Stores the branches to be combined
+    switch_thread: bool  # Flag for switching between threads
+
 # Initialize the LLM
 llm = ChatOpenAI(
     model="gpt-3.5-turbo",
@@ -235,13 +239,13 @@ CONCEPT_EXPANSION_PROMPT = ChatPromptTemplate.from_messages([
 
 Here's the prompt: {user_guidance} Based on the prompt, please provide 3 potential directions of this concept. 
 
-Please return only valid JSON without any extra text or explanation. Format your response as JSON with these sections:
-[
+Please return only valid JSON without any extra text or explanation. Format your response as JSON with these sections: [
 {{
   "heading": "Specific descriptive heading for this direction",
   "explanation": "Deeper analysis of the concept",
   "productDirection": "description of the product concept"
-}}""")
+}}
+]""")
 ])
 
 # New function for concept expansion with default guidance
@@ -269,6 +273,36 @@ Return ONLY valid JSON without any additional explanation. Example format:
   "explanation": "Brief explanation of what the idea entails.",
   "productDirection": "Practical implementation direction for the product."
 }}""")
+])
+
+# Define the prompt template for concept combination
+CONCEPT_COMBINATION_PROMPT = ChatPromptTemplate.from_messages([
+    SystemMessage(content=SYSTEM_TEMPLATE),
+    ("human", """Please combine the distinct concepts below to solve the following problem in an ingenious, surprising, yet still feasible manner: {problem_statement}
+
+Concept 1: {concept1_heading}
+{concept1_content}
+
+Concept 2: {concept2_heading}
+{concept2_content}
+
+{additional_concepts}
+
+Create 1 innovative product idea that integrate the key elements from all these concepts. Each idea should:
+1. Incorporate essential elements from all concepts in a way that they could not achieve alone.
+2. Highlight the “secret sauce” or synergy that emerges from blending these unique elements.
+3. Push boundaries with your idea—be unconventional, unexpected, or playful.
+4. Maintain a tether to feasibility (e.g., physically possible, practical within a real-world context).
+5. Ensure the final product is not just a jumble of features—explain how they coalesce into a cohesive whole.
+
+Return only valid JSON with these sections for each idea in this exact format:
+{{
+    "heading": "Clear and specific product name/concept (7-10 words)",
+    "explanation": "Explain how this concept works and what makes it unique (1-2 sentences)",
+    "productDirection": "Specific implementation details and key features (1-2 sentences)",
+    "sourceConcepts": ["List of concept headings that contributed to this idea"]
+}}
+""")
 ])
 
 def request_input(state: IdeationState) -> IdeationState:
@@ -546,53 +580,60 @@ def process_user_choice(state: IdeationState, choice: str) -> IdeationState:
     return state
 
 def present_exploration_options(state: IdeationState) -> IdeationState:
-    """Present the three fixed exploration options to the user."""
-    # Display confirmation of the selected problem statement
-    state["messages"].append(AIMessage(content=f"We'll use the following problem statement for our ideation session: {state['final_problem_statement']}"))
-    
-    # Initialize the mindmap with the problem statement as the central node
-    state["mindmap"] = {
-        "id": "root",
-        "name": state["final_problem_statement"],
-        "children": []
-    }
-    
-    # Define the three fixed exploration options
-    threads = [
-        ("Emotional Root Causes", "Explore the underlying emotional needs, fears, or motivations"),
-        ("Unconventional Associations", "Connect the problem to unexpected domains, metaphors, or analogies"),
-        ("Imaginary Customers' Feedback", "Imagine different feedback perspectives on potential solutions")
-    ]
-    
-    # Initialize the threads structure
-    state["threads"] = {}
-    for i, (name, description) in enumerate(threads, 1):
-        thread_id = f"thread_{i}"
-        state["threads"][thread_id] = {
-            "id": thread_id,
-            "name": name,
-            "description": description,
-            "messages": [SystemMessage(content=SYSTEM_TEMPLATE)],  # Each thread has its own message history
-            "branches": {}  # Initialize branches for this thread
+    """Present the exploration options to the user, including all combined concepts threads."""
+    # If this is the first time, set up the threads and mindmap
+    if not state["threads"]:
+        # Display confirmation of the selected problem statement
+        state["messages"].append(AIMessage(content=f"We'll use the following problem statement for our ideation session: {state['final_problem_statement']}"))
+        
+        # Initialize the mindmap with the problem statement as the central node
+        state["mindmap"] = {
+            "id": "root",
+            "name": state["final_problem_statement"],
+            "children": []
         }
         
-        # Add to mindmap
-        state["mindmap"]["children"].append({
-            "id": thread_id,
-            "name": name,
-            "description": description,
-            "children": []
-        })
+        # Define the three fixed exploration options
+        threads = [
+            ("Emotional Root Causes", "Explore the underlying emotional needs, fears, or motivations"),
+            ("Unconventional Associations", "Connect the problem to unexpected domains, metaphors, or analogies"),
+            ("Imaginary Customers' Feedback", "Imagine different feedback perspectives on potential solutions")
+        ]
+        
+        # Initialize the threads structure
+        state["threads"] = {}
+        for i, (name, description) in enumerate(threads, 1):
+            thread_id = f"thread_{i}"
+            state["threads"][thread_id] = {
+                "id": thread_id,
+                "name": name,
+                "description": description,
+                "messages": [SystemMessage(content=SYSTEM_TEMPLATE)],  # Each thread has its own message history
+                "branches": {}  # Initialize branches for this thread
+            }
+            
+            # Add to mindmap
+            state["mindmap"]["children"].append({
+                "id": thread_id,
+                "name": name,
+                "description": description,
+                "children": []
+            })
     
     # Set up for thread choice
     state["awaiting_thread_choice"] = True
+    
+    # Get all thread options including combined concepts
+    thread_options = get_thread_options_display(state)
+    
+    # Transform into dictionary for input_instructions
+    options_dict = {}
+    for option in thread_options:
+        options_dict[str(option["index"])] = f"{option['name']}: {option['description']}"
+    
     state["input_instructions"] = {
         "thread_choice": "Choose an exploration approach:",
-        "options": {
-            "1": "Emotional Root Causes - " + threads[0][1],
-            "2": "Unconventional Associations - " + threads[1][1],
-            "3": "Imaginary Customers' Feedback - " + threads[2][1]
-        }
+        "options": options_dict
     }
     state["current_step"] = "await_thread_choice"
     
@@ -628,10 +669,31 @@ def get_thread_options_display(state: IdeationState) -> list:
                 "display": f"{i}. {name}: {desc}{status}"
             })
     
+    # Add combined concept threads
+    counter = len(options) + 1
+    for thread_id, thread in state["threads"].items():
+        if thread_id.startswith("thread_combined_"):
+            name = thread["name"]
+            desc = thread["description"]
+            status = ""
+            
+            if state["active_thread"] == thread_id:
+                status += " (current)"
+                
+            options.append({
+                "index": counter,
+                "id": thread_id,
+                "name": name,
+                "description": desc,
+                "status": status,
+                "display": f"{counter}. {name}: {desc}{status}"
+            })
+            counter += 1
+    
     return options
 
 def process_thread_choice_multi(state: IdeationState, choice: str) -> IdeationState:
-    """Process the user's choice of which exploration approach to use without ending the session."""
+    """Process the user's choice of which exploration approach to use."""
     # Reset switching flag
     state["switch_thread"] = False
     
@@ -641,49 +703,75 @@ def process_thread_choice_multi(state: IdeationState, choice: str) -> IdeationSt
         state["feedback"] = "Ending the ideation session as requested."
         return state
     
-    # Check if choice is a branch selection (starts with 'b')
+    # Check for special commands
+    if "combine" in choice.lower():
+        return process_combine_request(state, choice)
+    
     if choice.lower().strip().startswith('b'):
         return process_branch_selection(state, choice)
     
-    # Normalize and validate choice
+    if "delete" in choice.lower():
+        return process_delete_request(state, choice)
+    
+    if "add idea" in choice.lower():
+        return process_add_idea_request(state, choice)
+    
+    # Get all thread options for display/selection
+    thread_options = get_thread_options_display(state)
+    
+    # Try to match by index number
     try:
-        thread_num = int(choice.strip())
-        if thread_num < 1 or thread_num > 3:
-            raise ValueError("Thread choice must be 1, 2, or 3")
+        selected_index = int(choice.strip())
+        selected_option = next((opt for opt in thread_options if opt["index"] == selected_index), None)
+        
+        if selected_option:
+            thread_id = selected_option["id"]
+        else:
+            state["feedback"] = f"Invalid thread number: {selected_index}. Please select a valid option."
+            state["switch_thread"] = True
+            return state
+            
     except ValueError:
         # Try to match by name
-        thread_map = {
-            "emotional": "1",
-            "emotional root": "1",
-            "emotional root causes": "1",
-            "root causes": "1",
-            "unconventional": "2",
-            "unconventional associations": "2",
-            "associations": "2",
-            "imaginary": "3",
-            "feedback": "3",
-            "imaginary customers": "3",
-            "customers feedback": "3",
-            "imaginary customers' feedback": "3"
-        }
         normalized_choice = choice.lower().strip()
-        thread_choice = thread_map.get(normalized_choice)
-        if thread_choice:
-            thread_num = int(thread_choice)
-        else:
-            state["feedback"] = "Invalid choice. Please select 1 (Emotional Root Causes), 2 (Unconventional Associations), or 3 (Imaginary Customers' Feedback), or select a branch by its index (b1, b2, etc.)."
-            state["switch_thread"] = True  # Return to thread selection
+        
+        # First check standard methodology threads
+        thread_map = {
+            "emotional": "thread_1",
+            "emotional root": "thread_1",
+            "emotional root causes": "thread_1",
+            "root causes": "thread_1",
+            "unconventional": "thread_2",
+            "unconventional associations": "thread_2",
+            "associations": "thread_2",
+            "imaginary": "thread_3",
+            "feedback": "thread_3",
+            "imaginary customers": "thread_3",
+            "customers feedback": "thread_3",
+            "imaginary customers' feedback": "thread_3"
+        }
+        
+        thread_id = thread_map.get(normalized_choice)
+        
+        # If not found in standard map, try to match combined concept threads by name
+        if not thread_id:
+            for opt in thread_options:
+                if opt["name"].lower() in normalized_choice or normalized_choice in opt["name"].lower():
+                    thread_id = opt["id"]
+                    break
+        
+        if not thread_id:
+            state["feedback"] = "Invalid choice. Please select a valid option."
+            state["switch_thread"] = True
             return state
     
     # Set the active thread
-    thread_id = f"thread_{thread_num}"
-
-    # Check if user is re-selecting a thread they've already explored
     is_reselection = (thread_id == state["active_thread"] and 
                        len(state["threads"][thread_id]["messages"]) > 1)
     
     # If re-selecting, reset the thread's branches and clear exploration data
-    if is_reselection:
+    if is_reselection and not thread_id.startswith("thread_combined_"):
+        # For methodology threads, allow regeneration
         # Keep track of branches to remove from global registry
         branches_to_remove = []
         for branch_id, branch in state["branches"].items():
@@ -721,7 +809,8 @@ def process_thread_choice_multi(state: IdeationState, choice: str) -> IdeationSt
     state["active_branch"] = None  # Reset active branch when switching threads
     
     # Only add messages if this is the first time selecting this thread
-    if len(state["threads"][thread_id]["messages"]) <= 1:  # Only has system message
+    # (for methodology threads)
+    if not thread_id.startswith("thread_combined_") and len(state["threads"][thread_id]["messages"]) <= 1:
         # Add user choice to main messages
         state["messages"].append(HumanMessage(content=f"I choose to explore {state['threads'][thread_id]['name']}."))
         
@@ -729,12 +818,20 @@ def process_thread_choice_multi(state: IdeationState, choice: str) -> IdeationSt
         thread_message = HumanMessage(content=f"Let's explore the problem statement through the lens of {state['threads'][thread_id]['name']}.")
         state["threads"][thread_id]["messages"].append(thread_message)
         
-        # For now, just acknowledge the selection in a simplified workflow
+        # Acknowledge the selection
         thread_name = state["threads"][thread_id]["name"]
         state["messages"].append(AIMessage(content=f"Great! We'll explore '{state['final_problem_statement']}' through the {thread_name} approach. This thread now has its own separate conversation history."))
     
-    # In the future, this would set up for branch generation
-    state["current_step"] = "thread_exploration"  # Mark that we're in thread exploration mode
+    # For combined concept threads or methodology threads, set appropriate next step
+    if thread_id.startswith("thread_combined_"):
+        # For combined concept threads, just acknowledge selection
+        thread_name = state["threads"][thread_id]["name"]
+        state["messages"].append(HumanMessage(content=f"I want to work with the combined concept: {thread_name}"))
+        state["messages"].append(AIMessage(content=f"Switched to the combined concept: {thread_name}. You can expand on this concept or add your own ideas to it."))
+        state["current_step"] = "present_exploration_options"
+    else:
+        # For methodology threads, set up for thread exploration
+        state["current_step"] = "thread_exploration"
     
     return state
 
@@ -992,7 +1089,14 @@ def display_available_branches(state: IdeationState) -> None:
                              if b["thread_id"] == thread_id and b["parent_branch"] is None]
         
         if top_level_branches:
-            print(f"\n{thread_name}:")
+            # For combined concept threads, display their branch ID in the thread header
+            thread_branch_id = ""
+            if thread_id.startswith("thread_combined_"):
+                # Get the first branch in this thread (the combined concept itself)
+                if top_level_branches:
+                    thread_branch_id = f" [{top_level_branches[0]['id']}]"
+            
+            print(f"\n{thread_name}{thread_branch_id}:")
             
             # Display each top-level branch and its children
             for branch in top_level_branches:
@@ -1000,7 +1104,12 @@ def display_available_branches(state: IdeationState) -> None:
                 expanded_marker = " [expanded]" if branch["expanded"] else ""
                 current_marker = " *" if state["active_branch"] == branch_id else ""
                 
-                print(f"  {branch_id}{current_marker}: {branch['heading']}{expanded_marker}")
+                # Add source concepts indicator for combined concepts
+                source_concepts = ""
+                if "source_concepts" in branch:
+                    source_concepts = f" (from {', '.join(branch['source_concepts'])})"
+                
+                print(f"  {branch_id}{current_marker}: {branch['heading']}{expanded_marker}{source_concepts}")
                 # Print content in a formatted way
                 content_lines = branch['content'].split('\n')
                 for line in content_lines:
@@ -1659,6 +1768,274 @@ def find_branch_node_in_mindmap(parent_node: dict, branch_id: str) -> dict:
     
     return None
 
+def process_combine_request(state: IdeationState, input_text: str) -> IdeationState:
+    """Process user's request to combine multiple branches/concepts."""
+    # Extract branch IDs from input (format: "combine b1 b2 b3...")
+    branch_match = re.search(r'combine\s+((?:b\d+\s*)+)', input_text.lower())
+    if not branch_match:
+        state["feedback"] = "Invalid format. Please use 'combine' followed by branch IDs (e.g., combine b1 b2 b3)."
+        return state
+    
+    branch_ids_str = branch_match.group(1).strip()
+    branch_ids = re.findall(r'b\d+', branch_ids_str)
+    
+    # Need at least 2 branches to combine
+    if len(branch_ids) < 2:
+        state["feedback"] = "Please select at least 2 branches to combine."
+        return state
+    
+    # Validate that all branches exist
+    invalid_branches = [bid for bid in branch_ids if bid not in state["branches"]]
+    if invalid_branches:
+        state["feedback"] = f"Branch(es) {', '.join(invalid_branches)} do not exist."
+        return state
+    
+    # Add combine request to messages
+    state["messages"].append(HumanMessage(content=f"I want to combine branches {', '.join(branch_ids)}."))
+    
+    # Set up context for combination and proceed directly
+    state["combination_context"] = {
+        "branch_ids": branch_ids,
+        "branches": {bid: state["branches"][bid] for bid in branch_ids}
+    }
+    
+    state = combine_concepts(state)
+    
+    return state
+
+def combine_concepts(state: IdeationState) -> IdeationState:
+    """Combine selected concepts to generate new product ideas where each idea gets its own thread."""
+    # Get the branches to combine
+    branch_ids = state["combination_context"]["branch_ids"]
+    branches = {bid: state["branches"][bid] for bid in branch_ids}
+    
+    # Format the branches for the prompt
+    concept1 = branches[branch_ids[0]]
+    concept2 = branches[branch_ids[1]]
+    
+    # Format any additional concepts beyond the first two
+    additional_concepts = ""
+    for i, bid in enumerate(branch_ids[2:], 3):
+        branch = branches[bid]
+        additional_concepts += f"\nConcept {i}: {branch['heading']}\n{branch['content']}\n"
+    
+    try:
+        # Create a temporary message about the combination request for the main message thread
+        combination_message = f"Combining concepts: {', '.join([b['heading'] for b in branches.values()])}"
+        state["messages"].append(HumanMessage(content=combination_message))
+        
+        # Format the prompt with the concepts to combine using the template
+        prompt = CONCEPT_COMBINATION_PROMPT.format_messages(
+            problem_statement=state["final_problem_statement"],
+            concept1_heading=concept1["heading"],
+            concept1_content=concept1["content"],
+            concept2_heading=concept2["heading"],
+            concept2_content=concept2["content"],
+            additional_concepts=additional_concepts
+        )
+        
+        # Invoke the LLM
+        response = llm.invoke(prompt)
+        response_content = response.content.strip()
+        
+        # Add notification to main message history
+        notification = f"Created new ideas by combining concepts: {', '.join([b['heading'] for b in branches.values()])}"
+        state["messages"].append(AIMessage(content=notification))
+        
+        # Try to parse JSON from the response
+        try:
+            # Strip markdown code block formatting if present
+            response_content = strip_markdown_code_blocks(response_content)
+            
+            # Debug log
+            print("Attempting to parse JSON response:")
+            print(response_content[:200] + "..." if len(response_content) > 200 else response_content)
+            
+            # Wrap in extra error handling to provide better feedback
+            try:
+                # Parse JSON
+                json_data = json.loads(response_content)
+                
+                # Validate the structure is what we expect
+                if not isinstance(json_data, list):
+                    print(f"Warning: Expected a list but got {type(json_data)}, converting")
+                    if isinstance(json_data, dict):
+                        json_data = [json_data]  # Convert single dict to list
+                    else:
+                        json_data = [{"heading": "Combined Concept", 
+                                     "explanation": str(json_data),
+                                     "productDirection": "No specific direction provided."}]
+                
+                # Create thread and branch for EACH combined concept
+                combined_thread_ids = create_individual_combined_threads(state, json_data, branch_ids)
+                
+                num_ideas = len(json_data) if isinstance(json_data, list) else 1
+                state["feedback"] = f"Successfully combined concepts and created {num_ideas} new product idea(s), each with its own thread."
+                
+                # Set the first combined thread as active if any were created
+                if combined_thread_ids:
+                    state["active_thread"] = combined_thread_ids[0]
+                    state["active_branch"] = None  # Reset active branch
+                
+            except Exception as inner_error:
+                print(f"Inner JSON parsing error: {str(inner_error)}")
+                raise  # Re-raise to be caught by outer handler
+            
+        except Exception as json_error:
+            # JSON parsing failed - create a single combined concept with the raw text
+            print(f"Error parsing JSON in combination response: {str(json_error)}")
+            
+            # Create a simple structured concept from the text response
+            fallback_concept = [{
+                "heading": "Combined Product Idea",
+                "explanation": "This combines elements from the selected concepts.",
+                "productDirection": response_content[:300] + "..." if len(response_content) > 300 else response_content,
+                "sourceConcepts": branch_ids
+            }]
+            
+            # Create a thread for this concept anyway
+            combined_thread_ids = create_individual_combined_threads(state, fallback_concept, branch_ids)
+            
+            if combined_thread_ids:
+                state["active_thread"] = combined_thread_ids[0]
+                state["active_branch"] = None
+                
+            state["feedback"] = "Created a combined concept with the generated content."
+        
+        return state
+        
+    except Exception as e:
+        # Handle any other errors
+        import traceback
+        print(traceback.format_exc())
+        state["feedback"] = f"Error during concept combination: {str(e)}"
+        state["combination_context"] = {}
+        return state
+
+def create_individual_combined_threads(state: IdeationState, json_data: list, source_branch_ids: list) -> list:
+    """Create individual threads and branches for each combined concept."""
+    thread_ids = []
+    
+    # Get the source branches
+    source_branches = {bid: state["branches"][bid] for bid in source_branch_ids if bid in state["branches"]}
+    
+    # Process each combined concept and create a separate thread for each
+    for idx, concept in enumerate(json_data):
+        # Make sure concept is a dictionary
+        if isinstance(concept, str):
+            # If concept is a string, create a basic concept dictionary
+            concept = {
+                "heading": f"Combined Concept {idx+1}",
+                "explanation": concept,
+                "productDirection": "No specific direction provided."
+            }
+            
+        # Generate a unique branch ID first for this combined concept
+        branch_id = f"b{state['branch_counter'] + 1}"
+        state['branch_counter'] += 1
+        
+        # Generate a unique thread ID for this combined concept
+        thread_id = f"thread_combined_{state['branch_counter']}"
+        thread_ids.append(thread_id)
+        
+        # Create the thread title by combining source branch names
+        # Safely get sourceConcepts if it exists, otherwise use source_branch_ids
+        source_concepts = source_branch_ids
+        if isinstance(concept, dict) and "sourceConcepts" in concept:
+            source_concepts = concept.get("sourceConcepts", source_branch_ids)
+        
+        # Get branch headings for display, with fallbacks for non-existent branches
+        source_names = []
+        for sc in source_concepts:
+            if sc in state["branches"]:
+                source_names.append(state["branches"][sc]["heading"])
+            else:
+                source_names.append(sc)
+        
+        # Get concept heading with fallback
+        concept_heading = f"Combined Concept {idx+1}"
+        if isinstance(concept, dict):
+            concept_heading = concept.get("heading", concept_heading)
+        
+        # Get explanation and product direction, ensuring we remove any <userStyle> tags
+        explanation = ""
+        if isinstance(concept, dict):
+            explanation = concept.get("explanation", "")
+        else:
+            explanation = str(concept)
+            
+        # Remove any <userStyle> tags that might have been generated
+        explanation = re.sub(r'<userStyle>.*?</userStyle>', '', explanation)
+        
+        product_direction = ""
+        if isinstance(concept, dict):
+            product_direction = concept.get("productDirection", "")
+            # Remove any <userStyle> tags that might have been generated
+            product_direction = re.sub(r'<userStyle>.*?</userStyle>', '', product_direction)
+        
+        # Create content with proper formatting and remove any tags
+        content = explanation
+        if product_direction:
+            content += f"\n\nProduct Direction: {product_direction}"
+        
+        # Create the branch for this combined concept
+        new_branch = {
+            "id": branch_id,
+            "thread_id": thread_id,
+            "heading": concept_heading,
+            "content": content,
+            "source": "concept_combination",
+            "parent_branch": None,  # Top-level combined concepts have no parent
+            "children": [],  # Initialize empty children list
+            "expanded": False,  # Track if this branch has been expanded
+            "expansion_data": None,  # Will store expansion data when expanded
+            "source_concepts": source_concepts  # Track which concepts were combined
+        }
+        
+        # Add to global branches registry
+        state["branches"][branch_id] = new_branch
+        
+        # Format the message content without any tags
+        message_content = f"This product idea ({branch_id}) combines elements from multiple concepts:\n\n{explanation}"
+        if product_direction:
+            message_content += f"\n\nProduct Direction: {product_direction}"
+            
+        # Create a new thread for this specific combined concept
+        state["threads"][thread_id] = {
+            "id": thread_id,
+            "name": concept_heading,
+            "description": f"Product idea combining concepts: {', '.join(source_names)}",
+            "messages": [
+                SystemMessage(content=SYSTEM_TEMPLATE),
+                HumanMessage(content=f"Let's explore this combined product idea: {concept_heading}"),
+                AIMessage(content=message_content)
+            ],
+            "branches": {
+                branch_id: new_branch  # Initialize with the main branch for this combined concept
+            },
+            "source_concepts": source_concepts,
+            "combined_concept": True  # Flag to identify combined concept threads
+        }
+        
+        # Add to mindmap as a top-level node (at the same level as the methodology threads)
+        state["mindmap"]["children"].append({
+            "id": thread_id,
+            "name": concept_heading,
+            "description": f"Combined from: {', '.join(source_names)}",
+            "combined": True,  # Flag to identify combined concept nodes
+            "children": [
+                {
+                    "id": branch_id,
+                    "name": concept_heading,
+                    "content": content,
+                    "children": [],
+                    "source_concepts": source_concepts
+                }
+            ]
+        })
+    
+    return thread_ids
+
 def end_session(state: IdeationState) -> IdeationState:
     """End the ideation session."""
     # Simply set the current step to indicate the session has ended
@@ -1704,7 +2081,9 @@ def run_cli_workflow():
         "idea_input_context": {},
         # New fields for branch deletion
         "awaiting_deletion_confirmation": False,
-        "deletion_context": {}
+        "deletion_context": {},
+        # Fields for concept combination
+        "combination_context": {}
     }
     
     # Step 1: Request input (get instructions on what to collect)
@@ -1782,6 +2161,7 @@ def run_cli_workflow():
         print("b#: Select a branch (e.g., b1, b2, b3)")
         print("add idea b#: Add your own idea to a branch (e.g., add idea b1)")
         print("delete b#: Delete a branch and all its sub-branches (e.g., delete b1)")
+        print("combine b# b# [b#...]: Combine multiple concepts (e.g., combine b1 b2)")
         print("stop: End the ideation session")
         
         # Get user choice
@@ -1796,6 +2176,18 @@ def run_cli_workflow():
         # Set up context for processing
         state["context"]["thread_choice"] = user_choice
 
+        # Process combine request
+        if "combine" in user_choice.lower():
+            # Process combine request directly (no confirmation step)
+            state = process_combine_request(state, user_choice)
+            
+            # Display feedback
+            if state["feedback"]:
+                print(f"\n{state['feedback']}")
+                state["feedback"] = ""
+                
+            continue
+            
         # Process deletion request
         if "delete" in user_choice.lower():
             # Process deletion request
@@ -1931,6 +2323,7 @@ workflow.add_node("process_add_idea_request", lambda state: process_add_idea_req
 workflow.add_node("process_user_idea", lambda state: process_user_idea(state, state["context"].get("idea_input", "")))
 workflow.add_node("process_delete_request", lambda state: process_delete_request(state, state["context"].get("thread_choice", "")))
 workflow.add_node("process_deletion_confirmation", lambda state: process_deletion_confirmation(state, state["context"].get("deletion_confirmation", "")))
+workflow.add_node("process_combine_request", lambda state: process_combine_request(state, state["context"].get("thread_choice", "")))
 
 # Add edges with conditional logic for regeneration
 workflow.add_edge("request_input", "generate_problem_statement")
@@ -1957,6 +2350,7 @@ workflow.add_conditional_edges(
         "present_exploration_options": state.get("switch_thread", False),  # Switch to another thread
         "thread_exploration": not state.get("switch_thread", False) and state["current_step"] == "thread_exploration",  # Explore the selected thread
         "process_branch_selection": not state.get("switch_thread", False) and state["current_step"] == "process_branch_selection",  # Process branch selection
+        "process_combine_request": not state.get("switch_thread", False) and "combine" in state["context"].get("thread_choice", "").lower(),  # Process combine request
         "end_session": state["current_step"] == "end_session"  # End the session
     }
 )
@@ -2001,6 +2395,9 @@ workflow.add_conditional_edges(
 # Add edge for deletion confirmation
 workflow.add_edge("process_deletion_confirmation", "present_exploration_options")
 
+# Add direct edge for combine request (no confirmation step)
+workflow.add_edge("process_combine_request", "present_exploration_options")
+
 # Set entry point
 workflow.set_entry_point("request_input")
 
@@ -2042,7 +2439,9 @@ def start_ideation_session() -> IdeationState:
         "idea_input_context": {},
         # New fields for branch deletion
         "awaiting_deletion_confirmation": False,
-        "deletion_context": {}
+        "deletion_context": {},
+        # Fields for concept combination
+        "combination_context": {}
     }
     
     # Add the system message to start fresh
