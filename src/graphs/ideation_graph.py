@@ -135,13 +135,13 @@ a. Emotional Seeds
 3. Tip: Seek genuinely empathetic insights. Consider social context, personal identity, and psychological triggers. Avoid generic or superficial explanations.
 
 b. Habit & Heuristic Alignment
-1. Task: List 2 key human habits or heuristics relevant to the domain (e.g., preference for consistency, aversion to steep learning curves, love for quick feedback).
-2. Add-on: Brainstorm 1 direction that cleverly leverages or strengthens these habits.
+1. Task: List 2 relevant key human habits or heuristics (e.g., preference for consistency) and use it as 'heading'.
+2. Add-on: Explain how the habit is tied to the problem and brainstorm 1 direction that cleverly leverages or strengthens these habits.
 3. Tip: Think beyond the obvious. Explore how established routines, comfort zones, or mental shortcuts can be nudged in creative ways to improve engagement and satisfaction.
 
 c. Delightful Subversion
-1. Task: Identify 2 commonly negative or taboo perceptions/frustrations in this context.
-2. Add-on: Suggest how each could be flipped into something playful, intriguing, or surprisingly positive. Keep suggestions concise and open-ended.
+1. Task: Describe how 2 commonly negative or taboo perceptions/frustrations can be turned into positive experiences in 'heading' (heading example: Turning distraction into exploration).
+2. Add-on: Explain in detail how each could be flipped into something playful, intriguing, or surprisingly positive. Then brainstorm 1 relevant product direction.
 3. Tip: Push your creativity here! Consider surprise-and-delight mechanics, or turning negative emotions into rewards that reshape the user's emotional journey.
 
 Please follow this example of valid output:
@@ -155,16 +155,16 @@ Please follow this example of valid output:
   ],
   "habitHeuristicAlignment": [
     {{
-      "heading": "Preference for social proof",
-      "explanation": "People tend to feel safer engaging when they see others like them participating.",
-      "productDirection": "Showcase student testimonials and photos of real cultural meetups to spark FOMO-driven curiosity."
+      "heading": "...",
+      "explanation": "...",
+      "productDirection": "..."
     }}
   ],
   "delightfulSubversion": [
     {{
-      "heading": "Fear of making social mistakes",
-      "explanation": "Missteps in unfamiliar social norms can cause embarrassment or withdrawal.",
-      "productDirection": "Gamify social learning with humorous 'oops cards' that turn faux pas into laughable, teachable moments."
+      "heading": "...",
+      "explanation": "...",
+      "productDirection": "..."
     }}
   ]
 }}""")
@@ -184,7 +184,8 @@ Insight & Product Direction: Explain how the unexpected link can spark new under
 b. Broader Domains
 Explore the problem from 4 different perspectives from experts in different fields. How is their domain knowledge relevant to this topic? Summarize the connection between the problem statement and the domain as 'heading' (DO NOT include '...'s Perspective' in the heading, be more specific about content), and then describe how each uniquely interprets the problem as 'explanation'.
 For each perspective, propose one idea or feature that draws inspiration from that viewpoint as 'productDirection'.
-     
+
+Please follow this example of valid output:     
 {{
   "attributeBasedBridging": [
     {{
@@ -207,11 +208,11 @@ For each perspective, propose one idea or feature that draws inspiration from th
 IMAGINARY_FEEDBACK_PROMPT = ChatPromptTemplate.from_messages([
     SystemMessage(content=SYSTEM_TEMPLATE),
     MessagesPlaceholder(variable_name="thread_messages"),
-    ("human", """Please follow these steps to explore the unconventional associations behind {problem_statement}. Please return only valid JSON in the exact structure specified below. Use concise phrasing (one or two sentences per field).
-a. Create 4 Imaginary Target Users & Their Feedback
-Invent Personas: Come up with 4 distinct user profiles, each having a short description (e.g., name, age, occupation). Making sure they are differentiated enough.
-Background: Write one sentence summarizing the persona's daily life, habits, and tech savviness.
-Feedback: List one struggle, pain point, or initial thought the persona might have about the problem as the heading. Ensure each pain point reflects a distinct perspective—mental, physical, emotional, etc.—and is not overlapping. Then, explain this pain point in a single concise sentence.
+    ("human", """Please follow these steps to explore imaginary customers' feedback behind {problem_statement}. Please return only valid JSON in the exact structure specified below. Use concise phrasing (one or two sentences per field).
+a. Create 5 Imaginary Target Users & Their Feedback
+Heading: Use a normative, fact-based heading that states the core pain point directly (e.g., “News is not personalized to my niche market,”). Ensure each pain point reflects a distinct perspective—mental, physical, emotional, etc.—and is not overlapping. Each pain point is directly tied to at least one detail in that user’s profile (e.g., job context, personal routine, or environment). Then, explain this pain point in a single concise sentence.
+Invent Personas: Come up with 5 diverse, highly specific user profiles, each having a short description (e.g., name, age, occupation). Each persona must differ significantly in either background, industry, occupation, age, or daily habits.
+explanation: Explain the pain point in more details.
 
 b. Respond with Potential Product Directions
 Link to Feedback: For each feedback item, propose a concise product direction that addresses or alleviates the user's struggle.
@@ -237,7 +238,7 @@ CONCEPT_EXPANSION_PROMPT = ChatPromptTemplate.from_messages([
     SystemMessage(content=SYSTEM_TEMPLATE),
     ("human", """The problem statement we are trying to solve is: {problem_statement}. {context}, I want to further explore and expand on this concept: {concept_to_expand}
 
-Here's the prompt: {user_guidance} Based on the prompt, please provide 3 potential directions of this concept. 
+Here's the prompt: {user_guidance} Please provide 3 relevant and creative responses to this prompt. 
 
 Please return only valid JSON without any extra text or explanation. Format your response as JSON with these sections: [
 {{
@@ -288,18 +289,23 @@ Concept 2: {concept2_heading}
 
 {additional_concepts}
 
-Create 1 innovative product idea that integrate the key elements from all these concepts. Each idea should:
-1. Incorporate essential elements from all concepts in a way that they could not achieve alone.
-2. Highlight the “secret sauce” or synergy that emerges from blending these unique elements.
+Create 1 innovative product idea that integrate the key elements from all these concepts. The idea should:
+1. Methodologies: Choose the approach (or approaches) you find most relevant from the following concise options:
+	a. Analogy Swapping: Borrow one concept’s structure or approach and apply it to the other’s domain.
+	b. Role Reversal: Flip the assumptions of one concept to serve the opposite goal within the other.
+	c. Constraint Merging: Impose the limitations from one concept onto the other to spark fresh solutions.
+	d. Hybridization: Blend each concept’s unique strengths to create something more robust.
+	e. Layering Concepts: Let one concept be the “engine” while the other shapes the user-facing experience.
+2. Incorporate essential elements from all concepts and highlight the “secret sauce” or synergy that emerges from blending these unique elements.
 3. Push boundaries with your idea—be unconventional, unexpected, or playful.
 4. Maintain a tether to feasibility (e.g., physically possible, practical within a real-world context).
-5. Ensure the final product is not just a jumble of features—explain how they coalesce into a cohesive whole.
+5. You can propose new or expanded features if they strengthen the synergy or help solve the problem more effectively.
 
-Return only valid JSON with these sections for each idea in this exact format:
+Return only valid JSON with these sections for this idea:
 {{
     "heading": "Clear and specific product name/concept (7-10 words)",
     "explanation": "Explain how this concept works and what makes it unique (1-2 sentences)",
-    "productDirection": "Specific implementation details and key features (1-2 sentences)",
+    "featureLists": ["List of features for the product"],
     "sourceConcepts": ["List of concept headings that contributed to this idea"]
 }}
 """)
@@ -869,6 +875,11 @@ def thread_exploration(state: IdeationState) -> IdeationState:
         # Invoke the LLM
         response = llm.invoke(prompt)
         response_content = response.content.strip()
+
+        # DEBUG: Print the raw LLM response
+        print("\n===== DEBUG: RAW LLM RESPONSE =====")
+        print(response_content)
+        print("===== END RAW RESPONSE =====\n")
         
         # Add the LLM response to the thread messages
         state["threads"][thread_id]["messages"].append(AIMessage(content=response_content))
