@@ -55,7 +55,7 @@ class IdeationState(TypedDict):
 # Initialize the LLM
 llm = ChatOpenAI(
     model="gpt-3.5-turbo",
-    temperature=0.7,
+    temperature=0.8,
     api_key=os.getenv("OPENAI_API_KEY")
 )
 
@@ -211,7 +211,7 @@ IMAGINARY_FEEDBACK_PROMPT = ChatPromptTemplate.from_messages([
     ("human", """Please follow these steps to explore imaginary customers' feedback behind {problem_statement}. Please return only valid JSON in the exact structure specified below. Use concise phrasing (one or two sentences per field).
 a. Create 5 Imaginary Target Users & Their Feedback
 Heading: Use a normative, fact-based heading that states the core pain point directly (e.g., “News is not personalized to my niche market,”). Ensure each pain point reflects a distinct perspective—mental, physical, emotional, etc.—and is not overlapping. Each pain point is directly tied to at least one detail in that user’s profile (e.g., job context, personal routine, or environment). Then, explain this pain point in a single concise sentence.
-Invent Personas: Come up with 5 diverse, highly specific user profiles, each having a short description (e.g., name, age, occupation). Each persona must differ significantly in either background, industry, occupation, age, or daily habits.
+Invent Personas: Come up with 5 diverse, highly specific user profiles, each having a short description for 'userProfile'. Each persona must differ significantly in either background, industry, occupation, age, or daily habits.
 explanation: Explain the pain point in more details.
 
 b. Respond with Potential Product Directions
@@ -222,13 +222,9 @@ Please follow this example of valid output:
 [
   {{
     "heading": "Notifications are very distracting.",
-    "userProfile": "Emma, 26, Remote Designer. Works from coffee shops, juggling multiple freelance clients and productivity tools.",
-    "feedback": [
-      {{
-        "explanation": "I can get distracted by notifications from different platforms fairly easy",
-        "productDirection": "Implement an automatic 'focus mode' that silences unrelated notifications during task time."
-      }}
-    ]
+    "userProfile": "Emma, 26, Remote Designers. Works from coffee shops, juggling multiple freelance clients and productivity tools.",
+    "explanation": "I can get distracted by notifications from different platforms fairly easy",
+    "productDirection": "Implement an automatic 'focus mode' that silences unrelated notifications during task time."
   }}
  ]""")
 ])
@@ -944,7 +940,8 @@ def create_branches_from_exploration(state: IdeationState, thread_id: str, json_
             for idx, item in enumerate(json_data["emotionalSeeds"]):
                 branches.append({
                     "heading": item["heading"],
-                    "content": f"{item['explanation']} Product direction: {item['productDirection']}",
+                    "explanation": item["explanation"],
+                    "productDirection": item["productDirection"],
                     "source": "emotionalSeeds",
                     "source_idx": idx
                 })
@@ -954,7 +951,8 @@ def create_branches_from_exploration(state: IdeationState, thread_id: str, json_
             for idx, item in enumerate(json_data["habitHeuristicAlignment"]):
                 branches.append({
                     "heading": item["heading"],
-                    "content": f"{item['explanation']} Product direction: {item['productDirection']}",
+                    "explanation": item["explanation"],
+                    "productDirection": item["productDirection"],
                     "source": "habitHeuristicAlignment",
                     "source_idx": idx
                 })
@@ -964,7 +962,8 @@ def create_branches_from_exploration(state: IdeationState, thread_id: str, json_
             for idx, item in enumerate(json_data["delightfulSubversion"]):
                 branches.append({
                     "heading": item["heading"],
-                    "content": f"{item['explanation']} Product direction: {item['productDirection']}",
+                    "explanation": item["explanation"],
+                    "productDirection": item["productDirection"],
                     "source": "delightfulSubversion",
                     "source_idx": idx
                 })
@@ -975,7 +974,8 @@ def create_branches_from_exploration(state: IdeationState, thread_id: str, json_
             for idx, item in enumerate(json_data["attributeBasedBridging"]):
                 branches.append({
                     "heading": item["heading"],
-                    "content": f"{item['explanation']} Product direction: {item['productDirection']}",
+                    "explanation": item["explanation"],
+                    "productDirection": item["productDirection"],
                     "source": "attributeBasedBridging",
                     "source_idx": idx
                 })
@@ -985,18 +985,9 @@ def create_branches_from_exploration(state: IdeationState, thread_id: str, json_
             for idx, item in enumerate(json_data["broaderDomains"]):
                 branches.append({
                     "heading": item["heading"],
-                    "content": f"{item['explanation']} Product direction: {item['productDirection']}",
+                    "explanation": item["explanation"],
+                    "productDirection": item["productDirection"],
                     "source": "broaderDomains",
-                    "source_idx": idx
-                })
-                
-        # Extract metaphorical links
-        if "metaphoricalLinks" in json_data:
-            for idx, item in enumerate(json_data["metaphoricalLinks"]):
-                branches.append({
-                    "heading": item["heading"],
-                    "content": f"{item['explanation']} Product direction: {item['productDirection']}",
-                    "source": "metaphoricalLinks",
                     "source_idx": idx
                 })
     
@@ -1004,35 +995,49 @@ def create_branches_from_exploration(state: IdeationState, thread_id: str, json_
         # Handle the array format for this thread
         if isinstance(json_data, list):
             for user_idx, user_item in enumerate(json_data):
-                heading = user_item.get("heading", f"User {user_idx+1}")
-                user_profile = user_item.get("userProfile", "")
-                
-                for feedback_idx, feedback_item in enumerate(user_item.get("feedback", [])):
-                    branches.append({
-                        "heading": heading,
-                        "content": f"User: {user_profile}\nFeedback: {feedback_item.get('explanation', '')}\nProduct direction: {feedback_item.get('productDirection', '')}",
-                        "source": "imaginaryFeedback",
-                        "source_idx": user_idx,
-                        "feedback_idx": feedback_idx
-                    })
+                branches.append({
+                    "heading": user_item.get("heading", f"User {user_idx+1}"),
+                    "explanation": user_item.get("explanation", ""),
+                    "productDirection": user_item.get("productDirection", ""),
+                    "userProfile": user_item.get("userProfile", ""),
+                    "source": "imaginaryFeedback",
+                    "source_idx": user_idx
+                })
     
     # Add branches to the state with unique IDs
     for branch_data in branches:
         branch_id = f"b{state['branch_counter'] + 1}"
         state['branch_counter'] += 1
         
+        # Ensure branch data is standardized for concept category
+        branch_data = standardize_concept_branch_data(branch_data)
+        
+        # Generate content field for display purposes
+        content = f"{branch_data['explanation']}"
+        if branch_data.get('productDirection'):
+            content += f" Product direction: {branch_data['productDirection']}"
+        if thread_id == "thread_3" and branch_data.get('userProfile'):
+            content = f"User: {branch_data['userProfile']}\nFeedback: {content}"
+        
         # Create the branch
         new_branch = {
             "id": branch_id,
             "thread_id": thread_id,
             "heading": branch_data["heading"],
-            "content": branch_data["content"],
+            "content": content,  # Keep content for backwards compatibility
+            "explanation": branch_data["explanation"],
+            "productDirection": branch_data["productDirection"],
             "source": branch_data.get("source", ""),
             "parent_branch": None,  # Top-level branches have no parent
             "children": [],  # Initialize empty children list
             "expanded": False,  # Track if this branch has been expanded
-            "expansion_data": None  # Will store expansion data when expanded
+            "expansion_data": None,  # Will store expansion data when expanded
+            "category": "concept"  # Explicitly mark as concept category
         }
+        
+        # Add userProfile for imaginary feedback branches
+        if thread_id == "thread_3" and "userProfile" in branch_data:
+            new_branch["userProfile"] = branch_data["userProfile"]
         
         # Add to global branches registry and thread-specific branches
         state["branches"][branch_id] = new_branch
@@ -1045,9 +1050,15 @@ def create_branches_from_exploration(state: IdeationState, thread_id: str, json_
             branch_node = {
                 "id": branch_id,
                 "name": branch_data["heading"],
-                "content": branch_data["content"],
+                "content": content,
+                "explanation": branch_data["explanation"],
+                "productDirection": branch_data["productDirection"],
                 "children": []  # Initialize empty children for future expansions
             }
+            # Add userProfile for imaginary feedback branches
+            if thread_id == "thread_3" and "userProfile" in branch_data:
+                branch_node["userProfile"] = branch_data["userProfile"]
+            
             thread_node["children"].append(branch_node)
 
 
@@ -1120,11 +1131,31 @@ def display_available_branches(state: IdeationState) -> None:
                 if "source_concepts" in branch:
                     source_concepts = f" (from {', '.join(branch['source_concepts'])})"
                 
-                print(f"  {branch_id}{current_marker}: {branch['heading']}{expanded_marker}{source_concepts}")
-                # Print content in a formatted way
-                content_lines = branch['content'].split('\n')
-                for line in content_lines:
-                    print(f"      {line}")
+                # Add category indicator for clarity
+                category_marker = f" [{branch.get('category', 'concept')}]"
+                
+                print(f"  {branch_id}{current_marker}: {branch['heading']}{expanded_marker}{source_concepts}{category_marker}")
+                
+                # Display content based on branch category
+                if branch.get("category") == "product":
+                    # Product category display format
+                    print(f"      Description: {branch.get('description', '')}")
+                    
+                    # Display features list
+                    features = branch.get("features", [])
+                    if features:
+                        print("      Features:")
+                        for feature in features:
+                            print(f"      - {feature}")
+                else:
+                    # Concept category display format
+                    if "explanation" in branch:
+                        print(f"      Explanation: {branch['explanation']}")
+                    if "productDirection" in branch:
+                        print(f"      Product Direction: {branch['productDirection']}")
+                    if "userProfile" in branch:
+                        print(f"      User Profile: {branch['userProfile']}")
+                
                 print()  # Empty line for better readability
                 
                 # Track this branch as displayed
@@ -1148,14 +1179,33 @@ def display_child_branches(state: IdeationState, parent_branch: dict, displayed_
             expanded_marker = " [expanded]" if child["expanded"] else ""
             current_marker = " *" if state["active_branch"] == child_id else ""
             
+            # Add category indicator for clarity
+            category_marker = f" [{child.get('category', 'concept')}]"
+            
             # Display the child branch with proper indentation
             indent_spaces = " " * indent
-            print(f"{indent_spaces}{child_id}{current_marker}: {child['heading']}{expanded_marker}")
+            print(f"{indent_spaces}{child_id}{current_marker}: {child['heading']}{expanded_marker}{category_marker}")
             
-            # Print content in a formatted way
-            content_lines = child['content'].split('\n')
-            for line in content_lines:
-                print(f"{indent_spaces}    {line}")
+            # Display content based on branch category
+            if child.get("category") == "product":
+                # Product category display format
+                print(f"{indent_spaces}    Description: {child.get('description', '')}")
+                
+                # Display features list
+                features = child.get("features", [])
+                if features:
+                    print(f"{indent_spaces}    Features:")
+                    for feature in features:
+                        print(f"{indent_spaces}    - {feature}")
+            else:
+                # Concept category display format
+                if "explanation" in child:
+                    print(f"{indent_spaces}    Explanation: {child['explanation']}")
+                if "productDirection" in child:
+                    print(f"{indent_spaces}    Product Direction: {child['productDirection']}")
+                if "userProfile" in child:
+                    print(f"{indent_spaces}    User Profile: {child['userProfile']}")
+            
             print()  # Empty line for better readability
             
             # Track this branch as displayed
@@ -1279,11 +1329,6 @@ def expand_concept(state: IdeationState) -> IdeationState:
         response = llm.invoke(prompt)
         response_content = response.content.strip()
         
-        # DEBUG: Print the raw LLM response
-        # print("\n===== DEBUG: RAW LLM RESPONSE =====")
-        # print(response_content)
-        # print("===== END RAW RESPONSE =====\n")
-
         # Strip markdown code block formatting if present
         response_content = strip_markdown_code_blocks(response_content)
 
@@ -1311,21 +1356,32 @@ def expand_concept(state: IdeationState) -> IdeationState:
             
             # Create sub-branches from the expanded concepts
             for idx, concept in enumerate(expanded_concepts):
+                # Standardize the concept data
+                concept = standardize_concept_branch_data(concept)
+                
                 # Create a new branch for each expanded concept
                 sub_branch_id = f"b{state['branch_counter'] + 1}"
                 state['branch_counter'] += 1
                 
-                # Create the sub-branch
+                # Generate content field for display purposes
+                content = f"{concept['explanation']}"
+                if concept.get('productDirection'):
+                    content += f" Product Direction: {concept['productDirection']}"
+                
+                # Create the sub-branch with standardized fields
                 sub_branch = {
                     "id": sub_branch_id,
                     "thread_id": branch["thread_id"],
-                    "heading": concept.get("heading", f"Concept {idx+1}"),
-                    "content": f"{concept.get('explanation', '')} Product Direction: {concept.get('productDirection', '')}",
+                    "heading": concept["heading"],
+                    "content": content,  # Keep content for backwards compatibility
+                    "explanation": concept["explanation"],
+                    "productDirection": concept["productDirection"],
                     "source": "concept_expansion",
                     "parent_branch": branch_id,
                     "children": [],
                     "expanded": False,
-                    "expansion_data": None
+                    "expansion_data": None,
+                    "category": "concept"  # Explicitly mark as concept category
                 }
                 
                 # Add to global branches registry
@@ -1342,8 +1398,10 @@ def expand_concept(state: IdeationState) -> IdeationState:
                         # Add sub-branch to branch node's children
                         sub_branch_node = {
                             "id": sub_branch_id,
-                            "name": sub_branch["heading"],
-                            "content": sub_branch["content"],
+                            "name": concept["heading"],
+                            "content": content,
+                            "explanation": concept["explanation"],
+                            "productDirection": concept["productDirection"],
                             "children": []
                         }
                         branch_node["children"].append(sub_branch_node)
@@ -1487,23 +1545,34 @@ def process_user_idea(state: IdeationState, user_idea: str) -> IdeationState:
         try:
             json_data = json.loads(response_content)
             
+            # Standardize the concept data
+            json_data = standardize_concept_branch_data(json_data)
+            
             # Create a new branch for the user's idea
             sub_branch_id = f"b{state['branch_counter'] + 1}"
             state['branch_counter'] += 1
             
-            # Create the sub-branch
+            # Generate content field for display purposes
+            content = f"{json_data['explanation']}"
+            if json_data.get('productDirection'):
+                content += f" Product Direction: {json_data['productDirection']}"
+            
+            # Create the sub-branch with standardized fields
             sub_branch = {
                 "id": sub_branch_id,
                 "thread_id": parent_branch["thread_id"],
-                "heading": json_data.get("heading", "User Idea"),
-                "content": f"{json_data.get('explanation', '')} Product Direction: {json_data.get('productDirection', '')}",
+                "heading": json_data["heading"],
+                "content": content,  # Keep content for backwards compatibility
+                "explanation": json_data["explanation"],
+                "productDirection": json_data["productDirection"],
                 "source": "user_input",
                 "parent_branch": branch_id,
                 "children": [],
                 "expanded": False,
                 "expansion_data": None,
                 "user_created": True,  # Mark as user-created for reference
-                "raw_idea": user_idea  # Store the original user input
+                "raw_idea": user_idea,  # Store the original user input
+                "category": "concept"  # Explicitly mark as concept category
             }
             
             # Add to global branches registry
@@ -1520,8 +1589,10 @@ def process_user_idea(state: IdeationState, user_idea: str) -> IdeationState:
                     # Add sub-branch to branch node's children
                     sub_branch_node = {
                         "id": sub_branch_id,
-                        "name": sub_branch["heading"],
-                        "content": sub_branch["content"],
+                        "name": json_data["heading"],
+                        "content": content,
+                        "explanation": json_data["explanation"],
+                        "productDirection": json_data["productDirection"],
                         "user_created": True,
                         "children": []
                     }
@@ -1529,8 +1600,8 @@ def process_user_idea(state: IdeationState, user_idea: str) -> IdeationState:
             
             # Format a success message
             success_message = f"Added your idea as branch {sub_branch_id}: {sub_branch['heading']}\n"
-            success_message += f"Explanation: {json_data.get('explanation', '')}\n"
-            success_message += f"Product Direction: {json_data.get('productDirection', '')}"
+            success_message += f"Explanation: {json_data['explanation']}\n"
+            success_message += f"Product Direction: {json_data['productDirection']}"
             
             state["messages"].append(AIMessage(content=success_message))
             state["feedback"] = f"Successfully added your idea as branch {sub_branch_id}."
@@ -1539,23 +1610,33 @@ def process_user_idea(state: IdeationState, user_idea: str) -> IdeationState:
             # JSON parsing failed, use a simpler approach
             print(f"Error parsing JSON: {str(json_error)}")
             
-            # Create a new branch with minimal structure
+            # Create a standardized concept with minimal structure
+            concept_data = {
+                "heading": "User Idea",
+                "explanation": user_idea,
+                "productDirection": ""
+            }
+            
+            # Create a new branch with standardized data
             sub_branch_id = f"b{state['branch_counter'] + 1}"
             state['branch_counter'] += 1
             
-            # Create the sub-branch with just the user's raw idea
+            # Create the sub-branch with standardized fields
             sub_branch = {
                 "id": sub_branch_id,
                 "thread_id": parent_branch["thread_id"],
-                "heading": "User Idea",
-                "content": user_idea,
+                "heading": concept_data["heading"],
+                "content": concept_data["explanation"],  # Keep content for backwards compatibility
+                "explanation": concept_data["explanation"],
+                "productDirection": concept_data["productDirection"],
                 "source": "user_input",
                 "parent_branch": branch_id,
                 "children": [],
                 "expanded": False,
                 "expansion_data": None,
                 "user_created": True,
-                "raw_idea": user_idea  # Store the original input for reference
+                "raw_idea": user_idea,  # Store the original input for reference
+                "category": "concept"  # Explicitly mark as concept category
             }
             
             # Add to global branches registry
@@ -1571,8 +1652,10 @@ def process_user_idea(state: IdeationState, user_idea: str) -> IdeationState:
                 if branch_node:
                     sub_branch_node = {
                         "id": sub_branch_id,
-                        "name": "User Idea",
-                        "content": user_idea,
+                        "name": concept_data["heading"],
+                        "content": concept_data["explanation"],
+                        "explanation": concept_data["explanation"],
+                        "productDirection": concept_data["productDirection"],
                         "user_created": True,
                         "children": []
                     }
@@ -1875,7 +1958,7 @@ def combine_concepts(state: IdeationState) -> IdeationState:
                     else:
                         json_data = [{"heading": "Combined Concept", 
                                      "explanation": str(json_data),
-                                     "productDirection": "No specific direction provided."}]
+                                     "featureLists": []}]
                 
                 # Create thread and branch for EACH combined concept
                 combined_thread_ids = create_individual_combined_threads(state, json_data, branch_ids)
@@ -1896,11 +1979,11 @@ def combine_concepts(state: IdeationState) -> IdeationState:
             # JSON parsing failed - create a single combined concept with the raw text
             print(f"Error parsing JSON in combination response: {str(json_error)}")
             
-            # Create a simple structured concept from the text response
+            # Create a simple structured product from the text response
             fallback_concept = [{
                 "heading": "Combined Product Idea",
-                "explanation": "This combines elements from the selected concepts.",
-                "productDirection": response_content[:300] + "..." if len(response_content) > 300 else response_content,
+                "description": "This combines elements from the selected concepts.",
+                "features": ["Generated product idea based on combined concepts"],
                 "sourceConcepts": branch_ids
             }]
             
@@ -1934,12 +2017,16 @@ def create_individual_combined_threads(state: IdeationState, json_data: list, so
     for idx, concept in enumerate(json_data):
         # Make sure concept is a dictionary
         if isinstance(concept, str):
-            # If concept is a string, create a basic concept dictionary
+            # If concept is a string, create a basic product concept dictionary
             concept = {
                 "heading": f"Combined Concept {idx+1}",
-                "explanation": concept,
-                "productDirection": "No specific direction provided."
+                "description": concept,
+                "features": ["No specific features provided"],
+                "category": "product"
             }
+        
+        # Ensure concept is properly standardized as product category
+        concept = standardize_product_branch_data(concept)
             
         # Generate a unique branch ID first for this combined concept
         branch_id = f"b{state['branch_counter'] + 1}"
@@ -1949,11 +2036,10 @@ def create_individual_combined_threads(state: IdeationState, json_data: list, so
         thread_id = f"thread_combined_{state['branch_counter']}"
         thread_ids.append(thread_id)
         
-        # Create the thread title by combining source branch names
         # Safely get sourceConcepts if it exists, otherwise use source_branch_ids
         source_concepts = source_branch_ids
-        if isinstance(concept, dict) and "sourceConcepts" in concept:
-            source_concepts = concept.get("sourceConcepts", source_branch_ids)
+        if "sourceConcepts" in concept:
+            source_concepts = concept["sourceConcepts"]
         
         # Get branch headings for display, with fallbacks for non-existent branches
         source_names = []
@@ -1964,52 +2050,48 @@ def create_individual_combined_threads(state: IdeationState, json_data: list, so
                 source_names.append(sc)
         
         # Get concept heading with fallback
-        concept_heading = f"Combined Concept {idx+1}"
-        if isinstance(concept, dict):
-            concept_heading = concept.get("heading", concept_heading)
+        concept_heading = concept.get("heading", f"Combined Concept {idx+1}")
         
-        # Get explanation and product direction, ensuring we remove any <userStyle> tags
-        explanation = ""
-        if isinstance(concept, dict):
-            explanation = concept.get("explanation", "")
-        else:
-            explanation = str(concept)
-            
-        # Remove any <userStyle> tags that might have been generated
-        explanation = re.sub(r'<userStyle>.*?</userStyle>', '', explanation)
+        # Get description and features from standardized product format
+        description = concept.get("description", "")
+        features = concept.get("features", [])
         
-        product_direction = ""
-        if isinstance(concept, dict):
-            product_direction = concept.get("productDirection", "")
-            # Remove any <userStyle> tags that might have been generated
-            product_direction = re.sub(r'<userStyle>.*?</userStyle>', '', product_direction)
+        # Remove any tags that might have been generated
+        description = re.sub(r'<[^>]*>', '', description)
         
-        # Create content with proper formatting and remove any tags
-        content = explanation
-        if product_direction:
-            content += f"\n\nProduct Direction: {product_direction}"
+        # Create formatted content for display
+        features_text = ""
+        if features:
+            features_text = "\n\nFeatures:\n" + "\n".join([f"- {feature}" for feature in features])
         
-        # Create the branch for this combined concept
+        content = description + features_text
+        
+        # Create the branch for this combined concept with explicit product category
         new_branch = {
             "id": branch_id,
             "thread_id": thread_id,
             "heading": concept_heading,
-            "content": content,
+            "content": content,  # Keep for display purposes
+            "description": description,
+            "features": features,
             "source": "concept_combination",
             "parent_branch": None,  # Top-level combined concepts have no parent
             "children": [],  # Initialize empty children list
             "expanded": False,  # Track if this branch has been expanded
             "expansion_data": None,  # Will store expansion data when expanded
-            "source_concepts": source_concepts  # Track which concepts were combined
+            "source_concepts": source_concepts,  # Track which concepts were combined
+            "category": "product"  # Explicitly mark as product category
         }
         
         # Add to global branches registry
         state["branches"][branch_id] = new_branch
         
         # Format the message content without any tags
-        message_content = f"This product idea ({branch_id}) combines elements from multiple concepts:\n\n{explanation}"
-        if product_direction:
-            message_content += f"\n\nProduct Direction: {product_direction}"
+        features_msg = ""
+        if features:
+            features_msg = "\n\nFeatures:\n" + "\n".join([f"- {feature}" for feature in features])
+            
+        message_content = f"This product idea ({branch_id}) combines elements from multiple concepts:\n\n{description}{features_msg}"
             
         # Create a new thread for this specific combined concept
         state["threads"][thread_id] = {
@@ -2039,13 +2121,252 @@ def create_individual_combined_threads(state: IdeationState, json_data: list, so
                     "id": branch_id,
                     "name": concept_heading,
                     "content": content,
+                    "description": description,
+                    "features": features,
                     "children": [],
-                    "source_concepts": source_concepts
+                    "source_concepts": source_concepts,
+                    "category": "product"  # Explicitly mark as product category
                 }
             ]
         })
     
     return thread_ids
+
+def ensure_categories_in_branches(state: IdeationState) -> IdeationState:
+    """Ensure all branches in the state have a category field and correct format."""
+    # Update all branches to have a proper category and format
+    for branch_id, branch in state["branches"].items():
+        # Determine the proper category for this branch
+        proper_category = determine_branch_category(branch, state)
+        
+        # Set or update the category
+        branch["category"] = proper_category
+        
+        # Apply the appropriate standardization based on category
+        if proper_category == "product":
+            # Standardize product branch
+            standardized = standardize_product_branch_data(branch)
+            # Update the branch with standardized values
+            for key, value in standardized.items():
+                branch[key] = value
+        else:
+            # Standardize concept branch
+            standardized = standardize_concept_branch_data(branch)
+            # Update the branch with standardized values
+            for key, value in standardized.items():
+                branch[key] = value
+    
+    # Update all mindmap nodes to have proper category
+    update_mindmap_categories(state["mindmap"], state["branches"])
+    
+    return state
+
+def determine_branch_category(branch: dict, state: IdeationState) -> str:
+    """Determine the proper category for a branch."""
+    # Check if the branch is in a combined thread
+    if branch.get("thread_id", "").startswith("thread_combined_"):
+        return "product"
+    
+    # Check if the branch was explicitly created as a product
+    if branch.get("source") == "concept_combination":
+        return "product"
+    
+    # Check if this branch has source_concepts (indicating it was created by combining)
+    if "source_concepts" in branch and len(branch.get("source_concepts", [])) > 1:
+        return "product"
+    
+    # Check if the branch already has a valid category set
+    if branch.get("category") in ["concept", "product"]:
+        # If it's already categorized as product, keep it that way
+        # (don't downgrade products to concepts)
+        return branch["category"]
+    
+    # Default to concept category for all other branches
+    return "concept"
+
+def update_mindmap_categories(mindmap_node: dict, branches: dict):
+    """Recursively update all nodes in the mindmap to have proper category field."""
+    # Skip non-dict nodes
+    if not isinstance(mindmap_node, dict):
+        return
+        
+    # Skip nodes without children
+    if "children" not in mindmap_node:
+        return
+        
+    # Update each child
+    for child in mindmap_node.get("children", []):
+        # If child has an ID that matches a branch, copy category and format
+        if "id" in child and child["id"] in branches:
+            branch = branches[child["id"]]
+            
+            # Get category from branch
+            category = branch.get("category", "concept")  # Default to concept
+            child["category"] = category
+            
+            # Ensure appropriate fields exist based on category
+            if category == "product":
+                # Copy or set required product fields
+                child["description"] = branch.get("description", "")
+                child["features"] = branch.get("features", [])
+                
+                # Remove concept-specific fields if they exist
+                if "explanation" in child:
+                    del child["explanation"]
+                if "productDirection" in child:
+                    del child["productDirection"]
+                
+                # Generate content field for display
+                features_text = ""
+                if child["features"]:
+                    features_text = "\n\nFeatures:\n" + "\n".join([f"- {feature}" for feature in child["features"]])
+                
+                child["content"] = child["description"] + features_text
+            else:
+                # Copy or set required concept fields
+                child["explanation"] = branch.get("explanation", "")
+                child["productDirection"] = branch.get("productDirection", "")
+                
+                # Remove product-specific fields if they exist
+                if "description" in child:
+                    del child["description"]
+                if "features" in child:
+                    del child["features"]
+                
+                # Copy userProfile if it exists
+                if "userProfile" in branch:
+                    child["userProfile"] = branch["userProfile"]
+                
+                # Generate content field for display
+                content = child["explanation"]
+                if child["productDirection"]:
+                    content += f" Product Direction: {child['productDirection']}"
+                if "userProfile" in child and child["userProfile"]:
+                    content = f"User: {child['userProfile']}\nFeedback: {content}"
+                
+                child["content"] = content
+        
+        # Recursively update this child's children
+        update_mindmap_categories(child, branches)
+
+def standardize_concept_branch_data(branch_data: dict) -> dict:
+    """Standardize concept branch data to ensure consistent format."""
+    # Create a new dictionary to avoid modifying the original input
+    standardized = {}
+    
+    # Ensure required fields exist
+    standardized["heading"] = branch_data.get("heading", "Untitled Concept")
+    
+    # Extract explanation from content or existing explanation field
+    if "explanation" in branch_data:
+        standardized["explanation"] = branch_data["explanation"]
+    elif "content" in branch_data and isinstance(branch_data["content"], str):
+        content = branch_data["content"]
+        
+        # Try to extract explanation and productDirection if they're combined in content
+        product_dir_patterns = ["Product direction:", "Product Direction:", "Product direction", "Product Direction"]
+        
+        for pattern in product_dir_patterns:
+            if pattern in content:
+                parts = content.split(pattern, 1)
+                standardized["explanation"] = parts[0].strip()
+                standardized["productDirection"] = parts[1].strip()
+                break
+        else:
+            # If no pattern found, use entire content as explanation
+            standardized["explanation"] = content
+            standardized["productDirection"] = ""
+    else:
+        # Fallback to empty explanation
+        standardized["explanation"] = ""
+    
+    # Ensure productDirection exists
+    if "productDirection" in branch_data:
+        standardized["productDirection"] = branch_data["productDirection"]
+    elif "productDirection" not in standardized:
+        standardized["productDirection"] = ""
+    
+    # For imaginary customer feedback, ensure userProfile exists if needed
+    if branch_data.get("source") == "imaginaryFeedback" or "userProfile" in branch_data:
+        if "userProfile" in branch_data:
+            standardized["userProfile"] = branch_data["userProfile"]
+        elif "content" in branch_data and "User:" in branch_data["content"]:
+            # Extract userProfile from content if it contains "User:" pattern
+            user_part = branch_data["content"].split("User:", 1)[1].split("\n", 1)[0].strip()
+            standardized["userProfile"] = user_part
+        else:
+            standardized["userProfile"] = ""
+    
+    # Copy any source information
+    if "source" in branch_data:
+        standardized["source"] = branch_data["source"]
+    
+    if "source_idx" in branch_data:
+        standardized["source_idx"] = branch_data["source_idx"]
+        
+    # Preserve any other special fields that might be needed
+    for field in ["id", "thread_id", "parent_branch", "children", "expanded", "expansion_data"]:
+        if field in branch_data:
+            standardized[field] = branch_data[field]
+    
+    # Always explicitly set category as concept
+    standardized["category"] = "concept"
+    
+    # For backwards compatibility - create content field that combines explanation and productDirection
+    content = standardized["explanation"]
+    if standardized["productDirection"]:
+        content += f" Product Direction: {standardized['productDirection']}"
+    if "userProfile" in standardized and standardized["userProfile"]:
+        content = f"User: {standardized['userProfile']}\nFeedback: {content}"
+    
+    standardized["content"] = content
+    
+    return standardized
+
+def standardize_product_branch_data(branch_data: dict) -> dict:
+    """Standardize product branch data to ensure consistent format."""
+    # Create a new dictionary to avoid modifying the original
+    standardized = {}
+    
+    # Ensure required fields exist
+    standardized["heading"] = branch_data.get("heading", "Untitled Product")
+    
+    # Process description field
+    if "description" in branch_data:
+        standardized["description"] = branch_data["description"]
+    elif "explanation" in branch_data:
+        standardized["description"] = branch_data["explanation"]
+    else:
+        standardized["description"] = branch_data.get("content", "No description available.")
+    
+    # Process features list
+    features = []
+    # Try to extract from featureLists if it exists
+    if "featureLists" in branch_data and isinstance(branch_data["featureLists"], list):
+        features = branch_data["featureLists"]
+    elif "features" in branch_data and isinstance(branch_data["features"], list):
+        features = branch_data["features"]
+    
+    # If no features found, create a default placeholder
+    if not features:
+        features = ["No specific features provided"]
+    
+    standardized["features"] = features
+    
+    # Ensure sourceConcepts exists if applicable
+    if "sourceConcepts" in branch_data:
+        standardized["sourceConcepts"] = branch_data["sourceConcepts"]
+    elif "source_concepts" in branch_data:
+        standardized["sourceConcepts"] = branch_data["source_concepts"]
+    else:
+        standardized["sourceConcepts"] = []
+    
+    # Set product category
+    standardized["category"] = "product"
+    
+    return standardized
+
+
 
 def end_session(state: IdeationState) -> IdeationState:
     """End the ideation session."""
