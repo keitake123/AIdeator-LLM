@@ -374,18 +374,113 @@ class ProductHuntScraper:
     
 
 if __name__ == "__main__":
-    # Uncomment for a quick test
-    """
+    # Create scraper instance
     scraper = ProductHuntScraper()
-    sample = scraper.get_popular_products(limit=3)
-    os.makedirs("test_data", exist_ok=True)
-    with open("test_data/test_results.json", "w", encoding="utf-8") as f:
-        json.dump(sample, f, indent=2)
-    print("✅ Test data saved to test_data/test_results.json")
-    """
     
+    # Test the year-based function with a limit of 3 products for the year 2023
+    print("Running test for year 2023 with a limit of 3 products...")
+    
+    # Define a simplified test function that only gets a few products
+    def test_get_products_for_year(year=2023, limit=3):
+        """Test function to get a small sample of products for a specific year"""
+        # Create date ranges for this year
+        start_date = f"{year}-01-01"
+        end_date = f"{year}-12-31"
+        
+        # GraphQL query with date filtering
+        query = """
+        query ProductsByDate($first: Int!, $postedAfter: DateTime!, $postedBefore: DateTime!) {
+          posts(
+            first: $first,
+            postedAfter: $postedAfter,
+            postedBefore: $postedBefore,
+            order: VOTES
+          ) {
+            edges {
+              node {
+                id
+                name
+                tagline
+                description
+                url
+                votesCount
+                commentsCount
+                website
+                createdAt
+                thumbnail {
+                  url
+                }
+                topics {
+                  edges {
+                    node {
+                      name
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        """
+        
+        variables = {
+            "first": limit,
+            "postedAfter": start_date,
+            "postedBefore": end_date
+        }
+        
+        resp = requests.post(
+            scraper.api_url,
+            json={"query": query, "variables": variables},
+            headers=scraper.headers,
+            timeout=15
+        )
+        
+        data = resp.json()
+        
+        if errors := data.get("errors"):
+            print(f"GraphQL errors: {errors}")
+            return {"products": []}
+        
+        posts_data = data.get("data", {}).get("posts", {})
+        edges = posts_data.get("edges", [])
+        
+        # Process products
+        products = []
+        for edge in edges:
+            node = edge["node"]
+            topics = [t["node"]["name"] for t in node["topics"]["edges"]]
+            
+            products.append({
+                "id": node["id"],
+                "title": node["name"],
+                "description": node.get("tagline", ""),
+                "full_description": node.get("description", ""),
+                "url": node.get("url") or node.get("website", ""),
+                "thumbnail": node.get("thumbnail", {}).get("url", ""),
+                "upvotes": node.get("votesCount", 0),
+                "comments": node.get("commentsCount", 0),
+                "created_at": node.get("createdAt", ""),
+                "topics": topics,
+                "year": str(year)
+            })
+        
+        return {"products": products}
+    
+    # Run the test function
+    test_result = test_get_products_for_year(year=2023, limit=3)
+    
+    # Save the test results
+    os.makedirs("test_data", exist_ok=True)
+    with open("test_data/test_year_2023_top3.json", "w", encoding="utf-8") as f:
+        json.dump(test_result, f, indent=2)
+    
+    print(f"✅ Test data saved to test_data/test_year_2023_top3.json")
+    print(f"Found {len(test_result['products'])} products for 2023")
+    
+    # Once this works, you can uncomment this to run the full scraper:
+    """
     # Scrape all products from 2020-2025
-    scraper = ProductHuntScraper()
     all_products = scraper.get_products_by_year_range(
         start_year=2020,
         end_year=2025,
@@ -396,3 +491,28 @@ if __name__ == "__main__":
     print("\nSummary of scraped data:")
     for year, products in all_products.items():
         print(f"Year {year}: {len(products)} products")
+    """
+
+# if __name__ == "__main__":
+#     # Uncomment for a quick test
+#     """
+#     scraper = ProductHuntScraper()
+#     sample = scraper.get_popular_products(limit=3)
+#     os.makedirs("test_data", exist_ok=True)
+#     with open("test_data/test_results.json", "w", encoding="utf-8") as f:
+#         json.dump(sample, f, indent=2)
+#     print("✅ Test data saved to test_data/test_results.json")
+#     """
+    
+#     # Scrape all products from 2020-2025
+#     scraper = ProductHuntScraper()
+#     all_products = scraper.get_products_by_year_range(
+#         start_year=2020,
+#         end_year=2025,
+#         save_path="data"
+#     )
+    
+#     # Print summary of results
+#     print("\nSummary of scraped data:")
+#     for year, products in all_products.items():
+#         print(f"Year {year}: {len(products)} products")
