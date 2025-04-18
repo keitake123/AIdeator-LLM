@@ -197,61 +197,202 @@ class ProductHuntScraper:
             "end_cursor": page_info.get("endCursor")
         }
 
-    def get_products_by_timeframe(
-    self,
-    days_range: int = 365,  # Default to roughly a year
-    order: str = "VOTES",
-    save_path: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
+    def get_products_by_year_range(
+        self,
+        start_year: int = 2020,
+        end_year: int = 2025,
+        save_path: Optional[str] = None
+    ) -> Dict[str, List[Dict[str, Any]]]:
         """
-        Fetch products from Product Hunt for a specific time range.
-        Optionally save JSON in save_path.
+        Fetch products from Product Hunt for a range of years.
+        Optionally save JSON per year in save_path.
         
         Args:
-            days_range: Number of days to look back
-            order: How to order the results (VOTES, NEWEST, etc)
+            start_year: First year to fetch (inclusive)
+            end_year: Last year to fetch (inclusive)
             save_path: Directory to save results JSON
             
         Returns:
-            List of product dictionaries
+            Dictionary with years as keys and lists of products as values
         """
-        print(f"Fetching products ordered by {order}...")
-        all_products: List[Dict[str, Any]] = []
+        all_products: Dict[str, List[Dict[str, Any]]] = {}
         
-        result = self.get_popular_products(order=order)
-        all_products.extend(result["products"])
-        
-        page = 2
-        while result["has_next_page"]:
-            print(f"  Page {page}...")
-            time.sleep(2)  # Be nice to the API
-            result = self.get_popular_products(
-                order=order,
-                cursor=result["end_cursor"]
-            )
-            all_products.extend(result["products"])
-            page += 1
+        # Loop through each year
+        for year in range(start_year, end_year + 1):
+            year_str = str(year)
+            print(f"Fetching products for {year_str}...")
             
-            # Optional: stop after collecting a certain number of products
-            if len(all_products) >= 1000:
-                print(f"Reached 1000 products, stopping pagination.")
-                break
+            # Create date ranges for this year
+            start_date = f"{year_str}-01-01"
+            end_date = f"{year_str}-12-31"
+            
+            # GraphQL query with date filtering
+            query = """
+            query ProductsByDate($first: Int!, $after: String, $postedAfter: DateTime!, $postedBefore: DateTime!) {
+            posts(
+                first: $first,
+                after: $after,
+                postedAfter: $postedAfter,
+                postedBefore: $postedBefore,
+                order: NEWEST
+            ) {
+                pageInfo {
+                hasNextPage
+                endCursor
+                }
+                edges {
+                node {
+                    id
+                    name
+                    tagline
+                    description
+                    url
+                    votesCount
+                    commentsCount
+                    website
+                    createdAt
+                    thumbnail {
+                    url
+                    }
+                    topics {
+                    edges {
+                        node {
+                        name
+                        }
+                    }
+                    }
+                }
+                }
+            }
+            }
+            """
+            
+            # Initialize for this year
+            year_products: List[Dict[str, Any]] = []
+            cursor = None
+            page = 1
+            
+            # Paginate through all results for this year
+            while True:
+                self._respect_rate_limit()
+                
+                variables = {
+                    "first": 50,  # Maximum allowed per page
+                    "postedAfter": start_date,
+                    "postedBefore": end_date
+                }
+                if cursor:
+                    variables["after"] = cursor
+                
+                print(f"  Fetching page {page} for {year_str}...")
+                
+                try:
+                    resp = requests.post(
+                        self.api_url,
+                        json={"query": query, "variables": variables},
+                        headers=self.headers,
+                        timeout=15
+                    )
+                    resp.raise_for_status()
+                    data = resp.json()
+                    
+                    if errors := data.get("errors"):
+                        print(f"GraphQL errors for {year_str}, page {page}: {errors}")
+                        break
+                    
+                    posts_data = data.get("data", {}).get("posts", {})
+                    edges = posts_data.get("edges", [])
+                    page_info = posts_data.get("pageInfo", {})
+                    
+                    # Process products on this page
+                    for edge in edges:
+                        node = edge["node"]
+                        topics = [t["node"]["name"] for t in node["topics"]["edges"]]
+                        
+                        year_products.append({
+                            "id": node["id"],
+                            "title": node["name"],
+                            "description": node.get("tagline", ""),
+                            "full_description": node.get("description", ""),
+                            "url": node.get("url") or node.get("website", ""),
+                            "thumbnail": node.get("thumbnail", {}).get("url", ""),
+                            "upvotes": node.get("votesCount", 0),
+                            "comments": node.get("commentsCount", 0),
+                            "created_at": node.get("createdAt", ""),
+                            "topics": topics,
+                            "year": year_str
+                        })
+                    
+                    # Check if we need to get more pages
+                    has_next_page = page_info.get("hasNextPage", False)
+                    if not has_next_page:
+                        break
+                    
+                    # Get cursor for next page
+                    cursor = page_info.get("endCursor")
+                    if not cursor:
+                        print(f"  No cursor for next page in {year_str}, stopping.")
+                        break
+                    
+                    # Increment page counter
+                    page += 1
+                    
+                    # Add a delay between pages to be nice to the API
+                    time.sleep(2)
+                    
+                except Exception as e:
+                    print(f"Error fetching {year_str}, page {page}: {str(e)}")
+                    break
+            
+            # Save year data if requested
+            if save_path and year_products:
+                os.makedirs(save_path, exist_ok=True)
+                filepath = os.path.join(save_path, f"producthunt_{year_str}.json")
+                with open(filepath, "w", encoding="utf-8") as f:
+                    json.dump(year_products, f, indent=2)
+                print(f"  Saved {len(year_products)} products for {year_str}")
+            
+            # Add to overall results
+            all_products[year_str] = year_products
+            
+            # Wait between years to be nice to the API
+            if year < end_year:
+                print(f"Waiting before fetching next year...")
+                time.sleep(5)
         
+        # Save combined data if requested
         if save_path:
-            os.makedirs(save_path, exist_ok=True)
-            filename = f"producthunt_{order.lower()}.json"
-            filepath = os.path.join(save_path, filename)
-            with open(filepath, "w", encoding="utf-8") as f:
+            all_filepath = os.path.join(save_path, "producthunt_all_years.json")
+            with open(all_filepath, "w", encoding="utf-8") as f:
                 json.dump(all_products, f, indent=2)
-            print(f"Saved {len(all_products)} products to {filepath}")
+            
+            # Get total count
+            total_count = sum(len(products) for products in all_products.values())
+            print(f"Total products: {total_count}")
         
         return all_products
+    
 
 if __name__ == "__main__":
-    # Test run: fetch 3 popular products
+    # Uncomment for a quick test
+    """
     scraper = ProductHuntScraper()
     sample = scraper.get_popular_products(limit=3)
     os.makedirs("test_data", exist_ok=True)
     with open("test_data/test_results.json", "w", encoding="utf-8") as f:
         json.dump(sample, f, indent=2)
     print("✅ Test data saved to test_data/test_results.json")
+    """
+    
+    # Scrape all products from 2020-2025
+    scraper = ProductHuntScraper()
+    all_products = scraper.get_products_by_year_range(
+        start_year=2020,
+        end_year=2025,
+        save_path="data"
+    )
+    
+    # Print summary of results
+    print("\nSummary of scraped data:")
+    for year, products in all_products.items():
+        print(f"Year {year}: {len(products)} products")

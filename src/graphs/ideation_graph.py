@@ -52,6 +52,10 @@ class IdeationState(TypedDict):
     combination_context: Dict  # Stores the branches to be combined
     switch_thread: bool  # Flag for switching between threads
 
+    # New field for branch editing
+    awaiting_branch_edit: bool  # Track if we're waiting for user to edit a branch
+    branch_edit_context: Dict  # Context for branch editing
+
 # Initialize the LLM
 llm = ChatOpenAI(
     model="gpt-3.5-turbo",
@@ -717,6 +721,9 @@ def process_thread_choice_multi(state: IdeationState, choice: str) -> IdeationSt
     
     if "add idea" in choice.lower():
         return process_add_idea_request(state, choice)
+
+    if "edit" in choice.lower():
+        return process_edit_request(state, choice)
     
     # Get all thread options for display/selection
     thread_options = get_thread_options_display(state)
@@ -1125,6 +1132,7 @@ def display_available_branches(state: IdeationState) -> None:
                 branch_id = branch["id"]
                 expanded_marker = " [expanded]" if branch["expanded"] else ""
                 current_marker = " *" if state["active_branch"] == branch_id else ""
+                edit_marker = " [editing]" if state.get("awaiting_branch_edit", False) and state.get("branch_edit_context", {}).get("branch_id") == branch_id else ""
                 
                 # Add source concepts indicator for combined concepts
                 source_concepts = ""
@@ -1134,7 +1142,7 @@ def display_available_branches(state: IdeationState) -> None:
                 # Add category indicator for clarity
                 category_marker = f" [{branch.get('category', 'concept')}]"
                 
-                print(f"  {branch_id}{current_marker}: {branch['heading']}{expanded_marker}{source_concepts}{category_marker}")
+                print(f"  {branch_id}{current_marker}{edit_marker}: {branch['heading']}{expanded_marker}{source_concepts}{category_marker}")
                 
                 # Display content based on branch category
                 if branch.get("category") == "product":
@@ -1168,7 +1176,7 @@ def display_available_branches(state: IdeationState) -> None:
     print("\n=============================")
 
 def display_child_branches(state: IdeationState, parent_branch: dict, displayed_branches: set, indent: int = 4):
-    """Helper function to display child branches recursively."""
+    """Helper function to display child branches recursively with edit status."""
     for child_id in parent_branch["children"]:
         # Skip if already displayed
         if child_id in displayed_branches:
@@ -1178,13 +1186,14 @@ def display_child_branches(state: IdeationState, parent_branch: dict, displayed_
         if child:
             expanded_marker = " [expanded]" if child["expanded"] else ""
             current_marker = " *" if state["active_branch"] == child_id else ""
+            edit_marker = " [editing]" if state.get("awaiting_branch_edit", False) and state.get("branch_edit_context", {}).get("branch_id") == child_id else ""
             
             # Add category indicator for clarity
             category_marker = f" [{child.get('category', 'concept')}]"
             
             # Display the child branch with proper indentation
             indent_spaces = " " * indent
-            print(f"{indent_spaces}{child_id}{current_marker}: {child['heading']}{expanded_marker}{category_marker}")
+            print(f"{indent_spaces}{child_id}{current_marker}{edit_marker}: {child['heading']}{expanded_marker}{category_marker}")
             
             # Display content based on branch category
             if child.get("category") == "product":
@@ -1281,6 +1290,237 @@ def process_branch_selection(state: IdeationState, choice: str) -> IdeationState
         state["messages"].append(AIMessage(content=f"Selected branch {branch_id}: {branch['heading']}. Please provide any specific guidance for expanding this concept, or press Enter to use default guidance."))
     
     return state
+
+def process_edit_request(state: IdeationState, input_text: str) -> IdeationState:
+    """Process user's request to edit a branch."""
+    # Extract branch ID from input (format: "edit bX" where X is the branch number)
+    branch_match = re.search(r'edit\s+b(\d+)', input_text.lower())
+    if not branch_match:
+        state["feedback"] = "Invalid format. Please use 'edit bX' where X is the branch number."
+        return state
+    
+    branch_num = branch_match.group(1)
+    branch_id = f"b{branch_num}"
+    
+    # Check if branch exists
+    if branch_id not in state["branches"]:
+        state["feedback"] = f"Branch {branch_id} does not exist."
+        return state
+    
+    # Get branch info for editing
+    branch = state["branches"][branch_id]
+    
+    # Set up editing context based on branch category
+    state["awaiting_branch_edit"] = True
+    state["branch_edit_context"] = {
+        "branch_id": branch_id,
+        "branch": branch.copy(),  # Make a copy to preserve original data until save
+        "edited_data": {}  # Will store user's edits
+    }
+    
+    # Create appropriate editing form based on branch category
+    if branch.get("category") == "product":
+        # Product branch editing form
+        state["input_instructions"] = {
+            "branch_edit": f"Editing product branch {branch_id}: {branch['heading']}",
+            "fields": {
+                "heading": {
+                    "label": "Heading/Title",
+                    "value": branch.get("heading", ""),
+                    "required": True
+                },
+                "description": {
+                    "label": "Description",
+                    "value": branch.get("description", ""),
+                    "required": True,
+                    "multiline": True
+                },
+                "features": {
+                    "label": "Features (one per line)",
+                    "value": "\n".join(branch.get("features", [])),
+                    "required": False,
+                    "multiline": True
+                }
+            }
+        }
+    else:
+        # Concept branch editing form
+        state["input_instructions"] = {
+            "branch_edit": f"Editing concept branch {branch_id}: {branch['heading']}",
+            "fields": {
+                "heading": {
+                    "label": "Heading/Title",
+                    "value": branch.get("heading", ""),
+                    "required": True
+                },
+                "explanation": {
+                    "label": "Explanation",
+                    "value": branch.get("explanation", ""),
+                    "required": True,
+                    "multiline": True
+                },
+                "productDirection": {
+                    "label": "Product Direction",
+                    "value": branch.get("productDirection", ""),
+                    "required": False,
+                    "multiline": True
+                }
+            }
+        }
+        
+        # Add userProfile field for imaginary feedback branches
+        if "userProfile" in branch:
+            state["input_instructions"]["fields"]["userProfile"] = {
+                "label": "User Profile",
+                "value": branch.get("userProfile", ""),
+                "required": False
+            }
+    
+    state["current_step"] = "await_branch_edit"
+    state["messages"].append(HumanMessage(content=f"I want to edit branch {branch_id}."))
+    state["messages"].append(AIMessage(content=f"You can now edit branch {branch_id}: {branch['heading']}. Please provide the updated information for each field."))
+    
+    return state
+
+def process_branch_edit(state: IdeationState, edit_data: dict) -> IdeationState:
+    """Process the edited branch data and update the branch."""
+    if not state.get("awaiting_branch_edit", False):
+        state["feedback"] = "No branch editing in progress."
+        return state
+    
+    # Get context
+    branch_id = state["branch_edit_context"]["branch_id"]
+    branch = state["branches"][branch_id]
+    
+    # Store original heading for messages
+    original_heading = branch["heading"]
+    
+    # Update branch data based on category
+    if branch.get("category") == "product":
+        # Process product branch fields
+        branch["heading"] = edit_data.get("heading", branch["heading"]).strip()
+        branch["description"] = edit_data.get("description", branch["description"]).strip()
+        
+        # Process features list (convert from newline-separated text)
+        features_text = edit_data.get("features", "")
+        if isinstance(features_text, str):
+            # Split by newlines and filter out empty lines
+            features = [line.strip() for line in features_text.split("\n") if line.strip()]
+            branch["features"] = features
+        
+        # Update content field for display purposes
+        features_text = ""
+        if branch["features"]:
+            features_text = "\n\nFeatures:\n" + "\n".join([f"- {feature}" for feature in branch["features"]])
+        
+        branch["content"] = branch["description"] + features_text
+    else:
+        # Process concept branch fields
+        branch["heading"] = edit_data.get("heading", branch["heading"]).strip()
+        branch["explanation"] = edit_data.get("explanation", branch["explanation"]).strip()
+        branch["productDirection"] = edit_data.get("productDirection", branch["productDirection"]).strip()
+        
+        # Update userProfile if applicable
+        if "userProfile" in edit_data:
+            branch["userProfile"] = edit_data["userProfile"].strip()
+        
+        # Update content field for display purposes
+        content = branch["explanation"]
+        if branch["productDirection"]:
+            content += f" Product Direction: {branch['productDirection']}"
+        if "userProfile" in branch and branch["userProfile"]:
+            content = f"User: {branch['userProfile']}\nFeedback: {content}"
+        
+        branch["content"] = content
+    
+    # Update the branch in the mindmap as well
+    update_branch_in_mindmap(state, branch_id, branch)
+    
+    # Add message about successful edit
+    state["messages"].append(AIMessage(content=f"Branch {branch_id} has been updated from \"{original_heading}\" to \"{branch['heading']}\"."))
+    
+    # Reset editing flags and context
+    state["awaiting_branch_edit"] = False
+    state["branch_edit_context"] = {}
+    
+    # Return to main options
+    state["current_step"] = "present_exploration_options"
+    state["feedback"] = f"Successfully updated branch {branch_id}."
+    
+    return state
+
+def update_branch_in_mindmap(state: IdeationState, branch_id: str, branch_data: dict) -> None:
+    """Update a branch's data in the mindmap structure."""
+    # Get the thread ID for the branch
+    thread_id = branch_data.get("thread_id")
+    if not thread_id:
+        return
+    
+    # Find the thread node in the mindmap
+    thread_node = next((node for node in state["mindmap"]["children"] if node["id"] == thread_id), None)
+    if not thread_node:
+        return
+    
+    # Helper function to recursively find and update a node
+    def update_node_recursive(parent_node, target_id, new_data):
+        # Check direct children first
+        for i, child in enumerate(parent_node.get("children", [])):
+            if child.get("id") == target_id:
+                # Found the node to update
+                # Update basic fields
+                child["name"] = new_data["heading"]
+                
+                # Update category-specific fields
+                if new_data.get("category") == "product":
+                    child["description"] = new_data.get("description", "")
+                    child["features"] = new_data.get("features", [])
+                    
+                    # Update content
+                    features_text = ""
+                    if child["features"]:
+                        features_text = "\n\nFeatures:\n" + "\n".join([f"- {feature}" for feature in child["features"]])
+                    
+                    child["content"] = child["description"] + features_text
+                    
+                    # Remove concept-specific fields if they exist
+                    if "explanation" in child:
+                        del child["explanation"]
+                    if "productDirection" in child:
+                        del child["productDirection"]
+                else:
+                    # Update concept fields
+                    child["explanation"] = new_data.get("explanation", "")
+                    child["productDirection"] = new_data.get("productDirection", "")
+                    
+                    # Update userProfile if applicable
+                    if "userProfile" in new_data:
+                        child["userProfile"] = new_data["userProfile"]
+                    
+                    # Update content
+                    content = child["explanation"]
+                    if child["productDirection"]:
+                        content += f" Product Direction: {child['productDirection']}"
+                    if "userProfile" in child and child["userProfile"]:
+                        content = f"User: {child['userProfile']}\nFeedback: {content}"
+                    
+                    child["content"] = content
+                    
+                    # Remove product-specific fields if they exist
+                    if "description" in child:
+                        del child["description"]
+                    if "features" in child:
+                        del child["features"]
+                
+                return True
+            
+            # If not found at this level, search in this child's children
+            if update_node_recursive(child, target_id, new_data):
+                return True
+        
+        return False
+    
+    # Update the branch in the mindmap
+    update_node_recursive(thread_node, branch_id, branch_data)
 
 def process_concept_input(state: IdeationState, user_input: str) -> IdeationState:
     """Process user input for concept expansion."""
@@ -2415,7 +2655,10 @@ def run_cli_workflow():
         "awaiting_deletion_confirmation": False,
         "deletion_context": {},
         # Fields for concept combination
-        "combination_context": {}
+        "combination_context": {},
+        # New fields for branch editing
+        "awaiting_branch_edit": False,
+        "branch_edit_context": {}
     }
     
     # Step 1: Request input (get instructions on what to collect)
@@ -2491,6 +2734,7 @@ def run_cli_workflow():
         print("\nChoose next action:")
         print("1-3: Select a thread (exploration approach)")
         print("b#: Select a branch (e.g., b1, b2, b3)")
+        print("edit b#: Edit a branch (e.g., edit b1)")
         print("add idea b#: Add your own idea to a branch (e.g., add idea b1)")
         print("delete b#: Delete a branch and all its sub-branches (e.g., delete b1)")
         print("combine b# b# [b#...]: Combine multiple concepts (e.g., combine b1 b2)")
@@ -2567,6 +2811,93 @@ def run_cli_workflow():
                     state["feedback"] = ""
                     
             continue
+        
+        # Process edit branch request
+        if "edit" in user_choice.lower():
+            # Process edit request
+            state = process_edit_request(state, user_choice)
+            
+            # If awaiting branch edit, handle interactive editing
+            if state.get("awaiting_branch_edit", False):
+                branch_id = state["branch_edit_context"]["branch_id"]
+                branch = state["branches"][branch_id]
+                branch_type = branch.get("category", "concept")
+                
+                # Define fields to edit based on branch type
+                if branch_type == "product":
+                    fields = {
+                        "heading": "Title/Heading",
+                        "description": "Description",
+                        "features": "Features (enter multiple lines, type 'END' on a new line when finished)"
+                    }
+                else:  # concept
+                    fields = {
+                        "heading": "Title/Heading",
+                        "explanation": "Explanation",
+                        "productDirection": "Product Direction"
+                    }
+                    # Add userProfile field for imaginary feedback
+                    if "userProfile" in branch:
+                        fields["userProfile"] = "User Profile"
+                
+                # Collect edits
+                edit_data = {}
+                print(f"\nEditing {branch_type} branch {branch_id}: {branch['heading']}")
+                print("Enter new values for each field (leave blank to keep current value):")
+                
+                # Process each field
+                for field_name, field_label in fields.items():
+                    current_value = branch.get(field_name, "")
+                    
+                    # Handle features list specially
+                    if field_name == "features":
+                        print(f"\n{field_label} (current):")
+                        features = branch.get("features", [])
+                        for feature in features:
+                            print(f"- {feature}")
+                        
+                        print("\nEnter new features (one per line, type 'END' when finished):")
+                        lines = []
+                        while True:
+                            line = input()
+                            if line.strip() == "END":
+                                break
+                            lines.append(line)
+                        
+                        if lines:  # Only update if user entered something
+                            edit_data[field_name] = "\n".join(lines)
+                    
+                    # Handle multi-line fields
+                    elif field_name in ["description", "explanation", "productDirection"]:
+                        print(f"\n{field_label} (current):")
+                        print(current_value)
+                        print("\nEnter new value (multi-line input, type 'END' on a new line when finished):")
+                        lines = []
+                        while True:
+                            line = input()
+                            if line.strip() == "END":
+                                break
+                            lines.append(line)
+                        
+                        if lines:  # Only update if user entered something
+                            edit_data[field_name] = "\n".join(lines)
+                    
+                    # Handle single-line fields
+                    else:
+                        print(f"\n{field_label} (current): {current_value}")
+                        new_value = input("New value: ")
+                        if new_value.strip():  # Only update if user entered something
+                            edit_data[field_name] = new_value
+                
+                # Process the edits
+                state = process_branch_edit(state, edit_data)
+                
+                # Display feedback
+                if state["feedback"]:
+                    print(f"\n{state['feedback']}")
+                    state["feedback"] = ""
+                
+                continue
             
         # Process branch selection
         elif user_choice.startswith('b'):
@@ -2656,6 +2987,8 @@ workflow.add_node("process_user_idea", lambda state: process_user_idea(state, st
 workflow.add_node("process_delete_request", lambda state: process_delete_request(state, state["context"].get("thread_choice", "")))
 workflow.add_node("process_deletion_confirmation", lambda state: process_deletion_confirmation(state, state["context"].get("deletion_confirmation", "")))
 workflow.add_node("process_combine_request", lambda state: process_combine_request(state, state["context"].get("thread_choice", "")))
+workflow.add_node("process_edit_request", lambda state: process_edit_request(state, state["context"].get("thread_choice", "")))
+workflow.add_node("process_branch_edit", lambda state: process_branch_edit(state, state["context"].get("edit_data", {})))
 
 # Add edges with conditional logic for regeneration
 workflow.add_edge("request_input", "generate_problem_statement")
@@ -2683,6 +3016,7 @@ workflow.add_conditional_edges(
         "thread_exploration": not state.get("switch_thread", False) and state["current_step"] == "thread_exploration",  # Explore the selected thread
         "process_branch_selection": not state.get("switch_thread", False) and state["current_step"] == "process_branch_selection",  # Process branch selection
         "process_combine_request": not state.get("switch_thread", False) and "combine" in state["context"].get("thread_choice", "").lower(),  # Process combine request
+        "process_edit_request": not state.get("switch_thread", False) and "edit" in state["context"].get("thread_choice", "").lower(),  # Process edit request
         "end_session": state["current_step"] == "end_session"  # End the session
     }
 )
@@ -2724,8 +3058,20 @@ workflow.add_conditional_edges(
     }
 )
 
+# Add conditional edges for edit request
+workflow.add_conditional_edges(
+    "process_edit_request",
+    lambda state: {
+        "process_branch_edit": state.get("awaiting_branch_edit", False) and state["context"].get("edit_data"),
+        "present_exploration_options": not state.get("awaiting_branch_edit", False) or not state["context"].get("edit_data")
+    }
+)
+
 # Add edge for deletion confirmation
 workflow.add_edge("process_deletion_confirmation", "present_exploration_options")
+
+# Add edge for edit processing
+workflow.add_edge("process_branch_edit", "present_exploration_options")
 
 # Add direct edge for combine request (no confirmation step)
 workflow.add_edge("process_combine_request", "present_exploration_options")
@@ -2773,7 +3119,10 @@ def start_ideation_session() -> IdeationState:
         "awaiting_deletion_confirmation": False,
         "deletion_context": {},
         # Fields for concept combination
-        "combination_context": {}
+        "combination_context": {},
+        # New fields for branch editing
+        "awaiting_branch_edit": False,
+        "branch_edit_context": {}
     }
     
     # Add the system message to start fresh
