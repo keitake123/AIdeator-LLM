@@ -1,8 +1,13 @@
+import os
 import time
 import json
-import os
-from typing import List, Dict, Any, Optional
-from urllib.parse import urljoin
+import random
+import logging
+import traceback
+from logging.handlers import RotatingFileHandler
+from queue import Queue, Empty
+from threading import Thread, Lock
+from typing import Set, Dict, Any, Optional, List
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -11,528 +16,629 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
-class YCScraper:
-    def __init__(self):
-        # Setup Chrome options
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")  # Run in headless mode (no UI)
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        
-        # Initialize the driver
-        self.driver = webdriver.Chrome(
-            service=Service(ChromeDriverManager().install()),
-            options=chrome_options
-        )
-        self.base_url = "https://www.ycombinator.com/companies"
-        
-    def get_company_links(self, limit: int = 10) -> List[str]:
-        """
-        Scrape the YC companies directory page to get links to individual company pages.
-        """
-        try:
-            print(f"Loading the companies directory page: {self.base_url}")
-            self.driver.get(self.base_url)
-            
-            # Wait longer for the page to load initially
-            print("Waiting for companies to load (this may take 15-20 seconds)...")
-            
-            # Initial fixed wait to ensure page starts loading properly
-            time.sleep(20)
-            
-            # Then try to detect loading completion
-            try:
-                WebDriverWait(self.driver, 30).until_not(
-                    EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'loading companies')]"))
-                )
-                print("Loading message disappeared - content should be loaded")
-            except:
-                print("Loading message not found or timed out - continuing anyway")
-            
-            # Additional longer wait to be extra safe
-            print("Giving page additional time to fully render...")
-            time.sleep(10)
-            
-            # Check if content is visible
-            print("Looking for company links based on the DOM structure...")
-            
-            # Find all company links based on the DOM structure from the screenshot
-            company_links = []
-            
-            # Using the exact class from the screenshot
-            try:
-                print("Looking for links with class '_company_i9oky_355' or similar...")
-                # Try with wildcard for the dynamic class name part
-                links = self.driver.find_elements(By.CSS_SELECTOR, "a[class*='_company_']")
-                if links:
-                    print(f"Found {len(links)} links with company class")
-                    for link in links:
-                        href = link.get_attribute("href")
-                        # Also try to get the href property directly
-                        if not href:
-                            try:
-                                href = self.driver.execute_script("return arguments[0].getAttribute('href');", link)
-                            except:
-                                pass
-                                
-                        normalized_url = self.parse_company_url(href)
-                        if normalized_url:
-                            company_links.append(normalized_url)
-            except Exception as e:
-                print(f"Error finding company links with class: {str(e)}")
-            
-            # If no links found, try with href attribute
-            if not company_links:
-                print("Trying with href attribute starting with '/companies/'...")
+# ----------------------
+# Configuration
+# ----------------------
+BASE_URL = "https://www.ycombinator.com/companies"
+# List of batch identifiers to iterate through
+BATCHES = [
+    "X25", "W25", "F24", "S24", "W24", "S23", "W23", "S22", "W22", "S21", "W21", "S20", "W20", 
+    "S19", "W19", "S18", "W18", "S17", "W17", "IK12", "S16", "W16", "S15", 
+    "W15", "S14", "W14", "S13", "W13", "S12", "W12", "S11", "W11",
+    "S10", "W10", "S09", "W09", "S08", "W08", "S07", "W07", "S06", 
+    "W06", "S05"
+]
+
+USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/91.0.4472.124 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/15.0 Safari/605.1.15",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/93.0.4577.63 Safari/537.36",
+]
+IMPLICIT_WAIT = 5
+SCROLL_PAUSE = 1.5
+MAX_SCROLLS = 200       # Reduced for each batch since they're smaller
+MAX_STAGNANT_SCROLLS = 10  # Fewer scrolls before giving up on a batch
+CHECKPOINT_INTERVAL = 50
+
+data_dir = "data"
+urls_file = os.path.join(data_dir, "company_urls.json")
+batch_urls_dir = os.path.join(data_dir, "batch_urls")  # New directory for batch-specific URLs
+checkpoint_file = os.path.join(data_dir, "checkpoint.json")
+jsonl_file = os.path.join(data_dir, "yc_companies.jsonl")
+json_file = os.path.join(data_dir, "yc_companies.json")
+log_file = "yc_scraper.log"
+
+# ----------------------
+# Logging
+# ----------------------
+os.makedirs(data_dir, exist_ok=True)
+os.makedirs(batch_urls_dir, exist_ok=True)  # Create batch URLs directory
+logger = logging.getLogger("YCScraper")
+logger.setLevel(logging.INFO)
+rot_handler = RotatingFileHandler(log_file, maxBytes=10_000_000, backupCount=5)
+rot_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+logger.addHandler(rot_handler)
+logger.addHandler(logging.StreamHandler())
+
+# ----------------------
+# Retry Decorator
+# ----------------------
+def retry(exceptions, tries=3, delay=1, backoff=2):
+    def deco(func):
+        def wrapper(*args, **kwargs):
+            mtries, mdelay = tries, delay
+            while mtries > 1:
                 try:
-                    links = self.driver.find_elements(By.CSS_SELECTOR, "a[href^='/companies/']")
-                    if links:
-                        print(f"Found {len(links)} links with href starting with '/companies/'")
-                        for link in links:
-                            href = link.get_attribute("href")
-                            normalized_url = self.parse_company_url(href)
-                            if normalized_url:
-                                company_links.append(normalized_url)
-                except Exception as e:
-                    print(f"Error finding links with href: {str(e)}")
-            
-            # If still no links, try JavaScript approach
-            if not company_links:
-                print("Using JavaScript to extract company links...")
-                try:
-                    js_links = self.driver.execute_script("""
-                        const companyLinks = [];
-                        // Get all anchor elements
-                        const anchors = document.querySelectorAll('a');
-                        
-                        // Iterate through each anchor
-                        for (const a of anchors) {
-                            // Check href attribute
-                            const href = a.getAttribute('href');
-                            if (href && href.includes('/companies/') && !href.endsWith('/companies')) {
-                                // Skip known non-company pages
-                                if (!href.includes('/founders') && !href.includes('/directory')) {
-                                    companyLinks.push(href);
-                                }
-                            }
-                        }
-                        
-                        return companyLinks;
-                    """)
-                    
-                    if js_links:
-                        print(f"Found {len(js_links)} links using JavaScript")
-                        for href in js_links:
-                            normalized_url = self.parse_company_url(href)
-                            if normalized_url:
-                                company_links.append(normalized_url)
-                except Exception as e:
-                    print(f"Error using JavaScript to extract links: {str(e)}")
-            
-            # Take a screenshot for debugging
-            debug_dir = "debug_data"
-            os.makedirs(debug_dir, exist_ok=True)
-            screenshot_path = os.path.join(debug_dir, "company_links_debug.png")
-            self.driver.save_screenshot(screenshot_path)
-            print(f"Screenshot saved as {screenshot_path} for debugging")
-            
-            # Save page source for debugging
-            html_path = os.path.join(debug_dir, "company_links_debug.html")
-            with open(html_path, "w", encoding="utf-8") as f:
-                f.write(self.driver.page_source)
-            print(f"Page source saved as {html_path} for debugging")
-            
-            # Remove duplicates while preserving order
-            filtered_links = []
-            seen = set()
-            for link in company_links:
-                if link not in seen:
-                    seen.add(link)
-                    filtered_links.append(link)
-            
-            # Filter out any remaining non-company links
-            company_links = [link for link in filtered_links if '/companies/' in link and 
-                           not link.endswith('/companies') and
-                           not '/founders' in link and 
-                           not '/directory' in link]
-            
-            print(f"Found {len(company_links)} unique company links")
-            
-            # Limit the number of links
-            if limit > 0:
-                company_links = company_links[:limit]
-                
-            return company_links
-            
-        except Exception as e:
-            print(f"Error getting company links: {str(e)}")
-            
-            # Take a screenshot for error debugging
-            debug_dir = "debug_data"
-            os.makedirs(debug_dir, exist_ok=True)
-            self.driver.save_screenshot(os.path.join(debug_dir, "error_screenshot.png"))
-            
-            return []
-    
-    def parse_company_url(self, href):
-        """
-        Parse and normalize company URLs, handling both relative and absolute URLs.
-        """
+                    return func(*args, **kwargs)
+                except exceptions as e:
+                    logger.warning(f"{func.__name__} error: {e}, retry in {mdelay}s...")
+                    time.sleep(mdelay)
+                    mtries -= 1
+                    mdelay *= backoff
+            return func(*args, **kwargs)
+        return wrapper
+    return deco
+
+# ----------------------
+# Scraper
+# ----------------------
+class YCBulkScraper:
+    def __init__(self, headless: bool=True, resume: bool=False, threads: int=4):
+        self.headless = headless
+        self.resume = resume
+        self.num_threads = max(1, threads)
+        self.url_lock = Lock()
+        self.checkpoint_lock = Lock()
+        self.file_lock = Lock()
+
+        self.company_urls: Set[str] = set()
+        self.processed_urls: Set[str] = set()
+        self.batch_urls: Dict[str, Set[str]] = {}  # Track URLs by batch
+        self.progress = 0
+        self.completed_batches: Set[str] = set()  # Track completed batches
+
+        if resume:
+            self._load_urls()
+            self._load_checkpoint()
+            self._load_batch_status()
+
+    def _init_driver(self) -> webdriver.Chrome:
+        opts = Options()
+        if self.headless:
+            opts.add_argument("--headless=new")
+        opts.add_argument("--no-sandbox")
+        opts.add_argument("--disable-dev-shm-usage")
+        opts.add_argument("--disable-gpu")
+        opts.add_argument("--window-size=1920,1080")
+        opts.add_argument("--disable-notifications")
+        opts.add_argument("--disable-popup-blocking")
+        opts.add_argument(f"--user-agent={random.choice(USER_AGENTS)}")
+        drv = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=opts)
+        drv.implicitly_wait(IMPLICIT_WAIT)
+        return drv
+
+    def parse_url(self, href: str) -> Optional[str]:
         if not href:
             return None
-            
-        # Handle relative URLs (starting with /)
-        if href.startswith('/companies/'):
-            return f"https://www.ycombinator.com{href}"
-            
-        # Handle absolute URLs
+        if href.startswith("/companies/"):
+            url = f"https://www.ycombinator.com{href.split('?')[0]}"
+            if "/founders" in url or "/directory" in url or url.endswith("/companies"):
+                return None
+            return url
         if 'ycombinator.com/companies/' in href:
-            return href
-            
+            url = href.split('?')[0]
+            if "/founders" in url or "/directory" in url or url.endswith("/companies"):
+                return None
+            return url
         return None
-    
-    
-    def scrape_companies(self, limit: int = 10) -> List[Dict[str, Any]]:
-        """
-        Main method to scrape detailed information for YC companies.
-        """
-        try:
-            # First get the company links
-            company_links = self.get_company_links(limit)
-            
-            # Then scrape details for each company
-            companies_data = []
-            for i, link in enumerate(company_links, 1):
-                print(f"\nScraping company {i}/{len(company_links)}: {link}")
-                company_data = self.scrape_company_details(link)
-                companies_data.append(company_data)
-                
-                # Add a small delay between requests to avoid overloading the server
-                if i < len(company_links):
-                    time.sleep(2)
-            
-            return companies_data
-            
-        except Exception as e:
-            print(f"Error in scraping process: {str(e)}")
-            return []
-        finally:
-            # Always close the browser
-            self.driver.quit()
 
-    def scrape_company_details(self, company_url: str) -> Dict[str, Any]:
-        """
-        Scrape detailed information from an individual company page.
-        """
-        try:
-            print(f"Loading company page: {company_url}")
-            self.driver.get(company_url)
-            
-            # Wait just briefly for company detail page to load
-            print("Waiting for company details to load...")
-            time.sleep(2)
-            
-            # Create a debug directory for screenshots and HTML
-            debug_dir = "debug_data"
-            os.makedirs(debug_dir, exist_ok=True)
-            
-            # Get company name from URL for naming debug files
-            company_slug = company_url.split('/')[-1]
-            
-            # Take a screenshot for debugging
-            screenshot_path = os.path.join(debug_dir, f"company_detail_{company_slug}.png")
-            self.driver.save_screenshot(screenshot_path)
-            
-            # Save HTML for debugging
-            html_path = os.path.join(debug_dir, f"company_detail_{company_slug}.html")
-            with open(html_path, "w", encoding="utf-8") as f:
-                f.write(self.driver.page_source)
-            
-            # Extract company name using various selectors
-            company_name = "Unknown Company"
-            name_selectors = [
-                "h1", 
-                ".company-name", 
-                ".CompanyHeader_name__5_lbo",
-                "[data-component='CompanyName']",
-                ".company-profile-header h1",
-                ".headline"
-            ]
-            
-            for selector in name_selectors:
-                try:
-                    name_elements = self.driver.find_elements(By.CSS_SELECTOR, selector)
-                    for element in name_elements:
-                        name = element.text.strip()
-                        if name and len(name) < 100:  # Basic validation
-                            company_name = name
-                            break
-                    if company_name != "Unknown Company":
-                        break
-                except Exception as e:
-                    print(f"Error extracting name with selector {selector}: {str(e)}")
-            
-            # If selectors don't work, try JavaScript
-            if company_name == "Unknown Company":
-                try:
-                    company_name = self.driver.execute_script("""
-                        // Look for h1 elements
-                        const h1s = document.querySelectorAll('h1');
-                        for (const h1 of h1s) {
-                            if (h1.textContent && h1.textContent.trim().length < 100) {
-                                return h1.textContent.trim();
-                            }
-                        }
-                        return 'Unknown Company';
-                    """)
-                except Exception as e:
-                    print(f"Error extracting name with JavaScript: {str(e)}")
-            
-            # Extract company blurb (short description/tagline)
-            company_blurb = ""
-            blurb_selectors = [
-                # NEW SELECTORS FROM SCREENSHOT
-                ".prose.hidden.max-w-full",      # From the first screenshot
-                "div.prose.hidden",              # More generic version
-                ".text-xl",                      # From the first screenshot (text class)
-                
-                # Original selectors as fallback
-                ".company-one-liner", 
-                ".tagline",
-                "[data-component='CompanyTagline']"
-            ]
-            
-            for selector in blurb_selectors:
-                try:
-                    blurb_elements = self.driver.find_elements(By.CSS_SELECTOR, selector)
-                    for element in blurb_elements:
-                        blurb = element.text.strip()
-                        if blurb:
-                            company_blurb = blurb
-                            break
-                    if company_blurb:
-                        break
-                except Exception as e:
-                    print(f"Error extracting blurb with selector {selector}: {str(e)}")
-            
-            # If selectors don't work, try JavaScript for blurb
-            if not company_blurb:
-                try:
-                    company_blurb = self.driver.execute_script("""
-                        // Try to find tagline based on the screenshots
-                        // First try the specific classes from screenshots
-                        const blurbElements = [
-                            ...document.querySelectorAll('.prose.hidden.max-w-full'),
-                            ...document.querySelectorAll('.text-xl'),
-                            ...document.querySelectorAll('div.prose.hidden')
-                        ];
-                        
-                        for (const el of blurbElements) {
-                            const text = el.textContent.trim();
-                            if (text) {
-                                return text;
-                            }
-                        }
-                        
-                        // Fallback to more generic short text blocks
-                        const taglineElements = [
-                            ...document.querySelectorAll('h2'),
-                            ...document.querySelectorAll('p')
-                        ];
-                        
-                        for (const el of taglineElements) {
-                            const text = el.textContent.trim();
-                            // Taglines are typically short
-                            if (text && text.length > 10 && text.length < 200) {
-                                return text;
-                            }
-                        }
-                        return '';
-                    """)
-                except Exception as e:
-                    print(f"Error extracting blurb with JavaScript: {str(e)}")
-            
-            # Extract detailed description
-            company_description = ""
-            description_selectors = [
-                # NEW SELECTORS FROM SCREENSHOT
-                ".prose.max-w-full.whitespace-pre-line",  # From the second screenshot
-                "div.prose.max-w-full",                   # More general version
-                
-                # Original selectors as fallback
-                ".company-description", 
-                ".about-description",
-                "[data-component='CompanyDescription']"
-            ]
-            
-            for selector in description_selectors:
-                try:
-                    desc_elements = self.driver.find_elements(By.CSS_SELECTOR, selector)
-                    if desc_elements:
-                        # Combine multiple paragraphs if found
-                        description_text = " ".join([el.text.strip() for el in desc_elements if el.text.strip()])
-                        if description_text:
-                            company_description = description_text
-                            break
-                except Exception as e:
-                    print(f"Error extracting description with selector {selector}: {str(e)}")
-            
-            # If selectors don't work, try JavaScript
-            if not company_description:
-                try:
-                    company_description = self.driver.execute_script("""
-                        // Try to find the description content based on screenshots
-                        const descElements = document.querySelectorAll('.prose.max-w-full.whitespace-pre-line, div.prose.max-w-full');
-                        
-                        for (const el of descElements) {
-                            const text = el.textContent.trim();
-                            if (text && text.length > 100) {
-                                return text;
-                            }
-                        }
-                        
-                        // Fallback to finding the longest paragraph
-                        const paragraphs = document.querySelectorAll('p');
-                        let longestContent = '';
-                        
-                        for (const p of paragraphs) {
-                            const text = p.textContent.trim();
-                            if (text.length > longestContent.length) {
-                                longestContent = text;
-                            }
-                        }
-                        
-                        return longestContent;
-                    """)
-                except Exception as e:
-                    print(f"Error extracting description with JavaScript: {str(e)}")
-            
-            # Extract company logo/profile picture URL
-            company_logo_url = ""
-            logo_selectors = [
-                ".company-logo img", 
-                ".CompanyHeader_logo__Yd4Bz img",
-                ".logo img",
-                "[data-component='CompanyLogo'] img",
-                "img[alt*='logo']",
-                ".profile-pic img",
-                "header img",      # Images in header
-                ".header img",     # Images in elements with header class
-                "img"              # Any image as last resort
-            ]
-            
-            for selector in logo_selectors:
-                try:
-                    logo_elements = self.driver.find_elements(By.CSS_SELECTOR, selector)
-                    for element in logo_elements:
-                        src = element.get_attribute("src")
-                        if src and (src.endswith('.png') or src.endswith('.jpg') or src.endswith('.jpeg') or src.endswith('.svg')):
-                            company_logo_url = src
-                            break
-                    if company_logo_url:
-                        break
-                except Exception as e:
-                    print(f"Error extracting logo with selector {selector}: {str(e)}")
-            
-            # If selectors don't work, try JavaScript
-            if not company_logo_url:
-                try:
-                    company_logo_url = self.driver.execute_script("""
-                        // Try to find company logo
-                        const images = document.querySelectorAll('img');
-                        for (const img of images) {
-                            const src = img.getAttribute('src');
-                            if (src && (src.endsWith('.png') || src.endsWith('.jpg') || 
-                                src.endsWith('.jpeg') || src.endsWith('.svg'))) {
-                                
-                                // Prioritize images that might be logos
-                                const alt = img.getAttribute('alt') || '';
-                                if (alt.toLowerCase().includes('logo')) {
-                                    return src;
-                                }
-                                
-                                // Check if the image is reasonably sized (logos are usually square-ish)
-                                const width = img.width;
-                                const height = img.height;
-                                if (width > 30 && height > 30 && width/height < 3 && height/width < 3) {
-                                    return src;
-                                }
-                            }
-                        }
-                        return '';
-                    """)
-                except Exception as e:
-                    print(f"Error extracting logo with JavaScript: {str(e)}")
-            
-            # Construct company data object
-            company_data = {
-                'name': company_name,
-                'blurb': company_blurb,
-                'description': company_description,
-                'logo_url': company_logo_url,
-                'url': company_url,
-                'source': 'Y Combinator'
-            }
-            
-            print(f"Scraped details for: {company_name}")
-            return company_data
-            
-        except Exception as e:
-            print(f"Error scraping company details: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            
-            return {
-                'name': "Error",
-                'blurb': "",
-                'description': f"Failed to scrape: {str(e)}",
-                'logo_url': "",
-                'url': company_url,
-                'source': 'Y Combinator'
-            }
+    @retry(Exception)
+    def _scroll_and_collect_batch(self, driver: webdriver.Chrome, batch: str) -> Set[str]:
+        """Collect company URLs for a specific batch."""
+        batch_url = f"{BASE_URL}?batch={batch}"
+        logger.info(f"Starting collection for batch {batch}: {batch_url}")
         
-    def save_companies_to_file(self, companies: List[Dict[str, Any]], filename: str = "yc_companies_detailed.json") -> bool:
-        """
-        Save scraped companies to a JSON file.
-        """
+        batch_urls = set()
+        driver.get(batch_url)
+        
         try:
-            os.makedirs(os.path.dirname(filename) or ".", exist_ok=True)
-            
-            with open(filename, 'w', encoding='utf-8') as f:
-                json.dump(companies, f, indent=2, ensure_ascii=False)
-            print(f"Successfully saved {len(companies)} companies to {filename}")
-            return True
+            WebDriverWait(driver, 15).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "a[href*='/companies/']"))
+            )
         except Exception as e:
-            print(f"Error saving companies to file: {str(e)}")
-            return False
+            logger.warning(f"Timeout waiting for page to load for batch {batch}: {e}")
+            # Take a screenshot to diagnose the issue
+            debug_dir = os.path.join(data_dir, "debug", "batches")
+            os.makedirs(debug_dir, exist_ok=True)
+            driver.save_screenshot(os.path.join(debug_dir, f"{batch}_timeout.png"))
+            return batch_urls
+        
+        last_h = driver.execute_script("return document.body.scrollHeight")
+        last_count = 0
+        stagnant = 0
+        consecutive_no_new_links = 0  # Track consecutive scrolls with no new links
 
+        # Debug directory
+        debug_dir = os.path.join(data_dir, "debug", "batches")
+        os.makedirs(debug_dir, exist_ok=True)
+        
+        # Take initial screenshot
+        driver.save_screenshot(os.path.join(debug_dir, f"{batch}_initial.png"))
+        
+        # Initial count of links before scrolling
+        initial_links = set()
+        elems = driver.find_elements(By.CSS_SELECTOR, "a[href*='/companies/']")
+        for e in elems:
+            url = self.parse_url(e.get_attribute('href'))
+            if url:
+                initial_links.add(url)
+        
+        batch_urls.update(initial_links)
+        logger.info(f"Found {len(initial_links)} initial links for batch {batch}")
+        
+        for i in range(MAX_SCROLLS):
+            prev_url_count = len(batch_urls)
+            
+            # Try different scrolling strategies
+            
+            # 1. Try clicking "Show more" button if present
+            try:
+                btn = driver.find_element(By.XPATH, "//button[contains(., 'Show') and contains(., 'more')]")
+                if btn.is_displayed():
+                    btn.click()
+                    time.sleep(SCROLL_PAUSE)
+                    logger.info(f"Clicked 'Show more' button for batch {batch}")
+                    consecutive_no_new_links = 0  # Reset consecutive counter on button click
+                    continue
+            except:
+                pass
+            
+            # 2. Regular scroll to bottom
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(SCROLL_PAUSE + random.random()*0.5)
+            
+            # 3. Occasionally do a scroll up and down to trigger different loading
+            if i % 5 == 0:
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight * 0.8);")
+                time.sleep(0.5)
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(0.5)
 
-if __name__ == "__main__":
-    # Test the scraper with a limit of 5 companies
-    scraper = YCScraper()
+            # Collect links using different methods
+            all_links = set()
+            
+            # Method 1: Direct links
+            elems = driver.find_elements(By.CSS_SELECTOR, "a[href*='/companies/']")
+            for e in elems:
+                url = self.parse_url(e.get_attribute('href'))
+                if url:
+                    all_links.add(url)
+            
+            # Method 2: Try to find containers with company cards
+            try:
+                containers = driver.find_elements(By.CSS_SELECTOR, ".company_card, [class*='company'], [class*='card']")
+                for container in containers:
+                    links = container.find_elements(By.TAG_NAME, "a")
+                    for link in links:
+                        url = self.parse_url(link.get_attribute('href'))
+                        if url:
+                            all_links.add(url)
+            except:
+                pass
+                
+            # Method 3: Use JavaScript to find all company links
+            try:
+                js_links = driver.execute_script("""
+                    const links = [];
+                    document.querySelectorAll('a').forEach(a => {
+                        const href = a.getAttribute('href');
+                        if (href && href.includes('/companies/') && 
+                            !href.endsWith('/companies') && 
+                            !href.includes('/founders') && 
+                            !href.includes('/directory')) {
+                            links.push(href);
+                        }
+                    });
+                    return links;
+                """)
+                
+                for href in js_links:
+                    url = self.parse_url(href)
+                    if url:
+                        all_links.add(url)
+            except Exception as e:
+                logger.debug(f"JS extraction failed for batch {batch}: {e}")
+            
+            # Add all links to our batch set
+            batch_urls.update(all_links)
+
+            curr = len(batch_urls)
+            new_h = driver.execute_script("return document.body.scrollHeight")
+            
+            # Check if we found any new links
+            if curr == prev_url_count:
+                consecutive_no_new_links += 1
+                logger.info(f"Batch {batch}: No new links in scroll {i+1} ({consecutive_no_new_links} consecutive)")
+            else:
+                consecutive_no_new_links = 0  # Reset counter when we find new links
+                logger.info(f"Batch {batch} - Scroll {i+1}: Found {curr - prev_url_count} new links, total {curr}")
+                
+            # Check for stagnation in page height (old method)
+            if curr == last_count and new_h == last_h:
+                stagnant += 1
+            else:
+                stagnant = 0
+                last_count = curr
+                last_h = new_h
+                
+            # Take screenshots periodically
+            if i % 50 == 0 and i > 0:
+                driver.save_screenshot(os.path.join(debug_dir, f"{batch}_scroll_{i}.png"))
+                
+            # Exit conditions
+            
+            # 1. Stop if we've had three consecutive scrolls with no new links
+            if consecutive_no_new_links >= 3:
+                logger.info(f"Batch {batch}: No new links after {consecutive_no_new_links} consecutive scrolls, breaking.")
+                break
+                
+            # 2. Traditional stagnation check (backup method)
+            if stagnant >= MAX_STAGNANT_SCROLLS:
+                logger.info(f"Batch {batch}: Page height unchanged after {stagnant} scrolls, breaking.")
+                break
+
+        # Take final screenshot
+        driver.save_screenshot(os.path.join(debug_dir, f"{batch}_final.png"))
+        
+        # Save page source for debugging
+        with open(os.path.join(debug_dir, f"{batch}_final.html"), "w", encoding="utf-8") as f:
+            f.write(driver.page_source)
+            
+        logger.info(f"Batch {batch}: Collection completed with {len(batch_urls)} URLs")
+        return batch_urls
+
+    def get_company_links_by_batch(self):
+        """Collect company URLs by iterating through each batch."""
+        if self.resume and self.company_urls:
+            logger.info(f"Resuming with {len(self.company_urls)} preloaded URLs")
+            return
+
+        drv = self._init_driver()
+        try:
+            for batch in BATCHES:
+                # Skip if we've already processed this batch
+                if batch in self.completed_batches:
+                    logger.info(f"Skipping already completed batch: {batch}")
+                    continue
+                
+                # Collect URLs for this batch
+                batch_urls = self._scroll_and_collect_batch(drv, batch)
+                
+                # Store batch URLs and save
+                self.batch_urls[batch] = batch_urls
+                self._save_batch_urls(batch, batch_urls)
+                
+                # Update overall URL set
+                self.company_urls.update(batch_urls)
+                
+                # Mark batch as completed
+                self.completed_batches.add(batch)
+                self._save_batch_status()
+                
+                # Save overall URLs
+                self._save_urls()
+                
+                # Random delay between batches to avoid blocking
+                delay = random.uniform(2, 5)
+                logger.info(f"Waiting {delay:.2f}s before next batch...")
+                time.sleep(delay)
+                
+        except Exception as e:
+            logger.error(f"Error during batch collection: {e}")
+            logger.error(traceback.format_exc())
+        finally:
+            drv.quit()
+            
+        # Final save
+        self._save_urls()
+        self._save_batch_status()
+        logger.info(f"Total URLs collected across all batches: {len(self.company_urls)}")
+
+    def _load_urls(self):
+        if not os.path.exists(urls_file):
+            return
+            
+        try:
+            with open(urls_file,'r') as f:
+                self.company_urls=set(json.load(f))
+            logger.info(f"Loaded {len(self.company_urls)} URLs")
+        except Exception as e:
+            logger.error(f"Failed loading URLs: {e}")
+
+    def _save_urls(self):
+        with self.url_lock:
+            try:
+                tmp=urls_file+'.tmp'
+                with open(tmp,'w') as f:
+                    json.dump(list(self.company_urls),f)
+                os.replace(tmp,urls_file)
+                logger.info(f"Saved {len(self.company_urls)} URLs")
+            except Exception as e:
+                logger.error(f"Failed saving URLs: {e}")
+
+    def _save_batch_urls(self, batch: str, urls: Set[str]):
+        """Save URLs for a specific batch."""
+        batch_file = os.path.join(batch_urls_dir, f"{batch}_urls.json")
+        try:
+            tmp=batch_file+'.tmp'
+            with open(tmp,'w') as f:
+                json.dump(list(urls),f)
+            os.replace(tmp,batch_file)
+            logger.info(f"Saved {len(urls)} URLs for batch {batch}")
+        except Exception as e:
+            logger.error(f"Failed saving batch URLs for {batch}: {e}")
+
+    def _load_batch_status(self):
+        """Load the status of which batches have been completed."""
+        status_file = os.path.join(data_dir, "batch_status.json")
+        if not os.path.exists(status_file):
+            return
+            
+        try:
+            with open(status_file,'r') as f:
+                data = json.load(f)
+                self.completed_batches = set(data.get('completed_batches', []))
+                
+                # Also load the individual batch URLs
+                for batch in self.completed_batches:
+                    batch_file = os.path.join(batch_urls_dir, f"{batch}_urls.json")
+                    if os.path.exists(batch_file):
+                        with open(batch_file, 'r') as bf:
+                            self.batch_urls[batch] = set(json.load(bf))
+                    
+            logger.info(f"Loaded {len(self.completed_batches)} completed batches")
+        except Exception as e:
+            logger.error(f"Failed loading batch status: {e}")
+
+    def _save_batch_status(self):
+        """Save the status of which batches have been completed."""
+        status_file = os.path.join(data_dir, "batch_status.json")
+        try:
+            tmp=status_file+'.tmp'
+            with open(tmp,'w') as f:
+                json.dump({
+                    'completed_batches': list(self.completed_batches),
+                    'ts': time.time()
+                },f)
+            os.replace(tmp,status_file)
+            logger.info(f"Saved batch status ({len(self.completed_batches)} completed)")
+        except Exception as e:
+            logger.error(f"Failed saving batch status: {e}")
+
+    def _load_checkpoint(self):
+        if not os.path.exists(checkpoint_file):
+            return
+            
+        try:
+            with open(checkpoint_file,'r') as f:
+                data=json.load(f)
+                self.processed_urls=set(data.get('processed_urls',[]))
+            logger.info(f"Loaded {len(self.processed_urls)} processed URLs")
+        except Exception as e:
+            logger.error(f"Failed loading checkpoint: {e}")
+
+    def _save_checkpoint(self):
+        with self.checkpoint_lock:
+            try:
+                tmp=checkpoint_file+'.tmp'
+                with open(tmp,'w') as f:
+                    json.dump({'processed_urls':list(self.processed_urls),'ts':time.time()},f)
+                os.replace(tmp,checkpoint_file)
+                logger.info(f"Checkpoint saved ({len(self.processed_urls)} URLs)")
+            except Exception as e:
+                logger.error(f"Failed saving checkpoint: {e}")
+
+    @retry(Exception)
+    def scrape_detail(self, driver: webdriver.Chrome, url: str) -> Dict[str, Any]:
+        driver.get(url)
+        try:
+            WebDriverWait(driver,10).until(EC.presence_of_element_located((By.TAG_NAME,'h1')))
+        except:
+            logger.warning(f"Slow load: {url}")
+
+        # Company Name
+        name='Unknown'
+        h1=driver.find_elements(By.CSS_SELECTOR,'h1')
+        if h1: name=h1[0].text.strip()
+
+        # Blurb - try multiple selectors including the specific class mentioned
+        blurb=''
+        blurb_selectors = [
+            ".prose.hidden.max-w-full.md\\:block",  # Specific class with escaped colon
+            ".prose.hidden.max-w-full",             # Without md:block
+            "div.prose.hidden",                     # Just the main classes
+            ".tagline", 
+            "[data-component='CompanyTagline']"
+        ]
+        
+        # Try each selector individually
+        for selector in blurb_selectors:
+            be = driver.find_elements(By.CSS_SELECTOR, selector)
+            for elem in be:
+                text = elem.text.strip()
+                if text:
+                    blurb = text
+                    break
+            if blurb:
+                break
+        
+        # If still no blurb, try JavaScript as a fallback
+        if not blurb:
+            try:
+                blurb = driver.execute_script("""
+                    // Try specific classes first
+                    const elements = document.querySelectorAll('.prose.hidden, .prose.hidden.max-w-full, .prose.hidden.max-w-full.md\\\\:block');
+                    for (const el of elements) {
+                        if (el.textContent.trim()) return el.textContent.trim();
+                    }
+                    
+                    // Fallback to short paragraphs that could be taglines
+                    const paragraphs = document.querySelectorAll('p, h2, h3');
+                    for (const p of paragraphs) {
+                        const text = p.textContent.trim();
+                        if (text && text.length > 10 && text.length < 200) return text;
+                    }
+                    return '';
+                """)
+            except Exception as e:
+                logger.debug(f"JS blurb extraction error: {e}")
+
+        # Description
+        desc=''
+        for sel in ['.prose.max-w-full.whitespace-pre-line','div.prose.max-w-full','.company-description']:
+            ds=driver.find_elements(By.CSS_SELECTOR,sel)
+            texts=[e.text.strip() for e in ds if e.text.strip()]
+            if texts:
+                desc=' '.join(texts)
+                break
+
+        # Logo
+        logo=''
+        for sel in ['.company-logo img','[data-component=\'CompanyLogo\'] img','img[alt*=logo]', 'header img', '.logo img']:
+            ls=driver.find_elements(By.CSS_SELECTOR,sel)
+            for e in ls:
+                src=e.get_attribute('src')
+                if src and src.endswith(tuple(['.png','.jpg','.jpeg','.svg'])):
+                    logo=src; break
+            if logo: break
+        if not logo:
+            try:
+                logo=driver.execute_script("""
+                    let imgs=[...document.querySelectorAll('img')];
+                    for(let i of imgs){if(/\\.(png|jpe?g|svg)$/.test(i.src))return i.src;}return '';
+                """)
+            except:
+                pass
+
+        # Get batch information if available
+        batch = ''
+        try:
+            # Try to find batch information on the page
+            batch_elem = driver.find_elements(By.CSS_SELECTOR, '.batch, [data-component="CompanyBatch"], [class*="batch"]')
+            if batch_elem:
+                batch = batch_elem[0].text.strip()
+            
+            # If not found on page, try to extract from URL parameters
+            if not batch and "batch=" in driver.current_url:
+                batch_param = driver.current_url.split("batch=")[1].split("&")[0]
+                if batch_param:
+                    batch = batch_param
+                    
+            # Clean up batch string
+            if batch:
+                # Remove any "Batch: " or similar prefix
+                batch = batch.replace("Batch:", "").replace("Batch", "").strip()
+        except Exception as e:
+            logger.debug(f"Error extracting batch: {e}")
+
+        # Take screenshot for debugging
+        debug_dir = os.path.join(data_dir, "debug", "companies")
+        os.makedirs(debug_dir, exist_ok=True)
+        company_slug = url.split('/')[-1]
+        try:
+            driver.save_screenshot(os.path.join(debug_dir, f"{company_slug}.png"))
+        except:
+            pass
+
+        return {
+            'name': name,
+            'blurb': blurb,
+            'description': desc,
+            'logo_url': logo,
+            'batch': batch,  # Add batch information
+            'url': url,
+            'scraped_at': time.strftime('%Y-%m-%d %H:%M:%S')
+        }
+
+    def worker(self, idx:int, q:Queue, total:int):
+        drv=self._init_driver()
+        while True:
+            try: url=q.get_nowait()
+            except Empty: break
+            if url in self.processed_urls:
+                q.task_done(); continue
+            try:
+                detail=self.scrape_detail(drv,url)
+                with self.file_lock, open(jsonl_file,'a') as f:
+                    f.write(json.dumps(detail,ensure_ascii=False)+"\n")
+                with self.checkpoint_lock:
+                    self.processed_urls.add(url)
+                    self.progress+=1
+                    if self.progress%CHECKPOINT_INTERVAL==0: self._save_checkpoint()
+                logger.info(f"[T{idx}] {self.progress}/{total} {detail['name']} - Blurb: {bool(detail['blurb'])} - Batch: {detail.get('batch', 'Unknown')}")
+            except Exception as e:
+                logger.error(f"Worker {idx} error on {url}: {str(e)}")
+                logger.error(traceback.format_exc())
+            finally:
+                q.task_done()
+        drv.quit(); logger.info(f"Worker {idx} done")
+
+    def scrape_all(self,limit:int=0):
+        # First collect all URLs by batch
+        self.get_company_links_by_batch()
+        
+        # Then process the collected URLs
+        to=[u for u in self.company_urls if u not in self.processed_urls]
+        if limit>0: to=to[:limit]
+        total=len(to)
+        logger.info(f"Scraping {total} with {self.num_threads} threads")
+        q=Queue(); [q.put(u) for u in to]
+        ths=[Thread(target=self.worker,args=(i,q,total),daemon=True) for i in range(min(self.num_threads,total))]
+        for t in ths: t.start()
+        try:
+            while q.qsize(): logger.info(f"{q.qsize()}/{total} remaining"); time.sleep(10)
+            q.join()
+        except KeyboardInterrupt:
+            logger.info("Interrupted, saving checkpoint"); self._save_checkpoint(); return
+        for t in ths: t.join()
+        self._save_checkpoint(); logger.info("Done scraping")
+
+    def consolidate(self):
+        if not os.path.exists(jsonl_file): return logger.warning("No data")
+        arr=[]
+        try:
+            with open(jsonl_file) as f: 
+                for l in f:
+                    if l.strip():
+                        try:
+                            arr.append(json.loads(l))
+                        except json.JSONDecodeError as e:
+                            logger.error(f"Error parsing JSONL line: {e}")
+            with open(json_file,'w') as f: 
+                json.dump(arr,f,indent=2)
+            logger.info(f"Consolidated {len(arr)} entries")
+        except Exception as e:
+            logger.error(f"Error during consolidation: {e}")
+            logger.error(traceback.format_exc())
+
+if __name__=='__main__':
+    import argparse
+    p=argparse.ArgumentParser(); p.add_argument('--limit',type=int,default=0)
+    p.add_argument('--resume',action='store_true'); p.add_argument('--visible',action='store_true')
+    p.add_argument('--links-only',action='store_true'); p.add_argument('--threads',type=int,default=4)
+    p.add_argument('--batch',help='Scrape only a specific batch (e.g., W23)')
+    a=p.parse_args()
     
-    print("Running test scrape for the first 5 YC companies...")
+    sc=YCBulkScraper(headless=not a.visible,resume=a.resume,threads=a.threads)
     
-    # Use the scrape_companies method with a limit of 5
-    companies = scraper.scrape_companies(limit=5)
+    # If a specific batch is provided, only scrape that batch
+    if a.batch:
+        # Override BATCHES with just the specified batch
+        BATCHES = [a.batch]
+        logger.info(f"Scraping only batch: {a.batch}")
     
-    # Save the test results
-    test_file = "test_data/yc_companies_detailed.json"
-    scraper.save_companies_to_file(companies, test_file)
-    
-    # Print results
-    print(f"\nTotal companies scraped in test: {len(companies)}")
-    
-    if companies:
-        print("\nList of all companies in test:")
-        for i, company in enumerate(companies, 1):
-            print(f"{i}. {company['name']}")
-            print(f"   Blurb: {company['blurb']}")
-            print(f"   Description: {company['description'][:100]}..." if len(company['description']) > 100 else f"   Description: {company['description']}")
-            print(f"   Logo URL: {company['logo_url']}")
-            print(f"   Company URL: {company['url']}")
-            print()
-    else:
-        print("\nNo companies found. Check the logs for debugging.")
-    
-    print(f"Test data saved to {test_file}")
+    if a.links_only: 
+        sc.get_company_links_by_batch()  # Changed to batch method
+    else: 
+        sc.scrape_all(a.limit)
+        sc.consolidate()

@@ -5,9 +5,9 @@
   background: white;
   border-radius: 16px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
-  align-items: flex-start;
+  align-items: flex-end;
+  width: 100%;
   max-width: 900px;
-  margin: 0 auto;
 }
 
 .form-group {
@@ -16,17 +16,17 @@
 
 .form-group label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   font-weight: 600;
   color: #000;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .form-input {
   width: 100%;
   padding: 12px 16px;
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 16px;
   color: #999;
   background: #fff;
@@ -34,21 +34,23 @@
 
 .form-input:focus {
   outline: none;
-  border-color: #2196f3;
+  border-color: #000;
 }
 
 .generate-button {
-  padding: 12px 24px;
+  padding: 12px 32px;
   background: white;
   color: #000;
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border-radius: 100px;
   font-size: 16px;
+  font-weight: 500;
   cursor: pointer;
-  margin-top: 24px;
   transition: all 0.2s;
+  height: fit-content;
 }
 
 .generate-button:hover {
   background-color: #f5f5f5;
+  border-color: #000;
 } 

@@ -1,0 +1,806 @@
+2025-04-21 11:23:40,497 - INFO - Loaded 5066 URLs from data/company_urls.json
+2025-04-21 11:23:40,497 - INFO - Processing 5066 remaining URLs
+2025-04-21 11:23:40,497 - INFO - Starting scraping with 4 workers, 5 batches
+2025-04-21 11:23:40,498 - INFO - ====== WebDriver manager ======
+2025-04-21 11:23:40,498 - INFO - ====== WebDriver manager ======
+2025-04-21 11:23:40,498 - INFO - ====== WebDriver manager ======
+2025-04-21 11:23:40,498 - INFO - ====== WebDriver manager ======
+2025-04-21 11:23:40,732 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:23:40,732 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:23:40,732 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:23:40,732 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:23:40,833 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:23:40,862 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:23:40,872 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:23:40,884 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:23:40,924 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:23:40,946 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:23:40,990 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:23:41,007 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:23:41,244 - INFO - WebDriver version 135.0.7049.95 selected
+2025-04-21 11:23:41,246 - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.95/mac-arm64/chromedriver-mac-arm64.zip
+2025-04-21 11:23:41,246 - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.95/mac-arm64/chromedriver-mac-arm64.zip
+2025-04-21 11:23:41,299 - INFO - WebDriver version 135.0.7049.95 selected
+2025-04-21 11:23:41,301 - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.95/mac-arm64/chromedriver-mac-arm64.zip
+2025-04-21 11:23:41,301 - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.95/mac-arm64/chromedriver-mac-arm64.zip
+2025-04-21 11:23:41,362 - INFO - WebDriver version 135.0.7049.95 selected
+2025-04-21 11:23:41,363 - INFO - WebDriver version 135.0.7049.95 selected
+2025-04-21 11:23:41,364 - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.95/mac-arm64/chromedriver-mac-arm64.zip
+2025-04-21 11:23:41,365 - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.95/mac-arm64/chromedriver-mac-arm64.zip
+2025-04-21 11:23:41,365 - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.95/mac-arm64/chromedriver-mac-arm64.zip
+2025-04-21 11:23:41,365 - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.95/mac-arm64/chromedriver-mac-arm64.zip
+2025-04-21 11:23:41,448 - INFO - Driver downloading response is 200
+2025-04-21 11:23:41,450 - INFO - Driver downloading response is 200
+2025-04-21 11:23:41,557 - INFO - Driver downloading response is 200
+2025-04-21 11:23:41,607 - INFO - Driver downloading response is 200
+2025-04-21 11:23:46,424 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:23:46,595 - INFO - Driver has been saved in cache [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95]
+2025-04-21 11:23:47,556 - INFO - Scraping profile: https://www.ycombinator.com/companies/naytev
+2025-04-21 11:23:47,825 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:23:48,004 - INFO - Driver has been saved in cache [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95]
+2025-04-21 11:23:48,021 - INFO - ====== WebDriver manager ======
+2025-04-21 11:23:48,131 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:23:48,543 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:23:48,632 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 11:23:49,114 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:23:49,226 - INFO - Driver has been saved in cache [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95]
+2025-04-21 11:23:55,835 - INFO - Scraping profile: https://www.ycombinator.com/companies/arcus
+2025-04-21 11:23:58,644 - INFO - Scraping profile: https://www.ycombinator.com/companies/laudspeaker
+2025-04-21 11:23:58,840 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:23:59,094 - INFO - Driver has been saved in cache [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95]
+2025-04-21 11:24:01,558 - INFO - Scraping profile: https://www.ycombinator.com/companies/array-labs
+2025-04-21 11:24:10,418 - INFO - Scraping profile: https://www.ycombinator.com/companies/dex
+2025-04-21 11:24:12,484 - INFO - Scraping profile: https://www.ycombinator.com/companies/relari
+2025-04-21 11:26:13,548 - INFO - Scraping profile: https://www.ycombinator.com/companies/kodo
+2025-04-21 11:26:16,679 - INFO - Scraping profile: https://www.ycombinator.com/companies/ion-design
+2025-04-21 11:26:55,646 - INFO - Scraping profile: https://www.ycombinator.com/companies/pasito
+2025-04-21 11:26:58,768 - INFO - Scraping profile: https://www.ycombinator.com/companies/vobi
+2025-04-21 11:27:01,030 - INFO - Scraping profile: https://www.ycombinator.com/companies/aquarium-learning
+2025-04-21 11:27:04,024 - INFO - Scraping profile: https://www.ycombinator.com/companies/zeus
+2025-04-21 11:27:05,772 - INFO - Scraping profile: https://www.ycombinator.com/companies/gilgamesh-pharmaceuticals
+2025-04-21 11:27:07,279 - INFO - Scraping profile: https://www.ycombinator.com/companies/deel
+2025-04-21 11:27:08,997 - INFO - Scraping profile: https://www.ycombinator.com/companies/red-barn-robotics
+2025-04-21 11:27:11,500 - INFO - Scraping profile: https://www.ycombinator.com/companies/lucy-goods-inc
+2025-04-21 11:27:13,760 - INFO - Scraping profile: https://www.ycombinator.com/companies/pandai
+2025-04-21 11:27:15,510 - INFO - Scraping profile: https://www.ycombinator.com/companies/move-loot
+2025-04-21 11:27:23,093 - INFO - Scraping profile: https://www.ycombinator.com/companies/surface-labs
+2025-04-21 11:28:13,211 - INFO - Scraping profile: https://www.ycombinator.com/companies/complete
+2025-04-21 11:28:16,061 - INFO - Scraping profile: https://www.ycombinator.com/companies/orca
+2025-04-21 11:28:17,904 - INFO - Scraping profile: https://www.ycombinator.com/companies/openmart
+2025-04-21 11:28:57,443 - INFO - Scraping profile: https://www.ycombinator.com/companies/edge
+2025-04-21 11:29:22,500 - INFO - Scraping profile: https://www.ycombinator.com/companies/lifeat
+2025-04-21 11:29:25,030 - INFO - Scraping profile: https://www.ycombinator.com/companies/helicarrier-prev-buycoins
+2025-04-21 11:29:27,897 - INFO - Scraping profile: https://www.ycombinator.com/companies/perlara
+2025-04-21 11:29:35,522 - INFO - Scraping profile: https://www.ycombinator.com/companies/balanced
+2025-04-21 11:29:43,021 - INFO - Scraping profile: https://www.ycombinator.com/companies/nudgepad
+2025-04-21 11:29:50,342 - INFO - Scraping profile: https://www.ycombinator.com/companies/ziffyhomes
+2025-04-21 11:29:53,253 - INFO - Scraping profile: https://www.ycombinator.com/companies/videogen
+2025-04-21 11:30:29,371 - INFO - Scraping profile: https://www.ycombinator.com/companies/nestor
+2025-04-21 11:30:32,248 - INFO - Scraping profile: https://www.ycombinator.com/companies/substrate
+2025-04-21 11:30:33,773 - INFO - Scraping profile: https://www.ycombinator.com/companies/easyplan
+2025-04-21 11:30:36,969 - INFO - Scraping profile: https://www.ycombinator.com/companies/lingodotdev
+2025-04-21 11:31:26,856 - INFO - Scraping profile: https://www.ycombinator.com/companies/fastgen
+2025-04-21 11:33:26,858 - ERROR - Error scraping https://www.ycombinator.com/companies/fastgen: HTTPConnectionPool(host='localhost', port=63396): Read timed out. (read timeout=120)
+2025-04-21 11:33:28,481 - INFO - Scraping profile: https://www.ycombinator.com/companies/concord-materials
+2025-04-21 11:33:37,624 - INFO - Scraping profile: https://www.ycombinator.com/companies/dill
+2025-04-21 11:33:40,884 - INFO - Scraping profile: https://www.ycombinator.com/companies/flint
+2025-04-21 11:33:43,333 - INFO - Scraping profile: https://www.ycombinator.com/companies/maven-bio
+2025-04-21 11:33:52,240 - INFO - Scraping profile: https://www.ycombinator.com/companies/auricle
+2025-04-21 11:33:57,860 - INFO - Scraping profile: https://www.ycombinator.com/companies/bits
+2025-04-21 11:34:00,607 - INFO - Scraping profile: https://www.ycombinator.com/companies/teleo
+2025-04-21 11:34:02,794 - INFO - Scraping profile: https://www.ycombinator.com/companies/finantier
+2025-04-21 11:34:05,574 - INFO - Scraping profile: https://www.ycombinator.com/companies/novig
+2025-04-21 11:34:07,739 - INFO - Scraping profile: https://www.ycombinator.com/companies/penguin-ai
+2025-04-21 11:34:10,316 - INFO - Scraping profile: https://www.ycombinator.com/companies/agilemd
+2025-04-21 11:34:12,462 - INFO - Scraping profile: https://www.ycombinator.com/companies/pave-2
+2025-04-21 11:34:15,336 - INFO - Scraping profile: https://www.ycombinator.com/companies/cosmic
+2025-04-21 11:35:58,762 - INFO - Scraping profile: https://www.ycombinator.com/companies/raycaster
+2025-04-21 11:36:31,467 - INFO - Scraping profile: https://www.ycombinator.com/companies/wufoo
+2025-04-21 11:36:33,755 - INFO - Scraping profile: https://www.ycombinator.com/companies/salesform
+2025-04-21 11:36:36,882 - INFO - Scraping profile: https://www.ycombinator.com/companies/fuzzwich
+2025-04-21 11:36:44,113 - INFO - Scraping profile: https://www.ycombinator.com/companies/belvo
+2025-04-21 11:36:46,955 - INFO - Scraping profile: https://www.ycombinator.com/companies/jellyfish-art
+2025-04-21 11:36:55,230 - INFO - Scraping profile: https://www.ycombinator.com/companies/kosh
+2025-04-21 11:36:58,190 - INFO - Scraping profile: https://www.ycombinator.com/companies/orbio-earth
+2025-04-21 11:37:56,621 - INFO - Scraping profile: https://www.ycombinator.com/companies/mantlebio
+2025-04-21 11:39:49,401 - INFO - Scraping profile: https://www.ycombinator.com/companies/slauth-io
+2025-04-21 11:39:52,732 - INFO - Scraping profile: https://www.ycombinator.com/companies/mable
+2025-04-21 11:39:54,767 - INFO - Scraping profile: https://www.ycombinator.com/companies/kovi
+2025-04-21 11:39:59,166 - INFO - Scraping profile: https://www.ycombinator.com/companies/magic-instruments
+2025-04-21 11:40:06,238 - INFO - Scraping profile: https://www.ycombinator.com/companies/customeros
+2025-04-21 11:40:12,926 - INFO - Scraping profile: https://www.ycombinator.com/companies/gotrade
+2025-04-21 11:40:15,456 - INFO - Scraping profile: https://www.ycombinator.com/companies/minusx
+2025-04-21 11:42:15,459 - ERROR - Error scraping https://www.ycombinator.com/companies/minusx: HTTPConnectionPool(host='localhost', port=63396): Read timed out. (read timeout=120)
+2025-04-21 11:42:17,081 - INFO - Scraping profile: https://www.ycombinator.com/companies/beu-delivery
+2025-04-21 11:42:32,646 - INFO - Scraping profile: https://www.ycombinator.com/companies/workbase
+2025-04-21 11:42:35,138 - INFO - Scraping profile: https://www.ycombinator.com/companies/snapdocs
+2025-04-21 11:42:37,515 - INFO - Scraping profile: https://www.ycombinator.com/companies/command-ai
+2025-04-21 11:42:45,518 - INFO - Scraping profile: https://www.ycombinator.com/companies/landeed
+2025-04-21 11:42:49,166 - INFO - Scraping profile: https://www.ycombinator.com/companies/cartpanda
+2025-04-21 11:42:51,232 - INFO - Scraping profile: https://www.ycombinator.com/companies/dolarapp
+2025-04-21 11:43:37,920 - INFO - Scraping profile: https://www.ycombinator.com/companies/jet-admin
+2025-04-21 11:43:43,141 - INFO - Scraping profile: https://www.ycombinator.com/companies/onebrief
+2025-04-21 11:43:45,865 - INFO - Scraping profile: https://www.ycombinator.com/companies/scribd
+2025-04-21 11:43:47,720 - INFO - Scraping profile: https://www.ycombinator.com/companies/endla
+2025-04-21 11:43:49,960 - INFO - Scraping profile: https://www.ycombinator.com/companies/panadata
+2025-04-21 11:43:53,179 - INFO - Scraping profile: https://www.ycombinator.com/companies/accessowl
+2025-04-21 11:44:27,400 - INFO - Scraping profile: https://www.ycombinator.com/companies/metriport
+2025-04-21 11:45:41,089 - INFO - Scraping profile: https://www.ycombinator.com/companies/intelligent
+2025-04-21 11:45:45,193 - INFO - Scraping profile: https://www.ycombinator.com/companies/courtyard-io
+2025-04-21 11:45:47,380 - INFO - Scraping profile: https://www.ycombinator.com/companies/pachyderm
+2025-04-21 11:45:50,470 - INFO - Scraping profile: https://www.ycombinator.com/companies/ybanq
+2025-04-21 11:45:53,109 - INFO - Scraping profile: https://www.ycombinator.com/companies/mindori
+2025-04-21 11:46:00,530 - INFO - Scraping profile: https://www.ycombinator.com/companies/milio
+2025-04-21 11:47:17,941 - ERROR - Error scraping https://www.ycombinator.com/companies/milio: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-04-21 11:47:19,810 - INFO - Scraping profile: https://www.ycombinator.com/companies/subsets
+2025-04-21 11:47:19,813 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x106220c30>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:19,814 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062209d0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:19,815 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x106181eb0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:19,815 - ERROR - Error scraping https://www.ycombinator.com/companies/subsets: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621d370>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:20,999 - INFO - Scraping profile: https://www.ycombinator.com/companies/text-blaze
+2025-04-21 11:47:21,000 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621d6a0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:21,001 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621d8c0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:21,005 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621dae0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:21,006 - ERROR - Error scraping https://www.ycombinator.com/companies/text-blaze: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621dd00>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:22,317 - INFO - Scraping profile: https://www.ycombinator.com/companies/webapp-io
+2025-04-21 11:47:22,319 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621e030>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:22,320 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621e250>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:22,320 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621e470>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:22,320 - ERROR - Error scraping https://www.ycombinator.com/companies/webapp-io: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621e690>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:23,901 - INFO - Scraping profile: https://www.ycombinator.com/companies/infer
+2025-04-21 11:47:23,902 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621e9c0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:23,903 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621ebe0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:23,903 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621ee00>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:23,904 - ERROR - Error scraping https://www.ycombinator.com/companies/infer: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621f020>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:25,263 - INFO - Scraping profile: https://www.ycombinator.com/companies/landed
+2025-04-21 11:47:25,265 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621f350>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:25,266 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621f570>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:25,267 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621f790>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:25,268 - ERROR - Error scraping https://www.ycombinator.com/companies/landed: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621f9b0>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:27,070 - INFO - Scraping profile: https://www.ycombinator.com/companies/appcubator
+2025-04-21 11:47:27,075 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621fce0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:27,076 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621ff00>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:27,076 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d4160>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:27,077 - ERROR - Error scraping https://www.ycombinator.com/companies/appcubator: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d4380>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:29,078 - INFO - Scraping profile: https://www.ycombinator.com/companies/goalbook
+2025-04-21 11:47:29,079 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d46b0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:29,080 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d48d0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:29,083 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d4af0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:29,084 - ERROR - Error scraping https://www.ycombinator.com/companies/goalbook: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621fce0>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:30,984 - INFO - Scraping profile: https://www.ycombinator.com/companies/federacy
+2025-04-21 11:47:30,985 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621f9b0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:30,986 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621f790>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:30,986 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621f570>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:30,986 - ERROR - Error scraping https://www.ycombinator.com/companies/federacy: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621f350>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:32,694 - INFO - Scraping profile: https://www.ycombinator.com/companies/dimely
+2025-04-21 11:47:32,698 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621f020>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:32,701 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621ee00>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:32,703 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621ebe0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:32,705 - ERROR - Error scraping https://www.ycombinator.com/companies/dimely: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621e9c0>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:34,380 - INFO - Scraping profile: https://www.ycombinator.com/companies/fleetworks
+2025-04-21 11:47:34,382 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621e690>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:34,383 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621e470>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:34,384 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621e250>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:34,384 - ERROR - Error scraping https://www.ycombinator.com/companies/fleetworks: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621e030>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:35,743 - INFO - Scraping profile: https://www.ycombinator.com/companies/plato
+2025-04-21 11:47:35,745 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621dd00>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:35,746 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621dae0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:35,746 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621d8c0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:35,747 - ERROR - Error scraping https://www.ycombinator.com/companies/plato: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621d6a0>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:36,911 - INFO - Scraping profile: https://www.ycombinator.com/companies/confident-lims
+2025-04-21 11:47:36,912 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621d370>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:36,913 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621c8d0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:36,914 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621c7c0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:36,914 - ERROR - Error scraping https://www.ycombinator.com/companies/confident-lims: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621cc00>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:38,142 - INFO - Scraping profile: https://www.ycombinator.com/companies/care-weather
+2025-04-21 11:47:38,144 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621ce20>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:38,145 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621c050>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:38,145 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d4380>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:38,146 - ERROR - Error scraping https://www.ycombinator.com/companies/care-weather: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d4160>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:39,930 - INFO - Scraping profile: https://www.ycombinator.com/companies/delphia
+2025-04-21 11:47:39,932 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d4c00>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:39,933 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d4e20>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:39,933 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d5040>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:39,934 - ERROR - Error scraping https://www.ycombinator.com/companies/delphia: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d5260>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:41,015 - INFO - Scraping profile: https://www.ycombinator.com/companies/firstwork
+2025-04-21 11:47:41,016 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d5590>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:41,016 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d57b0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:41,017 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d59d0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:41,018 - ERROR - Error scraping https://www.ycombinator.com/companies/firstwork: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d5bf0>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:42,598 - INFO - Scraping profile: https://www.ycombinator.com/companies/billiontoone
+2025-04-21 11:47:42,600 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d5f20>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:42,601 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d6140>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:42,602 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d6360>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:42,603 - ERROR - Error scraping https://www.ycombinator.com/companies/billiontoone: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d6580>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:43,731 - INFO - Scraping profile: https://www.ycombinator.com/companies/release
+2025-04-21 11:47:43,733 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d68b0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:43,735 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d6ad0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:43,737 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d6cf0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:43,739 - ERROR - Error scraping https://www.ycombinator.com/companies/release: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d6f10>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:45,394 - INFO - Scraping profile: https://www.ycombinator.com/companies/helion-energy
+2025-04-21 11:47:45,395 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1062d7240>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:45,396 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621ce20>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:45,396 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621caf0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:45,397 - ERROR - Error scraping https://www.ycombinator.com/companies/helion-energy: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621c6b0>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:47,342 - INFO - Scraping profile: https://www.ycombinator.com/companies/freshpaint
+2025-04-21 11:47:47,343 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621c8d0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:47,344 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621d370>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:47,345 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621cf30>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:47,346 - ERROR - Error scraping https://www.ycombinator.com/companies/freshpaint: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621d7b0>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:47:48,694 - INFO - Scraping profile: https://www.ycombinator.com/companies/abacus
+2025-04-21 11:47:48,697 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621dae0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:48,699 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621dd00>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:48,701 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621df20>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/4c4636f50c7e7a5b2ce71d32aba1c707/url
+2025-04-21 11:47:48,703 - ERROR - Error scraping https://www.ycombinator.com/companies/abacus: HTTPConnectionPool(host='localhost', port=63396): Max retries exceeded with url: /session/4c4636f50c7e7a5b2ce71d32aba1c707/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10621e140>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2025-04-21 11:48:36,662 - INFO - Loaded 5066 URLs from data/company_urls.json
+2025-04-21 11:48:36,664 - INFO - Found 104 already processed URLs
+2025-04-21 11:48:36,664 - INFO - Processing 4962 remaining URLs
+2025-04-21 11:48:36,664 - INFO - Starting scraping with 3 workers, 3 batches
+2025-04-21 11:48:36,664 - INFO - ====== WebDriver manager ======
+2025-04-21 11:48:36,664 - INFO - ====== WebDriver manager ======
+2025-04-21 11:48:36,664 - INFO - ====== WebDriver manager ======
+2025-04-21 11:48:36,841 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:48:36,841 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:48:36,841 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:48:36,937 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:48:36,977 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:48:36,977 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:48:37,053 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 11:48:37,076 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 11:48:37,400 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 11:49:36,677 - INFO - Scraping completed!
+2025-04-21 11:50:36,697 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=54587']' timed out after 60 seconds
+2025-04-21 11:51:36,714 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=54592']' timed out after 60 seconds
+2025-04-21 11:56:15,427 - INFO - Loaded 5066 URLs from data/company_urls.json
+2025-04-21 11:56:15,428 - INFO - Found 104 already processed URLs
+2025-04-21 11:56:15,428 - INFO - Processing 4962 remaining URLs
+2025-04-21 11:56:15,428 - INFO - Starting scraping with 3 workers, 3 batches
+2025-04-21 11:56:15,429 - INFO - ====== WebDriver manager ======
+2025-04-21 11:56:15,429 - INFO - ====== WebDriver manager ======
+2025-04-21 11:56:15,429 - INFO - ====== WebDriver manager ======
+2025-04-21 11:56:15,563 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:56:15,563 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:56:15,563 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:56:15,693 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:56:15,693 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:56:15,771 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 11:56:15,776 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 11:56:15,971 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 11:56:16,058 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 11:57:15,448 - INFO - Scraping completed!
+2025-04-21 11:58:15,473 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=56988']' timed out after 60 seconds
+2025-04-21 11:59:15,491 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=56991']' timed out after 60 seconds
+2025-04-21 12:00:15,501 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=57011']' timed out after 60 seconds
+2025-04-21 12:10:08,606 - INFO - Cleaning up Chrome processes on Darwin
+2025-04-21 12:10:08,641 - INFO - Killed chromedriver process with PID 87914
+2025-04-21 12:10:08,641 - INFO - Killed chromedriver process with PID 87917
+2025-04-21 12:10:08,641 - INFO - Killed chromedriver process with PID 87961
+2025-04-21 12:10:08,641 - INFO - Killed chromedriver process with PID 91615
+2025-04-21 12:10:08,641 - INFO - Killed chromedriver process with PID 91616
+2025-04-21 12:10:08,641 - INFO - Killed chromedriver process with PID 91619
+2025-04-21 12:10:08,641 - INFO - Killed chromedriver process with PID 92643
+2025-04-21 12:10:08,641 - INFO - Killed chromedriver process with PID 92644
+2025-04-21 12:10:08,641 - INFO - Killed chromedriver process with PID 92645
+2025-04-21 12:10:08,641 - INFO - Chrome processes cleaned up
+2025-04-21 12:10:08,642 - INFO - Loaded 5066 URLs from data/company_urls.json
+2025-04-21 12:10:08,644 - INFO - Found 104 already processed URLs
+2025-04-21 12:10:08,644 - INFO - Processing 4962 remaining URLs
+2025-04-21 12:10:08,644 - INFO - Starting scraping with 3 workers, 3 batches
+2025-04-21 12:10:08,644 - INFO - ====== WebDriver manager ======
+2025-04-21 12:10:08,644 - INFO - ====== WebDriver manager ======
+2025-04-21 12:10:08,644 - INFO - ====== WebDriver manager ======
+2025-04-21 12:10:08,784 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:10:08,784 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:10:08,784 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:10:08,860 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:10:08,870 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:10:08,873 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:10:08,953 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:10:08,953 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:10:08,970 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:11:08,654 - INFO - Scraping completed!
+2025-04-21 12:12:08,669 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=61044', '--verbose']' timed out after 60 seconds
+2025-04-21 12:13:08,671 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=61045', '--verbose']' timed out after 60 seconds
+2025-04-21 12:13:35,015 - INFO - Aggressively cleaning up Chrome processes on Darwin
+2025-04-21 12:13:35,065 - INFO - Found chromedriver process with PID 87914, killing...
+2025-04-21 12:13:35,065 - INFO - Found chromedriver process with PID 87917, killing...
+2025-04-21 12:13:35,065 - INFO - Found chromedriver process with PID 87961, killing...
+2025-04-21 12:13:35,065 - INFO - Found chromedriver process with PID 91615, killing...
+2025-04-21 12:13:35,065 - INFO - Found chromedriver process with PID 91616, killing...
+2025-04-21 12:13:35,065 - INFO - Found chromedriver process with PID 91619, killing...
+2025-04-21 12:13:35,065 - INFO - Found chromedriver process with PID 92643, killing...
+2025-04-21 12:13:35,065 - INFO - Found chromedriver process with PID 92644, killing...
+2025-04-21 12:13:35,065 - INFO - Found chromedriver process with PID 92645, killing...
+2025-04-21 12:13:35,065 - INFO - Found chromedriver process with PID 94538, killing...
+2025-04-21 12:13:35,065 - INFO - Found chromedriver process with PID 94539, killing...
+2025-04-21 12:13:35,065 - INFO - Found chromedriver process with PID 94540, killing...
+2025-04-21 12:13:35,065 - INFO - Chrome processes cleaned up
+2025-04-21 12:13:35,066 - INFO - Loaded 5066 URLs from data/company_urls.json
+2025-04-21 12:13:35,067 - INFO - Found 104 already processed URLs
+2025-04-21 12:13:35,067 - INFO - Processing 4962 remaining URLs
+2025-04-21 12:13:35,067 - INFO - Starting scraping with 3 workers, 3 batches
+2025-04-21 12:13:35,068 - INFO - ====== WebDriver manager ======
+2025-04-21 12:13:35,068 - INFO - ====== WebDriver manager ======
+2025-04-21 12:13:35,068 - INFO - ====== WebDriver manager ======
+2025-04-21 12:13:35,208 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:13:35,208 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:13:35,208 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:13:35,316 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:13:35,360 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:13:35,360 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:13:35,414 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:13:35,454 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:13:35,481 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:14:35,082 - INFO - Scraping completed!
+2025-04-21 12:16:33,350 - INFO - Aggressively cleaning up Chrome processes on Darwin
+2025-04-21 12:16:33,399 - INFO - Found chromedriver process with PID 87914, killing...
+2025-04-21 12:16:33,399 - INFO - Found chromedriver process with PID 87917, killing...
+2025-04-21 12:16:33,399 - INFO - Found chromedriver process with PID 87961, killing...
+2025-04-21 12:16:33,399 - INFO - Found chromedriver process with PID 91615, killing...
+2025-04-21 12:16:33,399 - INFO - Found chromedriver process with PID 91616, killing...
+2025-04-21 12:16:33,399 - INFO - Found chromedriver process with PID 91619, killing...
+2025-04-21 12:16:33,399 - INFO - Found chromedriver process with PID 92643, killing...
+2025-04-21 12:16:33,399 - INFO - Found chromedriver process with PID 92644, killing...
+2025-04-21 12:16:33,399 - INFO - Found chromedriver process with PID 92645, killing...
+2025-04-21 12:16:33,399 - INFO - Found chromedriver process with PID 94538, killing...
+2025-04-21 12:16:33,399 - INFO - Found chromedriver process with PID 94539, killing...
+2025-04-21 12:16:33,399 - INFO - Found chromedriver process with PID 94540, killing...
+2025-04-21 12:16:33,400 - INFO - Found chromedriver process with PID 95062, killing...
+2025-04-21 12:16:33,400 - INFO - Found chromedriver process with PID 95063, killing...
+2025-04-21 12:16:33,400 - INFO - Found chromedriver process with PID 95064, killing...
+2025-04-21 12:16:33,400 - INFO - Chrome processes cleaned up
+2025-04-21 12:16:33,400 - INFO - Loaded 5066 URLs from data/company_urls.json
+2025-04-21 12:16:33,401 - INFO - Found 104 already processed URLs
+2025-04-21 12:16:33,402 - INFO - Processing 4962 remaining URLs
+2025-04-21 12:16:33,402 - INFO - Starting scraping with 3 workers, 3 batches
+2025-04-21 12:16:33,402 - INFO - ====== WebDriver manager ======
+2025-04-21 12:16:33,402 - INFO - ====== WebDriver manager ======
+2025-04-21 12:16:33,402 - INFO - ====== WebDriver manager ======
+2025-04-21 12:16:33,537 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:16:33,537 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:16:33,537 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:16:33,941 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:16:33,961 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:16:33,988 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:16:34,092 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:16:34,092 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:16:34,102 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:17:33,418 - INFO - Scraping completed!
+2025-04-21 12:18:33,444 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=63662', '--verbose']' timed out after 60 seconds
+2025-04-21 12:19:33,461 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=63663', '--verbose']' timed out after 60 seconds
+2025-04-21 12:20:33,471 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=63668', '--verbose']' timed out after 60 seconds
+2025-04-21 12:21:05,852 - INFO - Aggressively cleaning up Chrome processes on Darwin
+2025-04-21 12:21:05,893 - INFO - Found chromedriver process with PID 87914, killing...
+2025-04-21 12:21:05,893 - INFO - Found chromedriver process with PID 87917, killing...
+2025-04-21 12:21:05,893 - INFO - Found chromedriver process with PID 87961, killing...
+2025-04-21 12:21:05,893 - INFO - Found chromedriver process with PID 91615, killing...
+2025-04-21 12:21:05,893 - INFO - Found chromedriver process with PID 91616, killing...
+2025-04-21 12:21:05,893 - INFO - Found chromedriver process with PID 91619, killing...
+2025-04-21 12:21:05,893 - INFO - Found chromedriver process with PID 92643, killing...
+2025-04-21 12:21:05,893 - INFO - Found chromedriver process with PID 92644, killing...
+2025-04-21 12:21:05,893 - INFO - Found chromedriver process with PID 92645, killing...
+2025-04-21 12:21:05,893 - INFO - Found chromedriver process with PID 94538, killing...
+2025-04-21 12:21:05,893 - INFO - Found chromedriver process with PID 94539, killing...
+2025-04-21 12:21:05,893 - INFO - Found chromedriver process with PID 94540, killing...
+2025-04-21 12:21:05,893 - INFO - Found chromedriver process with PID 95062, killing...
+2025-04-21 12:21:05,893 - INFO - Found chromedriver process with PID 95063, killing...
+2025-04-21 12:21:05,893 - INFO - Found chromedriver process with PID 95064, killing...
+2025-04-21 12:21:05,893 - INFO - Found chromedriver process with PID 95749, killing...
+2025-04-21 12:21:05,893 - INFO - Found chromedriver process with PID 95750, killing...
+2025-04-21 12:21:05,893 - INFO - Found chromedriver process with PID 95751, killing...
+2025-04-21 12:21:05,893 - INFO - Chrome processes cleaned up
+2025-04-21 12:21:05,894 - INFO - Loaded 5066 URLs from data/company_urls.json
+2025-04-21 12:21:05,896 - INFO - Found 104 already processed URLs
+2025-04-21 12:21:05,896 - INFO - Processing 4962 remaining URLs
+2025-04-21 12:21:05,896 - INFO - Starting scraping with 3 workers, 3 batches
+2025-04-21 12:21:05,896 - INFO - ====== WebDriver manager ======
+2025-04-21 12:21:05,896 - INFO - ====== WebDriver manager ======
+2025-04-21 12:21:05,896 - INFO - ====== WebDriver manager ======
+2025-04-21 12:21:06,021 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:21:06,021 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:21:06,021 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:21:06,111 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:21:06,126 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:21:06,126 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:21:06,198 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:21:06,209 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:21:06,209 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:22:05,915 - INFO - Scraping completed!
+2025-04-21 12:23:05,932 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=65277']' timed out after 60 seconds
+2025-04-21 12:24:05,952 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=65278']' timed out after 60 seconds
+2025-04-21 12:38:15,773 - INFO - Aggressively cleaning up Chrome processes on Darwin
+2025-04-21 12:38:15,836 - INFO - Found chromedriver process with PID 87914, killing...
+2025-04-21 12:38:15,836 - INFO - Found chromedriver process with PID 87917, killing...
+2025-04-21 12:38:15,836 - INFO - Found chromedriver process with PID 87961, killing...
+2025-04-21 12:38:15,836 - INFO - Found chromedriver process with PID 91615, killing...
+2025-04-21 12:38:15,836 - INFO - Found chromedriver process with PID 91616, killing...
+2025-04-21 12:38:15,836 - INFO - Found chromedriver process with PID 91619, killing...
+2025-04-21 12:38:15,836 - INFO - Found chromedriver process with PID 92643, killing...
+2025-04-21 12:38:15,836 - INFO - Found chromedriver process with PID 92644, killing...
+2025-04-21 12:38:15,836 - INFO - Found chromedriver process with PID 92645, killing...
+2025-04-21 12:38:15,836 - INFO - Found chromedriver process with PID 94538, killing...
+2025-04-21 12:38:15,836 - INFO - Found chromedriver process with PID 94539, killing...
+2025-04-21 12:38:15,836 - INFO - Found chromedriver process with PID 94540, killing...
+2025-04-21 12:38:15,836 - INFO - Found chromedriver process with PID 95062, killing...
+2025-04-21 12:38:15,836 - INFO - Found chromedriver process with PID 95063, killing...
+2025-04-21 12:38:15,836 - INFO - Found chromedriver process with PID 95064, killing...
+2025-04-21 12:38:15,836 - INFO - Found chromedriver process with PID 95749, killing...
+2025-04-21 12:38:15,836 - INFO - Found chromedriver process with PID 95750, killing...
+2025-04-21 12:38:15,836 - INFO - Found chromedriver process with PID 95751, killing...
+2025-04-21 12:38:15,837 - INFO - Found chromedriver process with PID 96408, killing...
+2025-04-21 12:38:15,837 - INFO - Found chromedriver process with PID 96409, killing...
+2025-04-21 12:38:15,837 - INFO - Found chromedriver process with PID 96410, killing...
+2025-04-21 12:38:15,837 - INFO - Chrome processes cleaned up
+2025-04-21 12:38:15,838 - INFO - Loaded 5066 URLs from data/company_urls.json
+2025-04-21 12:38:15,839 - INFO - Found 104 already processed URLs
+2025-04-21 12:38:15,840 - INFO - Processing 4962 remaining URLs
+2025-04-21 12:38:15,840 - INFO - Starting scraping with 3 workers, 3 batches
+2025-04-21 12:38:15,840 - INFO - ====== WebDriver manager ======
+2025-04-21 12:38:15,840 - INFO - ====== WebDriver manager ======
+2025-04-21 12:38:15,840 - INFO - ====== WebDriver manager ======
+2025-04-21 12:38:15,981 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:38:15,981 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:38:15,981 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:38:16,076 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:38:16,076 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:38:16,076 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:38:16,200 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:38:16,201 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:38:16,217 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:40:13,748 - INFO - Aggressively cleaning up Chrome processes on Darwin
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 87914, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 87917, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 87961, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 91615, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 91616, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 91619, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 92643, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 92644, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 92645, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 94538, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 94539, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 94540, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 95062, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 95063, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 95064, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 95749, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 95750, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 95751, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 96408, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 96409, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 96410, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 98721, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 98722, killing...
+2025-04-21 12:40:13,792 - INFO - Found chromedriver process with PID 98723, killing...
+2025-04-21 12:40:13,792 - INFO - Chrome processes cleaned up
+2025-04-21 12:40:13,793 - INFO - Loaded 5066 URLs from data/company_urls.json
+2025-04-21 12:40:13,794 - INFO - Found 104 already processed URLs
+2025-04-21 12:40:13,794 - INFO - Processing 4962 remaining URLs
+2025-04-21 12:40:13,794 - INFO - Starting scraping with 3 workers, 3 batches
+2025-04-21 12:40:13,795 - INFO - ====== WebDriver manager ======
+2025-04-21 12:40:13,795 - INFO - ====== WebDriver manager ======
+2025-04-21 12:40:13,795 - INFO - ====== WebDriver manager ======
+2025-04-21 12:40:13,918 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:40:13,919 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:40:13,919 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:40:14,044 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:40:14,044 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:40:14,133 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:40:14,253 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:40:14,253 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:40:14,474 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:41:13,860 - INFO - Scraping completed!
+2025-04-21 12:42:13,891 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=54705']' timed out after 60 seconds
+2025-04-21 12:43:13,905 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=54704']' timed out after 60 seconds
+2025-04-21 12:44:13,917 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=54723']' timed out after 60 seconds
+2025-04-21 12:54:49,820 - INFO - Aggressively cleaning up Chrome processes on Darwin
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 87914, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 87917, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 87961, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 91615, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 91616, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 91619, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 92643, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 92644, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 92645, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 94538, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 94539, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 94540, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 95062, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 95063, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 95064, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 95749, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 95750, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 95751, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 96408, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 96409, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 96410, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 98721, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 98722, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 98723, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 99060, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 99061, killing...
+2025-04-21 12:54:49,867 - INFO - Found chromedriver process with PID 99062, killing...
+2025-04-21 12:54:49,867 - INFO - Chrome processes cleaned up
+2025-04-21 12:54:49,868 - INFO - Loaded 5066 URLs from data/company_urls.json
+2025-04-21 12:54:49,869 - INFO - Found 104 already processed URLs
+2025-04-21 12:54:49,869 - INFO - Processing 4962 remaining URLs
+2025-04-21 12:54:49,869 - INFO - Starting scraping with 3 workers, 3 batches
+2025-04-21 12:54:49,870 - INFO - ====== WebDriver manager ======
+2025-04-21 12:54:49,870 - INFO - ====== WebDriver manager ======
+2025-04-21 12:54:49,871 - INFO - ====== WebDriver manager ======
+2025-04-21 12:54:49,993 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:54:49,993 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:54:49,993 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:54:50,093 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:54:50,097 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:54:50,098 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 12:54:50,179 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:54:50,207 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:54:50,439 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 12:55:49,889 - INFO - Scraping completed!
+2025-04-21 12:56:49,915 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=59056']' timed out after 60 seconds
+2025-04-21 12:57:49,927 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=59074']' timed out after 60 seconds
+2025-04-21 12:58:49,940 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=59061']' timed out after 60 seconds
+2025-04-21 13:35:18,068 - INFO - Aggressively cleaning up Chrome processes on Darwin
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 87914, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 87917, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 87961, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 91615, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 91616, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 91619, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 92643, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 92644, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 92645, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 94538, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 94539, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 94540, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 95062, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 95063, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 95064, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 1387, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 1390, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 1391, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 95749, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 95750, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 95751, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 96408, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 96409, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 96410, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 98721, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 98722, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 98723, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 99060, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 99061, killing...
+2025-04-21 13:35:18,124 - INFO - Found chromedriver process with PID 99062, killing...
+2025-04-21 13:35:18,124 - INFO - Chrome processes cleaned up
+2025-04-21 13:35:18,125 - INFO - Loaded 5066 URLs from data/company_urls.json
+2025-04-21 13:35:18,126 - INFO - Found 104 already processed URLs
+2025-04-21 13:35:18,127 - INFO - Processing 4962 remaining URLs
+2025-04-21 13:35:18,127 - INFO - Starting scraping with 3 workers, 3 batches
+2025-04-21 13:35:18,127 - INFO - ====== WebDriver manager ======
+2025-04-21 13:35:18,127 - INFO - ====== WebDriver manager ======
+2025-04-21 13:35:18,128 - INFO - ====== WebDriver manager ======
+2025-04-21 13:35:18,259 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 13:35:18,259 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 13:35:18,259 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 13:35:19,403 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 13:35:19,403 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 13:35:19,426 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-21 13:35:19,514 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 13:35:19,519 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 13:35:19,565 - INFO - Driver [/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver] found in cache
+2025-04-21 13:36:18,146 - INFO - Scraping completed!
+2025-04-21 13:37:18,170 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=53593']' timed out after 60 seconds
+2025-04-21 13:38:18,184 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=53596']' timed out after 60 seconds
+2025-04-21 13:39:18,201 - ERROR - Service process refused to terminate gracefully with SIGTERM, escalating to SIGKILL.
+Traceback (most recent call last):
+  File "/Users/wangli/Desktop/AIdeator/LLM-app/.venv/lib/python3.13/site-packages/selenium/webdriver/common/service.py", line 184, in _terminate_process
+    self.process.wait(60)
+    ~~~~~~~~~~~~~~~~~^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 1276, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/subprocess.py", line 2060, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/Users/wangli/.wdm/drivers/chromedriver/mac64/135.0.7049.95/chromedriver-mac-arm64/chromedriver', '--port=53603']' timed out after 60 seconds
