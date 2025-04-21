@@ -1,0 +1,185 @@
+.insights-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  transition: all 0.3s ease;
+  border: 1px solid #eee;
+  /* Slight purple tint to distinguish from idea cards */
+  border-left: 4px solid #9C27B0;
+}
+
+.insights-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.insights-card .card-content {
+  margin-right: 48px;
+}
+
+.insights-card .card-title {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin: 0 0 8px 0;
+  color: #333;
+}
+
+.insights-card .card-description {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.insights-card .card-actions {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.insights-card .action-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #f5f5f5;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: #888;
+  padding: 8px;
+}
+
+.insights-card .action-button:hover {
+  background: #e8e8e8;
+  color: #444;
+}
+
+.insights-card .action-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Search button specific styles */
+.insights-card .action-button.search {
+  background: #f5f5f5;
+}
+
+.insights-card .action-button.search:hover {
+  background: #e8e8e8;
+  color: #9C27B0;
+}
+
+/* Search modal styles (for when search is active) */
+.search-modal {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 300px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  z-index: 1000;
+  margin-top: 8px;
+}
+
+.search-modal input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.search-modal input:focus {
+  outline: none;
+  border-color: #9C27B0;
+}
+
+.search-results {
+  margin-top: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.search-result-item {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.search-result-item:hover {
+  background: #f5f5f5;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+/* Loading state for search */
+.search-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  color: #666;
+}
+
+/* No results state */
+.no-results {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .insights-card {
+    max-width: 100%;
+  }
+
+  .search-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 400px;
+  }
+}
+
+/* Animation for card appearance */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.insights-card {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Accessibility focus styles */
+.insights-card .action-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #9C27B0;
+}
+
+.insights-card .action-button:focus:not(:focus-visible) {
+  box-shadow: none;
+} 

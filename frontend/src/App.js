@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import './App.css';
 import IdeationForm from './components/IdeationForm';
 import MindMap from './components/MindMap';
+import IdeaCard from './components/IdeaCard';
+import IdeationBoard from './components/IdeationBoard';
 
 function App() {
   const [mindMapData, setMindMapData] = useState(null);
@@ -26,6 +28,7 @@ function App() {
             concepts={mindMapData.concepts}
           />
         )}
+        <IdeationBoard />
       </main>
     </div>
   );
