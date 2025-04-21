@@ -1,0 +1,619 @@
+2025-04-19 02:12:38,435 - INFO - Starting collection for batch X25: https://www.ycombinator.com/companies?batch=X25
+2025-04-19 02:12:39,968 - INFO - Found 0 initial links for batch X25
+2025-04-19 02:12:47,925 - INFO - Batch X25 - Scroll 1: Found 30 new links, total 30
+2025-04-19 02:12:54,819 - INFO - Batch X25: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:13:01,690 - INFO - Batch X25: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:13:08,798 - INFO - Batch X25: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:13:08,799 - INFO - Batch X25: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:13:09,156 - INFO - Batch X25: Collection completed with 30 URLs
+2025-04-19 02:13:09,156 - INFO - Saved 30 URLs for batch X25
+2025-04-19 02:13:09,156 - INFO - Saved batch status (1 completed)
+2025-04-19 02:13:09,157 - INFO - Saved 30 URLs
+2025-04-19 02:13:09,157 - INFO - Waiting 3.91s before next batch...
+2025-04-19 02:13:13,069 - INFO - Starting collection for batch W25: https://www.ycombinator.com/companies?batch=W25
+2025-04-19 02:13:13,573 - INFO - Found 0 initial links for batch W25
+2025-04-19 02:13:21,878 - INFO - Batch W25 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:13:29,431 - INFO - Batch W25 - Scroll 2: Found 20 new links, total 120
+2025-04-19 02:13:37,258 - INFO - Batch W25 - Scroll 3: Found 20 new links, total 140
+2025-04-19 02:13:45,071 - INFO - Batch W25 - Scroll 4: Found 20 new links, total 160
+2025-04-19 02:13:53,015 - INFO - Batch W25 - Scroll 5: Found 4 new links, total 164
+2025-04-19 02:14:02,269 - INFO - Batch W25: No new links in scroll 6 (1 consecutive)
+2025-04-19 02:14:10,253 - INFO - Batch W25: No new links in scroll 7 (2 consecutive)
+2025-04-19 02:14:18,245 - INFO - Batch W25: No new links in scroll 8 (3 consecutive)
+2025-04-19 02:14:18,245 - INFO - Batch W25: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:14:18,518 - INFO - Batch W25: Collection completed with 164 URLs
+2025-04-19 02:14:18,519 - INFO - Saved 164 URLs for batch W25
+2025-04-19 02:14:18,522 - INFO - Saved batch status (2 completed)
+2025-04-19 02:14:18,522 - INFO - Saved 194 URLs
+2025-04-19 02:14:18,522 - INFO - Waiting 2.82s before next batch...
+2025-04-19 02:14:21,343 - INFO - Starting collection for batch F24: https://www.ycombinator.com/companies?batch=F24
+2025-04-19 02:14:23,675 - INFO - Found 0 initial links for batch F24
+2025-04-19 02:14:32,352 - INFO - Batch F24 - Scroll 1: Found 95 new links, total 95
+2025-04-19 02:14:39,767 - INFO - Batch F24: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:14:47,016 - INFO - Batch F24: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:14:54,540 - INFO - Batch F24: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:14:54,540 - INFO - Batch F24: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:14:54,845 - INFO - Batch F24: Collection completed with 95 URLs
+2025-04-19 02:14:54,845 - INFO - Saved 95 URLs for batch F24
+2025-04-19 02:14:54,845 - INFO - Saved batch status (3 completed)
+2025-04-19 02:14:54,846 - INFO - Saved 289 URLs
+2025-04-19 02:14:54,846 - INFO - Waiting 2.24s before next batch...
+2025-04-19 02:14:57,093 - INFO - Starting collection for batch S24: https://www.ycombinator.com/companies?batch=S24
+2025-04-19 02:14:57,614 - INFO - Found 0 initial links for batch S24
+2025-04-19 02:15:05,989 - INFO - Batch S24 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:15:13,799 - INFO - Batch S24 - Scroll 2: Found 20 new links, total 120
+2025-04-19 02:15:21,441 - INFO - Batch S24 - Scroll 3: Found 20 new links, total 140
+2025-04-19 02:15:29,491 - INFO - Batch S24 - Scroll 4: Found 20 new links, total 160
+2025-04-19 02:15:37,519 - INFO - Batch S24 - Scroll 5: Found 20 new links, total 180
+2025-04-19 02:15:46,984 - INFO - Batch S24 - Scroll 6: Found 40 new links, total 220
+2025-04-19 02:15:55,711 - INFO - Batch S24 - Scroll 7: Found 20 new links, total 240
+2025-04-19 02:16:04,251 - INFO - Batch S24 - Scroll 8: Found 13 new links, total 253
+2025-04-19 02:16:12,732 - INFO - Batch S24: No new links in scroll 9 (1 consecutive)
+2025-04-19 02:16:21,308 - INFO - Batch S24: No new links in scroll 10 (2 consecutive)
+2025-04-19 02:16:31,151 - INFO - Batch S24: No new links in scroll 11 (3 consecutive)
+2025-04-19 02:16:31,151 - INFO - Batch S24: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:16:31,465 - INFO - Batch S24: Collection completed with 253 URLs
+2025-04-19 02:16:31,465 - INFO - Saved 253 URLs for batch S24
+2025-04-19 02:16:31,466 - INFO - Saved batch status (4 completed)
+2025-04-19 02:16:31,467 - INFO - Saved 542 URLs
+2025-04-19 02:16:31,467 - INFO - Waiting 4.36s before next batch...
+2025-04-19 02:16:35,830 - INFO - Starting collection for batch W24: https://www.ycombinator.com/companies?batch=W24
+2025-04-19 02:16:36,584 - INFO - Found 0 initial links for batch W24
+2025-04-19 02:16:44,903 - INFO - Batch W24 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:16:52,629 - INFO - Batch W24 - Scroll 2: Found 20 new links, total 120
+2025-04-19 02:17:00,204 - INFO - Batch W24 - Scroll 3: Found 20 new links, total 140
+2025-04-19 02:17:07,964 - INFO - Batch W24 - Scroll 4: Found 20 new links, total 160
+2025-04-19 02:17:15,924 - INFO - Batch W24 - Scroll 5: Found 20 new links, total 180
+2025-04-19 02:17:25,611 - INFO - Batch W24 - Scroll 6: Found 40 new links, total 220
+2025-04-19 02:17:33,966 - INFO - Batch W24 - Scroll 7: Found 20 new links, total 240
+2025-04-19 02:17:42,487 - INFO - Batch W24 - Scroll 8: Found 12 new links, total 252
+2025-04-19 02:17:50,847 - INFO - Batch W24: No new links in scroll 9 (1 consecutive)
+2025-04-19 02:17:59,199 - INFO - Batch W24: No new links in scroll 10 (2 consecutive)
+2025-04-19 02:18:08,759 - INFO - Batch W24: No new links in scroll 11 (3 consecutive)
+2025-04-19 02:18:08,759 - INFO - Batch W24: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:18:09,062 - INFO - Batch W24: Collection completed with 252 URLs
+2025-04-19 02:18:09,062 - INFO - Saved 252 URLs for batch W24
+2025-04-19 02:18:09,063 - INFO - Saved batch status (5 completed)
+2025-04-19 02:18:09,064 - INFO - Saved 794 URLs
+2025-04-19 02:18:09,064 - INFO - Waiting 4.98s before next batch...
+2025-04-19 02:18:14,049 - INFO - Starting collection for batch S23: https://www.ycombinator.com/companies?batch=S23
+2025-04-19 02:18:16,008 - INFO - Found 0 initial links for batch S23
+2025-04-19 02:18:24,390 - INFO - Batch S23 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:18:32,007 - INFO - Batch S23 - Scroll 2: Found 20 new links, total 120
+2025-04-19 02:18:39,654 - INFO - Batch S23 - Scroll 3: Found 20 new links, total 140
+2025-04-19 02:18:47,508 - INFO - Batch S23 - Scroll 4: Found 20 new links, total 160
+2025-04-19 02:18:55,630 - INFO - Batch S23 - Scroll 5: Found 20 new links, total 180
+2025-04-19 02:19:05,013 - INFO - Batch S23 - Scroll 6: Found 39 new links, total 219
+2025-04-19 02:19:13,492 - INFO - Batch S23: No new links in scroll 7 (1 consecutive)
+2025-04-19 02:19:21,817 - INFO - Batch S23: No new links in scroll 8 (2 consecutive)
+2025-04-19 02:19:30,184 - INFO - Batch S23: No new links in scroll 9 (3 consecutive)
+2025-04-19 02:19:30,185 - INFO - Batch S23: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:19:30,461 - INFO - Batch S23: Collection completed with 219 URLs
+2025-04-19 02:19:30,461 - INFO - Saved 219 URLs for batch S23
+2025-04-19 02:19:30,462 - INFO - Saved batch status (6 completed)
+2025-04-19 02:19:30,462 - INFO - Saved 1013 URLs
+2025-04-19 02:19:30,462 - INFO - Waiting 2.66s before next batch...
+2025-04-19 02:19:33,124 - INFO - Starting collection for batch W23: https://www.ycombinator.com/companies?batch=W23
+2025-04-19 02:19:35,192 - INFO - Found 0 initial links for batch W23
+2025-04-19 02:19:43,487 - INFO - Batch W23 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:19:50,959 - INFO - Batch W23 - Scroll 2: Found 20 new links, total 120
+2025-04-19 02:19:59,026 - INFO - Batch W23 - Scroll 3: Found 20 new links, total 140
+2025-04-19 02:20:06,109 - INFO - Batch W23: No new links in scroll 4 (1 consecutive)
+2025-04-19 02:20:13,440 - INFO - Batch W23: No new links in scroll 5 (2 consecutive)
+2025-04-19 02:20:22,112 - INFO - Batch W23: No new links in scroll 6 (3 consecutive)
+2025-04-19 02:20:22,113 - INFO - Batch W23: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:20:22,372 - INFO - Batch W23: Collection completed with 140 URLs
+2025-04-19 02:20:22,372 - INFO - Saved 140 URLs for batch W23
+2025-04-19 02:20:22,372 - INFO - Saved batch status (7 completed)
+2025-04-19 02:20:22,373 - INFO - Saved 1153 URLs
+2025-04-19 02:20:22,373 - INFO - Waiting 3.71s before next batch...
+2025-04-19 02:20:26,083 - INFO - Starting collection for batch S22: https://www.ycombinator.com/companies?batch=S22
+2025-04-19 02:20:27,423 - INFO - Found 0 initial links for batch S22
+2025-04-19 02:20:36,557 - INFO - Batch S22 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:20:43,970 - INFO - Batch S22 - Scroll 2: Found 20 new links, total 120
+2025-04-19 02:20:51,825 - INFO - Batch S22 - Scroll 3: Found 20 new links, total 140
+2025-04-19 02:20:59,467 - INFO - Batch S22 - Scroll 4: Found 20 new links, total 160
+2025-04-19 02:21:07,799 - INFO - Batch S22 - Scroll 5: Found 20 new links, total 180
+2025-04-19 02:21:17,416 - INFO - Batch S22 - Scroll 6: Found 40 new links, total 220
+2025-04-19 02:21:25,843 - INFO - Batch S22 - Scroll 7: Found 14 new links, total 234
+2025-04-19 02:21:34,379 - INFO - Batch S22: No new links in scroll 8 (1 consecutive)
+2025-04-19 02:21:42,849 - INFO - Batch S22: No new links in scroll 9 (2 consecutive)
+2025-04-19 02:21:51,364 - INFO - Batch S22: No new links in scroll 10 (3 consecutive)
+2025-04-19 02:21:51,364 - INFO - Batch S22: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:21:51,737 - INFO - Batch S22: Collection completed with 234 URLs
+2025-04-19 02:21:51,737 - INFO - Saved 234 URLs for batch S22
+2025-04-19 02:21:51,738 - INFO - Saved batch status (8 completed)
+2025-04-19 02:21:51,740 - INFO - Saved 1387 URLs
+2025-04-19 02:21:51,740 - INFO - Waiting 2.42s before next batch...
+2025-04-19 02:21:54,180 - INFO - Starting collection for batch W22: https://www.ycombinator.com/companies?batch=W22
+2025-04-19 02:21:55,378 - INFO - Found 0 initial links for batch W22
+2025-04-19 02:22:04,107 - INFO - Batch W22 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:22:11,892 - INFO - Batch W22 - Scroll 2: Found 20 new links, total 120
+2025-04-19 02:22:19,975 - INFO - Batch W22 - Scroll 3: Found 20 new links, total 140
+2025-04-19 02:22:27,745 - INFO - Batch W22 - Scroll 4: Found 20 new links, total 160
+2025-04-19 02:22:35,604 - INFO - Batch W22 - Scroll 5: Found 20 new links, total 180
+2025-04-19 02:22:45,132 - INFO - Batch W22 - Scroll 6: Found 40 new links, total 220
+2025-04-19 02:22:54,023 - INFO - Batch W22 - Scroll 7: Found 20 new links, total 240
+2025-04-19 02:23:02,963 - INFO - Batch W22 - Scroll 8: Found 20 new links, total 260
+2025-04-19 02:23:11,628 - INFO - Batch W22 - Scroll 9: Found 20 new links, total 280
+2025-04-19 02:23:20,810 - INFO - Batch W22 - Scroll 10: Found 20 new links, total 300
+2025-04-19 02:23:31,231 - INFO - Batch W22 - Scroll 11: Found 40 new links, total 340
+2025-04-19 02:23:40,304 - INFO - Batch W22 - Scroll 12: Found 20 new links, total 360
+2025-04-19 02:23:49,737 - INFO - Batch W22 - Scroll 13: Found 20 new links, total 380
+2025-04-19 02:23:59,412 - INFO - Batch W22 - Scroll 14: Found 19 new links, total 399
+2025-04-19 02:24:09,015 - INFO - Batch W22: No new links in scroll 15 (1 consecutive)
+2025-04-19 02:24:19,782 - INFO - Batch W22: No new links in scroll 16 (2 consecutive)
+2025-04-19 02:24:29,416 - INFO - Batch W22: No new links in scroll 17 (3 consecutive)
+2025-04-19 02:24:29,417 - INFO - Batch W22: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:24:29,790 - INFO - Batch W22: Collection completed with 399 URLs
+2025-04-19 02:24:29,791 - INFO - Saved 399 URLs for batch W22
+2025-04-19 02:24:29,792 - INFO - Saved batch status (9 completed)
+2025-04-19 02:24:29,794 - INFO - Saved 1786 URLs
+2025-04-19 02:24:29,794 - INFO - Waiting 3.05s before next batch...
+2025-04-19 02:24:32,851 - INFO - Starting collection for batch S21: https://www.ycombinator.com/companies?batch=S21
+2025-04-19 02:24:34,035 - INFO - Found 0 initial links for batch S21
+2025-04-19 02:24:42,537 - INFO - Batch S21 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:24:50,066 - INFO - Batch S21 - Scroll 2: Found 20 new links, total 120
+2025-04-19 02:24:58,034 - INFO - Batch S21 - Scroll 3: Found 20 new links, total 140
+2025-04-19 02:25:05,907 - INFO - Batch S21 - Scroll 4: Found 20 new links, total 160
+2025-04-19 02:25:14,032 - INFO - Batch S21 - Scroll 5: Found 20 new links, total 180
+2025-04-19 02:25:23,416 - INFO - Batch S21 - Scroll 6: Found 40 new links, total 220
+2025-04-19 02:25:31,762 - INFO - Batch S21 - Scroll 7: Found 20 new links, total 240
+2025-04-19 02:25:40,528 - INFO - Batch S21 - Scroll 8: Found 20 new links, total 260
+2025-04-19 02:25:49,503 - INFO - Batch S21 - Scroll 9: Found 20 new links, total 280
+2025-04-19 02:25:58,327 - INFO - Batch S21 - Scroll 10: Found 20 new links, total 300
+2025-04-19 02:26:08,316 - INFO - Batch S21 - Scroll 11: Found 40 new links, total 340
+2025-04-19 02:26:17,799 - INFO - Batch S21 - Scroll 12: Found 20 new links, total 360
+2025-04-19 02:26:27,234 - INFO - Batch S21 - Scroll 13: Found 20 new links, total 380
+2025-04-19 02:26:36,754 - INFO - Batch S21 - Scroll 14: Found 11 new links, total 391
+2025-04-19 02:26:46,143 - INFO - Batch S21: No new links in scroll 15 (1 consecutive)
+2025-04-19 02:26:56,890 - INFO - Batch S21: No new links in scroll 16 (2 consecutive)
+2025-04-19 02:27:06,610 - INFO - Batch S21: No new links in scroll 17 (3 consecutive)
+2025-04-19 02:27:06,610 - INFO - Batch S21: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:27:06,850 - INFO - Batch S21: Collection completed with 391 URLs
+2025-04-19 02:27:06,851 - INFO - Saved 391 URLs for batch S21
+2025-04-19 02:27:06,852 - INFO - Saved batch status (10 completed)
+2025-04-19 02:27:06,853 - INFO - Saved 2177 URLs
+2025-04-19 02:27:06,853 - INFO - Waiting 2.46s before next batch...
+2025-04-19 02:27:09,314 - INFO - Starting collection for batch W21: https://www.ycombinator.com/companies?batch=W21
+2025-04-19 02:27:10,338 - INFO - Found 0 initial links for batch W21
+2025-04-19 02:27:18,769 - INFO - Batch W21 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:27:26,352 - INFO - Batch W21 - Scroll 2: Found 20 new links, total 120
+2025-04-19 02:27:33,942 - INFO - Batch W21 - Scroll 3: Found 20 new links, total 140
+2025-04-19 02:27:41,795 - INFO - Batch W21 - Scroll 4: Found 20 new links, total 160
+2025-04-19 02:27:50,064 - INFO - Batch W21 - Scroll 5: Found 20 new links, total 180
+2025-04-19 02:27:59,561 - INFO - Batch W21 - Scroll 6: Found 40 new links, total 220
+2025-04-19 02:28:07,935 - INFO - Batch W21 - Scroll 7: Found 20 new links, total 240
+2025-04-19 02:28:16,396 - INFO - Batch W21 - Scroll 8: Found 20 new links, total 260
+2025-04-19 02:28:25,305 - INFO - Batch W21 - Scroll 9: Found 20 new links, total 280
+2025-04-19 02:28:34,114 - INFO - Batch W21 - Scroll 10: Found 20 new links, total 300
+2025-04-19 02:28:44,514 - INFO - Batch W21 - Scroll 11: Found 36 new links, total 336
+2025-04-19 02:28:53,561 - INFO - Batch W21: No new links in scroll 12 (1 consecutive)
+2025-04-19 02:29:02,905 - INFO - Batch W21: No new links in scroll 13 (2 consecutive)
+2025-04-19 02:29:12,026 - INFO - Batch W21: No new links in scroll 14 (3 consecutive)
+2025-04-19 02:29:12,026 - INFO - Batch W21: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:29:12,272 - INFO - Batch W21: Collection completed with 336 URLs
+2025-04-19 02:29:12,273 - INFO - Saved 336 URLs for batch W21
+2025-04-19 02:29:12,274 - INFO - Saved batch status (11 completed)
+2025-04-19 02:29:12,276 - INFO - Saved 2513 URLs
+2025-04-19 02:29:12,276 - INFO - Waiting 4.96s before next batch...
+2025-04-19 02:29:17,242 - INFO - Starting collection for batch S20: https://www.ycombinator.com/companies?batch=S20
+2025-04-19 02:29:18,901 - INFO - Found 0 initial links for batch S20
+2025-04-19 02:29:27,537 - INFO - Batch S20 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:29:35,111 - INFO - Batch S20 - Scroll 2: Found 20 new links, total 120
+2025-04-19 02:29:42,868 - INFO - Batch S20 - Scroll 3: Found 20 new links, total 140
+2025-04-19 02:29:51,091 - INFO - Batch S20 - Scroll 4: Found 20 new links, total 160
+2025-04-19 02:29:59,070 - INFO - Batch S20 - Scroll 5: Found 20 new links, total 180
+2025-04-19 02:30:08,412 - INFO - Batch S20 - Scroll 6: Found 28 new links, total 208
+2025-04-19 02:30:16,609 - INFO - Batch S20: No new links in scroll 7 (1 consecutive)
+2025-04-19 02:30:24,958 - INFO - Batch S20: No new links in scroll 8 (2 consecutive)
+2025-04-19 02:30:33,373 - INFO - Batch S20: No new links in scroll 9 (3 consecutive)
+2025-04-19 02:30:33,374 - INFO - Batch S20: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:30:33,615 - INFO - Batch S20: Collection completed with 208 URLs
+2025-04-19 02:30:33,615 - INFO - Saved 208 URLs for batch S20
+2025-04-19 02:30:33,616 - INFO - Saved batch status (12 completed)
+2025-04-19 02:30:33,617 - INFO - Saved 2721 URLs
+2025-04-19 02:30:33,617 - INFO - Waiting 4.48s before next batch...
+2025-04-19 02:30:38,110 - INFO - Starting collection for batch W20: https://www.ycombinator.com/companies?batch=W20
+2025-04-19 02:30:39,861 - INFO - Found 0 initial links for batch W20
+2025-04-19 02:30:48,532 - INFO - Batch W20 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:30:56,488 - INFO - Batch W20 - Scroll 2: Found 20 new links, total 120
+2025-04-19 02:31:04,216 - INFO - Batch W20 - Scroll 3: Found 20 new links, total 140
+2025-04-19 02:31:12,257 - INFO - Batch W20 - Scroll 4: Found 20 new links, total 160
+2025-04-19 02:31:20,494 - INFO - Batch W20 - Scroll 5: Found 20 new links, total 180
+2025-04-19 02:31:30,254 - INFO - Batch W20 - Scroll 6: Found 40 new links, total 220
+2025-04-19 02:31:38,656 - INFO - Batch W20 - Scroll 7: Found 9 new links, total 229
+2025-04-19 02:31:46,917 - INFO - Batch W20: No new links in scroll 8 (1 consecutive)
+2025-04-19 02:31:55,337 - INFO - Batch W20: No new links in scroll 9 (2 consecutive)
+2025-04-19 02:32:03,940 - INFO - Batch W20: No new links in scroll 10 (3 consecutive)
+2025-04-19 02:32:03,941 - INFO - Batch W20: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:32:04,185 - INFO - Batch W20: Collection completed with 229 URLs
+2025-04-19 02:32:04,186 - INFO - Saved 229 URLs for batch W20
+2025-04-19 02:32:04,186 - INFO - Saved batch status (13 completed)
+2025-04-19 02:32:04,188 - INFO - Saved 2950 URLs
+2025-04-19 02:32:04,188 - INFO - Waiting 2.11s before next batch...
+2025-04-19 02:32:06,306 - INFO - Starting collection for batch S19: https://www.ycombinator.com/companies?batch=S19
+2025-04-19 02:32:08,391 - INFO - Found 0 initial links for batch S19
+2025-04-19 02:32:16,806 - INFO - Batch S19 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:32:24,525 - INFO - Batch S19 - Scroll 2: Found 20 new links, total 120
+2025-04-19 02:32:32,194 - INFO - Batch S19 - Scroll 3: Found 20 new links, total 140
+2025-04-19 02:32:40,354 - INFO - Batch S19 - Scroll 4: Found 20 new links, total 160
+2025-04-19 02:32:48,422 - INFO - Batch S19 - Scroll 5: Found 14 new links, total 174
+2025-04-19 02:32:57,745 - INFO - Batch S19: No new links in scroll 6 (1 consecutive)
+2025-04-19 02:33:05,885 - INFO - Batch S19: No new links in scroll 7 (2 consecutive)
+2025-04-19 02:33:14,097 - INFO - Batch S19: No new links in scroll 8 (3 consecutive)
+2025-04-19 02:33:14,097 - INFO - Batch S19: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:33:14,331 - INFO - Batch S19: Collection completed with 174 URLs
+2025-04-19 02:33:14,331 - INFO - Saved 174 URLs for batch S19
+2025-04-19 02:33:14,332 - INFO - Saved batch status (14 completed)
+2025-04-19 02:33:14,334 - INFO - Saved 3124 URLs
+2025-04-19 02:33:14,334 - INFO - Waiting 4.52s before next batch...
+2025-04-19 02:33:18,861 - INFO - Starting collection for batch W19: https://www.ycombinator.com/companies?batch=W19
+2025-04-19 02:33:20,128 - INFO - Found 0 initial links for batch W19
+2025-04-19 02:33:29,089 - INFO - Batch W19 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:33:36,739 - INFO - Batch W19 - Scroll 2: Found 20 new links, total 120
+2025-04-19 02:33:44,594 - INFO - Batch W19 - Scroll 3: Found 20 new links, total 140
+2025-04-19 02:33:52,454 - INFO - Batch W19 - Scroll 4: Found 20 new links, total 160
+2025-04-19 02:34:00,397 - INFO - Batch W19 - Scroll 5: Found 20 new links, total 180
+2025-04-19 02:34:09,468 - INFO - Batch W19 - Scroll 6: Found 15 new links, total 195
+2025-04-19 02:34:17,870 - INFO - Batch W19: No new links in scroll 7 (1 consecutive)
+2025-04-19 02:34:26,016 - INFO - Batch W19: No new links in scroll 8 (2 consecutive)
+2025-04-19 02:34:34,479 - INFO - Batch W19: No new links in scroll 9 (3 consecutive)
+2025-04-19 02:34:34,479 - INFO - Batch W19: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:34:34,713 - INFO - Batch W19: Collection completed with 195 URLs
+2025-04-19 02:34:34,713 - INFO - Saved 195 URLs for batch W19
+2025-04-19 02:34:34,714 - INFO - Saved batch status (15 completed)
+2025-04-19 02:34:34,718 - INFO - Saved 3319 URLs
+2025-04-19 02:34:34,718 - INFO - Waiting 4.31s before next batch...
+2025-04-19 02:34:39,034 - INFO - Starting collection for batch S18: https://www.ycombinator.com/companies?batch=S18
+2025-04-19 02:34:40,429 - INFO - Found 0 initial links for batch S18
+2025-04-19 02:34:49,242 - INFO - Batch S18 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:34:56,712 - INFO - Batch S18 - Scroll 2: Found 20 new links, total 120
+2025-04-19 02:35:04,691 - INFO - Batch S18 - Scroll 3: Found 11 new links, total 131
+2025-04-19 02:35:12,423 - INFO - Batch S18: No new links in scroll 4 (1 consecutive)
+2025-04-19 02:35:20,376 - INFO - Batch S18: No new links in scroll 5 (2 consecutive)
+2025-04-19 02:35:29,476 - INFO - Batch S18: No new links in scroll 6 (3 consecutive)
+2025-04-19 02:35:29,477 - INFO - Batch S18: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:35:29,722 - INFO - Batch S18: Collection completed with 131 URLs
+2025-04-19 02:35:29,723 - INFO - Saved 131 URLs for batch S18
+2025-04-19 02:35:29,724 - INFO - Saved batch status (16 completed)
+2025-04-19 02:35:29,725 - INFO - Saved 3450 URLs
+2025-04-19 02:35:29,725 - INFO - Waiting 3.93s before next batch...
+2025-04-19 02:35:33,667 - INFO - Starting collection for batch W18: https://www.ycombinator.com/companies?batch=W18
+2025-04-19 02:35:34,715 - INFO - Found 0 initial links for batch W18
+2025-04-19 02:35:43,155 - INFO - Batch W18 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:35:51,020 - INFO - Batch W18 - Scroll 2: Found 20 new links, total 120
+2025-04-19 02:35:58,656 - INFO - Batch W18 - Scroll 3: Found 20 new links, total 140
+2025-04-19 02:36:06,650 - INFO - Batch W18 - Scroll 4: Found 7 new links, total 147
+2025-04-19 02:36:14,575 - INFO - Batch W18: No new links in scroll 5 (1 consecutive)
+2025-04-19 02:36:23,597 - INFO - Batch W18: No new links in scroll 6 (2 consecutive)
+2025-04-19 02:36:31,461 - INFO - Batch W18: No new links in scroll 7 (3 consecutive)
+2025-04-19 02:36:31,462 - INFO - Batch W18: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:36:31,703 - INFO - Batch W18: Collection completed with 147 URLs
+2025-04-19 02:36:31,704 - INFO - Saved 147 URLs for batch W18
+2025-04-19 02:36:31,705 - INFO - Saved batch status (17 completed)
+2025-04-19 02:36:31,707 - INFO - Saved 3597 URLs
+2025-04-19 02:36:31,707 - INFO - Waiting 3.04s before next batch...
+2025-04-19 02:36:34,757 - INFO - Starting collection for batch S17: https://www.ycombinator.com/companies?batch=S17
+2025-04-19 02:36:37,970 - INFO - Found 0 initial links for batch S17
+2025-04-19 02:36:46,548 - INFO - Batch S17 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:36:54,268 - INFO - Batch S17 - Scroll 2: Found 20 new links, total 120
+2025-04-19 02:37:01,836 - INFO - Batch S17 - Scroll 3: Found 5 new links, total 125
+2025-04-19 02:37:09,568 - INFO - Batch S17: No new links in scroll 4 (1 consecutive)
+2025-04-19 02:37:17,506 - INFO - Batch S17: No new links in scroll 5 (2 consecutive)
+2025-04-19 02:37:26,496 - INFO - Batch S17: No new links in scroll 6 (3 consecutive)
+2025-04-19 02:37:26,497 - INFO - Batch S17: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:37:26,732 - INFO - Batch S17: Collection completed with 125 URLs
+2025-04-19 02:37:26,732 - INFO - Saved 125 URLs for batch S17
+2025-04-19 02:37:26,733 - INFO - Saved batch status (18 completed)
+2025-04-19 02:37:26,735 - INFO - Saved 3722 URLs
+2025-04-19 02:37:26,735 - INFO - Waiting 4.30s before next batch...
+2025-04-19 02:37:31,047 - INFO - Starting collection for batch W17: https://www.ycombinator.com/companies?batch=W17
+2025-04-19 02:37:33,977 - INFO - Found 0 initial links for batch W17
+2025-04-19 02:37:42,777 - INFO - Batch W17 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:37:50,260 - INFO - Batch W17 - Scroll 2: Found 16 new links, total 116
+2025-04-19 02:37:58,058 - INFO - Batch W17: No new links in scroll 3 (1 consecutive)
+2025-04-19 02:38:05,545 - INFO - Batch W17: No new links in scroll 4 (2 consecutive)
+2025-04-19 02:38:13,300 - INFO - Batch W17: No new links in scroll 5 (3 consecutive)
+2025-04-19 02:38:13,301 - INFO - Batch W17: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:38:13,539 - INFO - Batch W17: Collection completed with 116 URLs
+2025-04-19 02:38:13,540 - INFO - Saved 116 URLs for batch W17
+2025-04-19 02:38:13,540 - INFO - Saved batch status (19 completed)
+2025-04-19 02:38:13,541 - INFO - Saved 3838 URLs
+2025-04-19 02:38:13,541 - INFO - Waiting 3.99s before next batch...
+2025-04-19 02:38:17,541 - INFO - Starting collection for batch IK12: https://www.ycombinator.com/companies?batch=IK12
+2025-04-19 02:38:19,643 - INFO - Found 0 initial links for batch IK12
+2025-04-19 02:38:27,921 - INFO - Batch IK12 - Scroll 1: Found 76 new links, total 76
+2025-04-19 02:38:35,302 - INFO - Batch IK12: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:38:42,418 - INFO - Batch IK12: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:38:49,824 - INFO - Batch IK12: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:38:49,825 - INFO - Batch IK12: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:38:50,062 - INFO - Batch IK12: Collection completed with 76 URLs
+2025-04-19 02:38:50,062 - INFO - Saved 76 URLs for batch IK12
+2025-04-19 02:38:50,062 - INFO - Saved batch status (20 completed)
+2025-04-19 02:38:50,064 - INFO - Saved 3914 URLs
+2025-04-19 02:38:50,065 - INFO - Waiting 3.18s before next batch...
+2025-04-19 02:38:53,258 - INFO - Starting collection for batch S16: https://www.ycombinator.com/companies?batch=S16
+2025-04-19 02:38:54,359 - INFO - Found 0 initial links for batch S16
+2025-04-19 02:39:03,114 - INFO - Batch S16 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:39:10,687 - INFO - Batch S16 - Scroll 2: Found 2 new links, total 102
+2025-04-19 02:39:18,068 - INFO - Batch S16: No new links in scroll 3 (1 consecutive)
+2025-04-19 02:39:25,584 - INFO - Batch S16: No new links in scroll 4 (2 consecutive)
+2025-04-19 02:39:33,030 - INFO - Batch S16: No new links in scroll 5 (3 consecutive)
+2025-04-19 02:39:33,030 - INFO - Batch S16: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:39:33,361 - INFO - Batch S16: Collection completed with 102 URLs
+2025-04-19 02:39:33,361 - INFO - Saved 102 URLs for batch S16
+2025-04-19 02:39:33,364 - INFO - Saved batch status (21 completed)
+2025-04-19 02:39:33,366 - INFO - Saved 4016 URLs
+2025-04-19 02:39:33,366 - INFO - Waiting 2.83s before next batch...
+2025-04-19 02:39:36,205 - INFO - Starting collection for batch W16: https://www.ycombinator.com/companies?batch=W16
+2025-04-19 02:39:37,310 - INFO - Found 0 initial links for batch W16
+2025-04-19 02:39:46,092 - INFO - Batch W16 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:39:53,747 - INFO - Batch W16 - Scroll 2: Found 20 new links, total 120
+2025-04-19 02:40:01,437 - INFO - Batch W16 - Scroll 3: Found 2 new links, total 122
+2025-04-19 02:40:09,089 - INFO - Batch W16: No new links in scroll 4 (1 consecutive)
+2025-04-19 02:40:16,710 - INFO - Batch W16: No new links in scroll 5 (2 consecutive)
+2025-04-19 02:40:25,194 - INFO - Batch W16: No new links in scroll 6 (3 consecutive)
+2025-04-19 02:40:25,195 - INFO - Batch W16: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:40:25,420 - INFO - Batch W16: Collection completed with 122 URLs
+2025-04-19 02:40:25,421 - INFO - Saved 122 URLs for batch W16
+2025-04-19 02:40:25,424 - INFO - Saved batch status (22 completed)
+2025-04-19 02:40:25,426 - INFO - Saved 4138 URLs
+2025-04-19 02:40:25,426 - INFO - Waiting 4.50s before next batch...
+2025-04-19 02:40:29,936 - INFO - Starting collection for batch S15: https://www.ycombinator.com/companies?batch=S15
+2025-04-19 02:40:30,722 - INFO - Found 0 initial links for batch S15
+2025-04-19 02:40:39,223 - INFO - Batch S15 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:40:46,726 - INFO - Batch S15 - Scroll 2: Found 5 new links, total 105
+2025-04-19 02:40:54,524 - INFO - Batch S15: No new links in scroll 3 (1 consecutive)
+2025-04-19 02:41:02,170 - INFO - Batch S15: No new links in scroll 4 (2 consecutive)
+2025-04-19 02:41:09,942 - INFO - Batch S15: No new links in scroll 5 (3 consecutive)
+2025-04-19 02:41:09,942 - INFO - Batch S15: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:41:10,178 - INFO - Batch S15: Collection completed with 105 URLs
+2025-04-19 02:41:10,179 - INFO - Saved 105 URLs for batch S15
+2025-04-19 02:41:10,179 - INFO - Saved batch status (23 completed)
+2025-04-19 02:41:10,182 - INFO - Saved 4243 URLs
+2025-04-19 02:41:10,182 - INFO - Waiting 2.39s before next batch...
+2025-04-19 02:41:12,582 - INFO - Starting collection for batch W15: https://www.ycombinator.com/companies?batch=W15
+2025-04-19 02:41:13,312 - INFO - Found 0 initial links for batch W15
+2025-04-19 02:41:21,969 - INFO - Batch W15 - Scroll 1: Found 100 new links, total 100
+2025-04-19 02:41:29,584 - INFO - Batch W15 - Scroll 2: Found 11 new links, total 111
+2025-04-19 02:41:36,994 - INFO - Batch W15: No new links in scroll 3 (1 consecutive)
+2025-04-19 02:41:44,477 - INFO - Batch W15: No new links in scroll 4 (2 consecutive)
+2025-04-19 02:41:51,945 - INFO - Batch W15: No new links in scroll 5 (3 consecutive)
+2025-04-19 02:41:51,946 - INFO - Batch W15: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:41:52,214 - INFO - Batch W15: Collection completed with 111 URLs
+2025-04-19 02:41:52,214 - INFO - Saved 111 URLs for batch W15
+2025-04-19 02:41:52,214 - INFO - Saved batch status (24 completed)
+2025-04-19 02:41:52,217 - INFO - Saved 4354 URLs
+2025-04-19 02:41:52,217 - INFO - Waiting 4.31s before next batch...
+2025-04-19 02:41:56,533 - INFO - Starting collection for batch S14: https://www.ycombinator.com/companies?batch=S14
+2025-04-19 02:41:57,449 - INFO - Found 0 initial links for batch S14
+2025-04-19 02:42:06,029 - INFO - Batch S14 - Scroll 1: Found 80 new links, total 80
+2025-04-19 02:42:13,222 - INFO - Batch S14: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:42:20,386 - INFO - Batch S14: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:42:27,884 - INFO - Batch S14: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:42:27,884 - INFO - Batch S14: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:42:28,123 - INFO - Batch S14: Collection completed with 80 URLs
+2025-04-19 02:42:28,124 - INFO - Saved 80 URLs for batch S14
+2025-04-19 02:42:28,124 - INFO - Saved batch status (25 completed)
+2025-04-19 02:42:28,129 - INFO - Saved 4434 URLs
+2025-04-19 02:42:28,129 - INFO - Waiting 3.64s before next batch...
+2025-04-19 02:42:31,776 - INFO - Starting collection for batch W14: https://www.ycombinator.com/companies?batch=W14
+2025-04-19 02:42:32,864 - INFO - Found 0 initial links for batch W14
+2025-04-19 02:42:41,180 - INFO - Batch W14 - Scroll 1: Found 74 new links, total 74
+2025-04-19 02:42:48,281 - INFO - Batch W14: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:42:55,399 - INFO - Batch W14: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:43:02,544 - INFO - Batch W14: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:43:02,544 - INFO - Batch W14: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:43:02,782 - INFO - Batch W14: Collection completed with 74 URLs
+2025-04-19 02:43:02,782 - INFO - Saved 74 URLs for batch W14
+2025-04-19 02:43:02,783 - INFO - Saved batch status (26 completed)
+2025-04-19 02:43:02,785 - INFO - Saved 4508 URLs
+2025-04-19 02:43:02,785 - INFO - Waiting 4.52s before next batch...
+2025-04-19 02:43:07,312 - INFO - Starting collection for batch S13: https://www.ycombinator.com/companies?batch=S13
+2025-04-19 02:43:08,211 - INFO - Found 0 initial links for batch S13
+2025-04-19 02:43:16,613 - INFO - Batch S13 - Scroll 1: Found 52 new links, total 52
+2025-04-19 02:43:23,836 - INFO - Batch S13: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:43:30,999 - INFO - Batch S13: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:43:38,285 - INFO - Batch S13: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:43:38,286 - INFO - Batch S13: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:43:38,610 - INFO - Batch S13: Collection completed with 52 URLs
+2025-04-19 02:43:38,611 - INFO - Saved 52 URLs for batch S13
+2025-04-19 02:43:38,611 - INFO - Saved batch status (27 completed)
+2025-04-19 02:43:38,614 - INFO - Saved 4560 URLs
+2025-04-19 02:43:38,614 - INFO - Waiting 3.12s before next batch...
+2025-04-19 02:43:41,742 - INFO - Starting collection for batch W13: https://www.ycombinator.com/companies?batch=W13
+2025-04-19 02:43:43,145 - INFO - Found 0 initial links for batch W13
+2025-04-19 02:43:51,308 - INFO - Batch W13 - Scroll 1: Found 46 new links, total 46
+2025-04-19 02:43:58,575 - INFO - Batch W13: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:44:05,927 - INFO - Batch W13: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:44:13,231 - INFO - Batch W13: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:44:13,231 - INFO - Batch W13: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:44:13,462 - INFO - Batch W13: Collection completed with 46 URLs
+2025-04-19 02:44:13,462 - INFO - Saved 46 URLs for batch W13
+2025-04-19 02:44:13,463 - INFO - Saved batch status (28 completed)
+2025-04-19 02:44:13,464 - INFO - Saved 4606 URLs
+2025-04-19 02:44:13,464 - INFO - Waiting 2.35s before next batch...
+2025-04-19 02:44:15,826 - INFO - Starting collection for batch S12: https://www.ycombinator.com/companies?batch=S12
+2025-04-19 02:44:16,662 - INFO - Found 0 initial links for batch S12
+2025-04-19 02:44:25,114 - INFO - Batch S12 - Scroll 1: Found 83 new links, total 83
+2025-04-19 02:44:32,438 - INFO - Batch S12: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:44:40,070 - INFO - Batch S12: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:44:47,644 - INFO - Batch S12: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:44:47,645 - INFO - Batch S12: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:44:47,879 - INFO - Batch S12: Collection completed with 83 URLs
+2025-04-19 02:44:47,879 - INFO - Saved 83 URLs for batch S12
+2025-04-19 02:44:47,879 - INFO - Saved batch status (29 completed)
+2025-04-19 02:44:47,881 - INFO - Saved 4689 URLs
+2025-04-19 02:44:47,881 - INFO - Waiting 4.37s before next batch...
+2025-04-19 02:44:52,249 - INFO - Starting collection for batch W12: https://www.ycombinator.com/companies?batch=W12
+2025-04-19 02:44:54,240 - INFO - Found 0 initial links for batch W12
+2025-04-19 02:45:02,513 - INFO - Batch W12 - Scroll 1: Found 66 new links, total 66
+2025-04-19 02:45:09,868 - INFO - Batch W12: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:45:17,270 - INFO - Batch W12: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:45:24,383 - INFO - Batch W12: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:45:24,384 - INFO - Batch W12: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:45:24,623 - INFO - Batch W12: Collection completed with 66 URLs
+2025-04-19 02:45:24,623 - INFO - Saved 66 URLs for batch W12
+2025-04-19 02:45:24,624 - INFO - Saved batch status (30 completed)
+2025-04-19 02:45:24,625 - INFO - Saved 4755 URLs
+2025-04-19 02:45:24,626 - INFO - Waiting 2.10s before next batch...
+2025-04-19 02:45:26,737 - INFO - Starting collection for batch S11: https://www.ycombinator.com/companies?batch=S11
+2025-04-19 02:45:28,571 - INFO - Found 0 initial links for batch S11
+2025-04-19 02:45:36,944 - INFO - Batch S11 - Scroll 1: Found 60 new links, total 60
+2025-04-19 02:45:44,396 - INFO - Batch S11: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:45:51,406 - INFO - Batch S11: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:45:58,838 - INFO - Batch S11: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:45:58,838 - INFO - Batch S11: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:45:59,071 - INFO - Batch S11: Collection completed with 60 URLs
+2025-04-19 02:45:59,072 - INFO - Saved 60 URLs for batch S11
+2025-04-19 02:45:59,072 - INFO - Saved batch status (31 completed)
+2025-04-19 02:45:59,074 - INFO - Saved 4815 URLs
+2025-04-19 02:45:59,074 - INFO - Waiting 3.63s before next batch...
+2025-04-19 02:46:02,712 - INFO - Starting collection for batch W11: https://www.ycombinator.com/companies?batch=W11
+2025-04-19 02:46:04,625 - INFO - Found 0 initial links for batch W11
+2025-04-19 02:46:12,999 - INFO - Batch W11 - Scroll 1: Found 45 new links, total 45
+2025-04-19 02:46:20,384 - INFO - Batch W11: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:46:27,417 - INFO - Batch W11: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:46:34,418 - INFO - Batch W11: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:46:34,419 - INFO - Batch W11: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:46:34,642 - INFO - Batch W11: Collection completed with 45 URLs
+2025-04-19 02:46:34,642 - INFO - Saved 45 URLs for batch W11
+2025-04-19 02:46:34,642 - INFO - Saved batch status (32 completed)
+2025-04-19 02:46:34,644 - INFO - Saved 4860 URLs
+2025-04-19 02:46:34,644 - INFO - Waiting 4.45s before next batch...
+2025-04-19 02:46:39,103 - INFO - Starting collection for batch S10: https://www.ycombinator.com/companies?batch=S10
+2025-04-19 02:46:39,601 - INFO - Found 0 initial links for batch S10
+2025-04-19 02:46:47,694 - INFO - Batch S10 - Scroll 1: Found 36 new links, total 36
+2025-04-19 02:46:54,862 - INFO - Batch S10: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:47:02,152 - INFO - Batch S10: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:47:09,151 - INFO - Batch S10: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:47:09,151 - INFO - Batch S10: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:47:09,361 - INFO - Batch S10: Collection completed with 36 URLs
+2025-04-19 02:47:09,361 - INFO - Saved 36 URLs for batch S10
+2025-04-19 02:47:09,362 - INFO - Saved batch status (33 completed)
+2025-04-19 02:47:09,363 - INFO - Saved 4896 URLs
+2025-04-19 02:47:09,363 - INFO - Waiting 3.40s before next batch...
+2025-04-19 02:47:12,770 - INFO - Starting collection for batch W10: https://www.ycombinator.com/companies?batch=W10
+2025-04-19 02:47:14,759 - INFO - Found 0 initial links for batch W10
+2025-04-19 02:47:22,783 - INFO - Batch W10 - Scroll 1: Found 27 new links, total 27
+2025-04-19 02:47:29,511 - INFO - Batch W10: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:47:36,764 - INFO - Batch W10: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:47:44,045 - INFO - Batch W10: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:47:44,046 - INFO - Batch W10: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:47:44,308 - INFO - Batch W10: Collection completed with 27 URLs
+2025-04-19 02:47:44,308 - INFO - Saved 27 URLs for batch W10
+2025-04-19 02:47:44,308 - INFO - Saved batch status (34 completed)
+2025-04-19 02:47:44,310 - INFO - Saved 4923 URLs
+2025-04-19 02:47:44,310 - INFO - Waiting 3.23s before next batch...
+2025-04-19 02:47:47,547 - INFO - Starting collection for batch S09: https://www.ycombinator.com/companies?batch=S09
+2025-04-19 02:47:49,322 - INFO - Found 0 initial links for batch S09
+2025-04-19 02:47:57,262 - INFO - Batch S09 - Scroll 1: Found 26 new links, total 26
+2025-04-19 02:48:04,346 - INFO - Batch S09: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:48:11,262 - INFO - Batch S09: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:48:18,255 - INFO - Batch S09: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:48:18,255 - INFO - Batch S09: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:48:18,481 - INFO - Batch S09: Collection completed with 26 URLs
+2025-04-19 02:48:18,481 - INFO - Saved 26 URLs for batch S09
+2025-04-19 02:48:18,481 - INFO - Saved batch status (35 completed)
+2025-04-19 02:48:18,483 - INFO - Saved 4949 URLs
+2025-04-19 02:48:18,483 - INFO - Waiting 4.03s before next batch...
+2025-04-19 02:48:22,525 - INFO - Starting collection for batch W09: https://www.ycombinator.com/companies?batch=W09
+2025-04-19 02:48:24,258 - INFO - Found 0 initial links for batch W09
+2025-04-19 02:48:32,206 - INFO - Batch W09 - Scroll 1: Found 16 new links, total 16
+2025-04-19 02:48:39,213 - INFO - Batch W09: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:48:46,160 - INFO - Batch W09: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:48:53,390 - INFO - Batch W09: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:48:53,390 - INFO - Batch W09: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:48:53,627 - INFO - Batch W09: Collection completed with 16 URLs
+2025-04-19 02:48:53,627 - INFO - Saved 16 URLs for batch W09
+2025-04-19 02:48:53,627 - INFO - Saved batch status (36 completed)
+2025-04-19 02:48:53,629 - INFO - Saved 4965 URLs
+2025-04-19 02:48:53,629 - INFO - Waiting 2.44s before next batch...
+2025-04-19 02:48:56,080 - INFO - Starting collection for batch S08: https://www.ycombinator.com/companies?batch=S08
+2025-04-19 02:48:57,194 - INFO - Found 0 initial links for batch S08
+2025-04-19 02:49:04,943 - INFO - Batch S08 - Scroll 1: Found 22 new links, total 22
+2025-04-19 02:49:12,042 - INFO - Batch S08: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:49:18,870 - INFO - Batch S08: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:49:25,719 - INFO - Batch S08: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:49:25,720 - INFO - Batch S08: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:49:25,964 - INFO - Batch S08: Collection completed with 22 URLs
+2025-04-19 02:49:25,964 - INFO - Saved 22 URLs for batch S08
+2025-04-19 02:49:25,964 - INFO - Saved batch status (37 completed)
+2025-04-19 02:49:25,966 - INFO - Saved 4987 URLs
+2025-04-19 02:49:25,966 - INFO - Waiting 3.84s before next batch...
+2025-04-19 02:49:29,810 - INFO - Starting collection for batch W08: https://www.ycombinator.com/companies?batch=W08
+2025-04-19 02:49:31,960 - INFO - Found 0 initial links for batch W08
+2025-04-19 02:49:40,128 - INFO - Batch W08 - Scroll 1: Found 21 new links, total 21
+2025-04-19 02:49:47,224 - INFO - Batch W08: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:49:54,008 - INFO - Batch W08: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:50:00,883 - INFO - Batch W08: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:50:00,883 - INFO - Batch W08: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:50:01,106 - INFO - Batch W08: Collection completed with 21 URLs
+2025-04-19 02:50:01,107 - INFO - Saved 21 URLs for batch W08
+2025-04-19 02:50:01,107 - INFO - Saved batch status (38 completed)
+2025-04-19 02:50:01,109 - INFO - Saved 5008 URLs
+2025-04-19 02:50:01,109 - INFO - Waiting 2.14s before next batch...
+2025-04-19 02:50:03,252 - INFO - Starting collection for batch S07: https://www.ycombinator.com/companies?batch=S07
+2025-04-19 02:50:05,172 - INFO - Found 0 initial links for batch S07
+2025-04-19 02:50:12,912 - INFO - Batch S07 - Scroll 1: Found 19 new links, total 19
+2025-04-19 02:50:19,822 - INFO - Batch S07: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:50:26,527 - INFO - Batch S07: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:50:33,750 - INFO - Batch S07: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:50:33,752 - INFO - Batch S07: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:50:33,975 - INFO - Batch S07: Collection completed with 19 URLs
+2025-04-19 02:50:33,975 - INFO - Saved 19 URLs for batch S07
+2025-04-19 02:50:33,975 - INFO - Saved batch status (39 completed)
+2025-04-19 02:50:33,977 - INFO - Saved 5027 URLs
+2025-04-19 02:50:33,977 - INFO - Waiting 4.37s before next batch...
+2025-04-19 02:50:38,355 - INFO - Starting collection for batch W07: https://www.ycombinator.com/companies?batch=W07
+2025-04-19 02:50:39,705 - INFO - Found 0 initial links for batch W07
+2025-04-19 02:50:47,835 - INFO - Batch W07 - Scroll 1: Found 13 new links, total 13
+2025-04-19 02:50:55,036 - INFO - Batch W07: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:51:02,052 - INFO - Batch W07: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:51:09,195 - INFO - Batch W07: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:51:09,196 - INFO - Batch W07: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:51:09,546 - INFO - Batch W07: Collection completed with 13 URLs
+2025-04-19 02:51:09,546 - INFO - Saved 13 URLs for batch W07
+2025-04-19 02:51:09,547 - INFO - Saved batch status (40 completed)
+2025-04-19 02:51:09,549 - INFO - Saved 5040 URLs
+2025-04-19 02:51:09,549 - INFO - Waiting 2.53s before next batch...
+2025-04-19 02:51:12,079 - INFO - Starting collection for batch S06: https://www.ycombinator.com/companies?batch=S06
+2025-04-19 02:51:12,867 - INFO - Found 0 initial links for batch S06
+2025-04-19 02:51:20,774 - INFO - Batch S06 - Scroll 1: Found 11 new links, total 11
+2025-04-19 02:51:27,465 - INFO - Batch S06: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:51:34,300 - INFO - Batch S06: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:51:41,221 - INFO - Batch S06: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:51:41,222 - INFO - Batch S06: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:51:41,453 - INFO - Batch S06: Collection completed with 11 URLs
+2025-04-19 02:51:41,453 - INFO - Saved 11 URLs for batch S06
+2025-04-19 02:51:41,454 - INFO - Saved batch status (41 completed)
+2025-04-19 02:51:41,456 - INFO - Saved 5051 URLs
+2025-04-19 02:51:41,456 - INFO - Waiting 4.58s before next batch...
+2025-04-19 02:51:46,039 - INFO - Starting collection for batch W06: https://www.ycombinator.com/companies?batch=W06
+2025-04-19 02:51:46,982 - INFO - Found 0 initial links for batch W06
+2025-04-19 02:51:54,687 - INFO - Batch W06 - Scroll 1: Found 7 new links, total 7
+2025-04-19 02:52:01,803 - INFO - Batch W06: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:52:08,616 - INFO - Batch W06: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:52:15,860 - INFO - Batch W06: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:52:15,860 - INFO - Batch W06: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:52:16,261 - INFO - Batch W06: Collection completed with 7 URLs
+2025-04-19 02:52:16,262 - INFO - Saved 7 URLs for batch W06
+2025-04-19 02:52:16,263 - INFO - Saved batch status (42 completed)
+2025-04-19 02:52:16,266 - INFO - Saved 5058 URLs
+2025-04-19 02:52:16,267 - INFO - Waiting 2.05s before next batch...
+2025-04-19 02:52:18,315 - INFO - Starting collection for batch S05: https://www.ycombinator.com/companies?batch=S05
+2025-04-19 02:52:19,123 - INFO - Found 0 initial links for batch S05
+2025-04-19 02:52:27,029 - INFO - Batch S05 - Scroll 1: Found 8 new links, total 8
+2025-04-19 02:52:34,006 - INFO - Batch S05: No new links in scroll 2 (1 consecutive)
+2025-04-19 02:52:40,976 - INFO - Batch S05: No new links in scroll 3 (2 consecutive)
+2025-04-19 02:52:47,846 - INFO - Batch S05: No new links in scroll 4 (3 consecutive)
+2025-04-19 02:52:47,846 - INFO - Batch S05: No new links after 3 consecutive scrolls, breaking.
+2025-04-19 02:52:48,176 - INFO - Batch S05: Collection completed with 8 URLs
+2025-04-19 02:52:48,177 - INFO - Saved 8 URLs for batch S05
+2025-04-19 02:52:48,177 - INFO - Saved batch status (43 completed)
+2025-04-19 02:52:48,179 - INFO - Saved 5066 URLs
+2025-04-19 02:52:48,179 - INFO - Waiting 2.91s before next batch...
+2025-04-19 02:52:51,842 - INFO - Saved 5066 URLs
+2025-04-19 02:52:51,842 - INFO - Saved batch status (43 completed)
+2025-04-19 02:52:51,842 - INFO - Total URLs collected across all batches: 5066
