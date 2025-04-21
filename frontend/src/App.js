@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 import IdeationForm from './components/IdeationForm';
 import MindMap from './components/MindMap';
+import DraggableContainer from './components/DraggableContainer';
 
 function App() {
   const [mindMapData, setMindMapData] = useState(null);
@@ -14,20 +15,24 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>AIdeator</h1>
-      </header>
-      <main className="App-main">
-        <IdeationForm onGenerate={handleGenerate} />
-        {mindMapData && (
-          <MindMap 
-            centralQuestion={mindMapData.centralQuestion}
-            concepts={mindMapData.concepts}
-          />
-        )}
-      </main>
-    </div>
+    <DraggableContainer>
+      <div className="App">
+        <div className="App-content">
+          <header className="App-header">
+            <h1>AIdeator</h1>
+          </header>
+          <main className="App-main">
+            <IdeationForm onGenerate={handleGenerate} />
+            {mindMapData && (
+              <MindMap 
+                centralQuestion={mindMapData.centralQuestion}
+                concepts={mindMapData.concepts}
+              />
+            )}
+          </main>
+        </div>
+      </div>
+    </DraggableContainer>
   );
 }
 

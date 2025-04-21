@@ -1,27 +1,60 @@
 .App {
   min-height: 100vh;
   background-color: #ffffff;
-  background-image: radial-gradient(#e0e0e0 0.5px, transparent 0.5px);
-  background-size: 16px 16px;
+  background-image: radial-gradient(#e0e0e0 1.2px, transparent 1.2px);
+  background-size: 28px 28px;
+  background-position: center;
+  position: relative;
+  width: 2000vw;
+  height: 2000vh;
+  left: -950vw;
+  top: -950vh;
+}
+
+.App-content {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.App-content > * {
+  pointer-events: auto;
 }
 
 .App-header {
-  background-color: #fff;
+  background-color: transparent;
   padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 1rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  z-index: 20;
 }
 
 .App-header h1 {
   margin: 0;
   font-size: 1.5rem;
   color: #333;
+  font-weight: 500;
 }
 
 .App-main {
   max-width: 1000px;
-  margin: 0 auto;
+  width: 100%;
   padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
 }
 
 .home-container {
