@@ -33,25 +33,29 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.connections {
+/* Connection lines using CSS */
+.line-connection {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  height: 2px;
+  background-color: #000;
   z-index: 1;
+  pointer-events: none;
+  transform-origin: left center;
 }
 
-.connection {
-  stroke: #000;
-  stroke-width: 2px;
-  stroke-linecap: round;
-}
-
-.connection.inactive {
-  stroke: #aaa;
-  stroke-dasharray: 5, 5;
+.line-connection.inactive {
+  background-color: #aaa;
   opacity: 0.7;
+  height: 2px;
+  background-image: linear-gradient(to right, #aaa 50%, transparent 50%);
+  background-size: 10px 100%;
+  background-repeat: repeat-x;
+}
+
+.line-connection.expanded {
+  background-color: #000;
+  height: 2px;
+  animation: fadeIn 0.5s ease-out;
 }
 
 .concept {
@@ -68,6 +72,10 @@
   font-size: 14px;
   white-space: normal;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transform: translate(-50%, -50%) !important;
+  margin: 0;
+  display: block;
+  box-sizing: border-box;
 }
 
 .concept.inactive {
@@ -96,23 +104,46 @@
 .concept.expanded-child {
   background-color: #fff;
   border: 2px solid #000;
+  border-radius: 8px;
   animation: fadeIn 0.5s ease-out;
   z-index: 4;
-  width: 180px;
-  padding: 10px;
-  text-align: center;
+  width: 250px;
+  padding: 15px;
+  text-align: left;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   white-space: normal;
   word-wrap: break-word;
   overflow-wrap: break-word;
   font-size: 14px;
   word-break: break-word;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transform: translate(-50%, -50%) !important;
+  margin: 0;
+  box-sizing: border-box;
 }
 
-.connection.expanded {
-  stroke: #000;
-  stroke-width: 2px;
-  animation: fadeIn 0.5s ease-out;
+.concept-title {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: #000;
+  text-align: center;
+}
+
+.concept-description {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 5px;
+  line-height: 1.4;
+}
+
+.concept-icon {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  opacity: 0.7;
 }
 
 @keyframes fadeIn {

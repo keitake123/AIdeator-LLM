@@ -8,6 +8,7 @@ const MindMap = ({ centralQuestion, concepts }) => {
   const [activeNodes, setActiveNodes] = useState(concepts.map(() => true));
   const [expandedNodeIndex, setExpandedNodeIndex] = useState(null);
   const [expandedConcepts, setExpandedConcepts] = useState([]);
+  const [nodeSizes, setNodeSizes] = useState({});
   const mapRef = useRef(null);
   const conceptRefs = useRef([]);
   const centralRef = useRef(null);
@@ -38,13 +39,28 @@ const MindMap = ({ centralQuestion, concepts }) => {
     console.log("Expanding node", index);
     setExpandedNodeIndex(index);
     
-    // Create 5 new concept nodes with shorter names
+    // Create 5 new concept nodes with titles and descriptions
     const newConcepts = [
-      "Concept A",
-      "Concept B", 
-      "Concept C",
-      "Concept D",
-      "Concept E"
+      {
+        title: "Fear of letting others down",
+        description: "Social and professional pressures can make people fear judgment from peers."
+      },
+      {
+        title: "Concept B",
+        description: "A detailed description of concept B and its implications."
+      },
+      {
+        title: "Concept C",
+        description: "A detailed description of concept C and its implications."
+      },
+      {
+        title: "Concept D",
+        description: "A detailed description of concept D and its implications."
+      },
+      {
+        title: "Concept E",
+        description: "A detailed description of concept E and its implications."
+      }
     ];
     
     setExpandedConcepts(newConcepts);
@@ -186,6 +202,112 @@ const MindMap = ({ centralQuestion, concepts }) => {
     }
   };
   
+  // Helper function to get precise DOM positions of nodes
+  const getNodePosition = (nodeId) => {
+    const node = document.querySelector(`[data-node-id="${nodeId}"]`);
+    const map = mapRef.current;
+    
+    if (!node || !map) return null;
+    
+    const nodeRect = node.getBoundingClientRect();
+    const mapRect = map.getBoundingClientRect();
+    
+    return {
+      x: nodeRect.left + nodeRect.width / 2 - mapRect.left,
+      y: nodeRect.top + nodeRect.height / 2 - mapRect.top,
+      width: nodeRect.width,
+      height: nodeRect.height,
+    };
+  };
+  
+  // Helper function to calculate intersection points between line and node
+  const getIntersection = (target, source, nodeSize) => {
+    const dx = source.x - target.x;
+    const dy = source.y - target.y;
+    
+    const w = nodeSize.width / 2;
+    const h = nodeSize.height / 2;
+    
+    if (dx === 0 && dy === 0) return source;
+    
+    const absDX = Math.abs(dx);
+    const absDY = Math.abs(dy);
+    const scale = Math.min(w / absDX, h / absDY);
+    
+    return {
+      x: source.x - dx * scale,
+      y: source.y - dy * scale
+    };
+  };
+  
+  // Render connections between nodes using SVG and DOM positions
+  const renderConnections = () => {
+    if (!mapRef.current) return null;
+    
+    return (
+      <svg className="connections" style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        pointerEvents: 'none',
+        zIndex: 1,
+        overflow: 'visible'
+      }}>
+        {/* Main lines - from central node to concept nodes */}
+        {concepts.map((_, index) => {
+          const centralPos = getNodePosition('central');
+          const conceptPos = getNodePosition(`concept-${index}`);
+          
+          if (!centralPos || !conceptPos) return null;
+          
+          const centralIntersect = getIntersection(conceptPos, centralPos, centralPos);
+          const conceptIntersect = getIntersection(centralPos, conceptPos, conceptPos);
+          
+          return (
+            <line
+              key={`line-${index}`}
+              x1={centralIntersect.x}
+              y1={centralIntersect.y}
+              x2={conceptIntersect.x}
+              y2={conceptIntersect.y}
+              stroke="#888"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeDasharray={activeNodes[index] ? "none" : "5,5"}
+              opacity={activeNodes[index] ? 1 : 0.7}
+            />
+          );
+        })}
+        
+        {/* Expanded node connections - from parent node to expanded children */}
+        {expandedNodeIndex !== null && expandedConcepts.map((_, i) => {
+          const parentPos = getNodePosition(`concept-${expandedNodeIndex}`);
+          const childPos = getNodePosition(`expanded-${expandedNodeIndex}-${i}`);
+          
+          if (!parentPos || !childPos) return null;
+          
+          const parentIntersect = getIntersection(childPos, parentPos, parentPos);
+          const childIntersect = getIntersection(parentPos, childPos, childPos);
+          
+          return (
+            <line
+              key={`expanded-line-${expandedNodeIndex}-${i}`}
+              x1={parentIntersect.x}
+              y1={parentIntersect.y}
+              x2={childIntersect.x}
+              y2={childIntersect.y}
+              stroke="#888"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          );
+        })}
+      </svg>
+    );
+  };
+
   // Handle starting to drag a concept
   const handleMouseDown = (e, conceptId) => {
     e.preventDefault();
@@ -213,6 +335,7 @@ const MindMap = ({ centralQuestion, concepts }) => {
     const newX = e.clientX - mapRect.left - dragOffset.x;
     const newY = e.clientY - mapRect.top - dragOffset.y;
 
+    // Update position in state
     setPositions(prev => ({
       ...prev,
       [draggedConcept]: { x: newX, y: newY }
@@ -226,81 +349,111 @@ const MindMap = ({ centralQuestion, concepts }) => {
     document.removeEventListener('mouseup', handleMouseUp);
   };
 
-  // Render connection lines between central node and concepts
-  const renderConnections = () => {
-    const mapRect = mapRef.current?.getBoundingClientRect();
-    const centralRect = centralRef.current?.getBoundingClientRect();
-    
-    if (!mapRect || !centralRect) return null;
-    
-    // The exact center of the central question box
-    const centerX = mapRect.width / 2;
-    const centerY = mapRect.height / 2;
-    
-    const connections = [];
-    
-    // Render connections to main concepts
-    concepts.forEach((_, index) => {
-      const pos = positions[`concept-${index}`];
-      if (!pos) return;
-      
-      // Calculate the exact center position of the concept
-      const conceptCenterX = centerX + pos.x;
-      const conceptCenterY = centerY + pos.y;
-      
-      connections.push(
-        <line
-          key={`line-${index}`}
-          x1={centerX}
-          y1={centerY}
-          x2={conceptCenterX}
-          y2={conceptCenterY}
-          className={activeNodes[index] ? 'connection' : 'connection inactive'}
-        />
-      );
-      
-      // If this is the expanded node, add connections to expanded concepts
-      if (index === expandedNodeIndex) {
-        expandedConcepts.forEach((_, i) => {
-          const expandedPos = positions[`expanded-${index}-${i}`];
-          if (!expandedPos) return;
-          
-          const expandedX = centerX + expandedPos.x;
-          const expandedY = centerY + expandedPos.y;
-          
-          connections.push(
-            <line
-              key={`expanded-line-${index}-${i}`}
-              x1={conceptCenterX}
-              y1={conceptCenterY}
-              x2={expandedX}
-              y2={expandedY}
-              className="connection expanded"
-            />
-          );
-        });
-      }
+  // Use useEffect to observe node sizes and trigger redraws
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(() => {
+      // Force a re-render to update connections by making a shallow
+      // copy of the positions state
+      setPositions(prev => ({ ...prev }));
     });
     
-    return connections;
-  };
+    const observeNodes = () => {
+      // Central Node
+      if (centralRef.current) {
+        centralRef.current.setAttribute('data-node-id', 'central');
+        resizeObserver.observe(centralRef.current);
+      }
+    
+      // Concept Nodes
+      conceptRefs.current.forEach((ref, index) => {
+        if (ref.current) {
+          ref.current.setAttribute('data-node-id', `concept-${index}`);
+          resizeObserver.observe(ref.current);
+        }
+      });
+    
+      // Expanded Nodes
+      document.querySelectorAll('.expanded-child').forEach((node) => {
+        const nodeId = node.getAttribute('data-node-id');
+        if (nodeId) resizeObserver.observe(node);
+      });
+    };
+    
+    // Wait a tick for DOM to update
+    setTimeout(observeNodes, 0);
+    
+    return () => resizeObserver.disconnect();
+  }, [positions, expandedConcepts]);
 
-  // Console log for debugging
-  console.log("Active nodes:", activeNodes);
-  console.log("Expanded node index:", expandedNodeIndex);
-  console.log("Expanded concepts:", expandedConcepts);
-  console.log("Positions:", positions);
+  // Use useEffect to track size changes
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(entries => {
+      setNodeSizes(prev => {
+        const newSizes = { ...prev };
+        entries.forEach(entry => {
+          const nodeId = entry.target.getAttribute('data-node-id');
+          if (nodeId) {
+            newSizes[nodeId] = {
+              width: entry.contentRect.width,
+              height: entry.contentRect.height
+            };
+          }
+        });
+        return newSizes;
+      });
+    });
+    
+    const observeNodes = () => {
+      // Central Node
+      if (centralRef.current) {
+        centralRef.current.setAttribute('data-node-id', 'central');
+        resizeObserver.observe(centralRef.current);
+      }
+    
+      // Concept Nodes
+      conceptRefs.current.forEach((ref, index) => {
+        if (ref.current) {
+          ref.current.setAttribute('data-node-id', `concept-${index}`);
+          resizeObserver.observe(ref.current);
+        }
+      });
+    
+      // Expanded Nodes
+      document.querySelectorAll('.expanded-child').forEach((node) => {
+        const nodeId = node.getAttribute('data-node-id');
+        if (nodeId) resizeObserver.observe(node);
+      });
+    };
+    
+    // Wait for DOM to be ready
+    setTimeout(observeNodes, 0);
+    
+    return () => resizeObserver.disconnect();
+  }, [conceptRefs.current.length, expandedNodeIndex, expandedConcepts]);
+
+  // Force connections to update after DOM changes
+  useEffect(() => {
+    // Force a redraw after the DOM has fully updated
+    const timer = setTimeout(() => {
+      setPositions(prev => ({ ...prev }));
+    }, 50);
+    
+    return () => clearTimeout(timer);
+  }, [nodeSizes]);
 
   return (
     <div className="mind-map-container">
       <div className="mind-map" ref={mapRef}>
-        {/* SVG for the connections between nodes */}
-        <svg className="connections">
-          {mapRef.current && centralRef.current && renderConnections()}
-        </svg>
+        {/* SVG connections */}
+        {renderConnections()}
         
         {/* Central Question Node */}
-        <div className="central-question" ref={centralRef}>
+        <div 
+          className="central-question" 
+          ref={centralRef}
+          data-node-id="central"
+          style={{ borderColor: "#888" }}
+        >
           {centralQuestion}
         </div>
         
@@ -316,10 +469,11 @@ const MindMap = ({ centralQuestion, concepts }) => {
               style={{
                 top: `calc(50% + ${pos.y}px)`,
                 left: `calc(50% + ${pos.x}px)`,
-                transform: 'translate(-50%, -50%)',
-                cursor: isDragging ? 'grabbing' : 'grab'
+                cursor: isDragging ? 'grabbing' : 'grab',
+                borderColor: "#888"
               }}
               ref={conceptRefs.current[index]}
+              data-node-id={`concept-${index}`}
               onMouseDown={(e) => handleMouseDown(e, `concept-${index}`)}
               onClick={(e) => {
                 e.stopPropagation();
@@ -338,19 +492,27 @@ const MindMap = ({ centralQuestion, concepts }) => {
           const pos = positions[`expanded-${expandedNodeIndex}-${index}`];
           if (!pos) return null;
           
-          // Add debug border for visibility
           return (
             <div
               key={`expanded-${expandedNodeIndex}-${index}`}
               className="concept expanded-child"
+              data-node-id={`expanded-${expandedNodeIndex}-${index}`}
               style={{
                 top: `calc(50% + ${pos.y}px)`,
                 left: `calc(50% + ${pos.x}px)`,
-                transform: 'translate(-50%, -50%)',
-                border: '2px solid #000'
+                border: '2px solid #888'
               }}
             >
-              {concept}
+              <div className="concept-title">{concept.title}</div>
+              {concept.description && (
+                <div className="concept-description">{concept.description}</div>
+              )}
+              <div className="concept-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                  <path fill="none" d="M0 0h24v24H0z"/>
+                  <path d="M9.973 18h4.054c.132-1.202.745-2.194 1.74-3.277.113-.122.832-.867.917-.973a6 6 0 1 0-9.37-.002c.086.107.807.853.918.974.996 1.084 1.609 2.076 1.741 3.278zM14 20h-4v1h4v-1zm-8.246-5a8 8 0 1 1 12.49.002C17.624 15.774 16 17 16 18.5V21a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.5C8 17 6.375 15.774 5.754 15z" fill="rgba(136,136,136,0.6)"/>
+                </svg>
+              </div>
             </div>
           );
         })}
