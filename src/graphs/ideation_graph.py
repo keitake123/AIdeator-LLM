@@ -3,6 +3,7 @@ from langgraph.graph import Graph, StateGraph
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
+from src.nlp.relevancy_matching import find_relevant_companies, YCCompanyMatcher
 import os 
 from dotenv import load_dotenv
 import json
@@ -708,6 +709,31 @@ def process_thread_choice_multi(state: IdeationState, choice: str) -> IdeationSt
         state["current_step"] = "end_session"
         state["feedback"] = "Ending the ideation session as requested."
         return state
+    
+    # Check for "search" command (replacing the check for "similar")
+    if "search" in choice.lower():
+        # Extract branch ID - format must be "search bX" where X is a number
+        branch_match = re.search(r'search\s+b(\d+)', choice.lower())
+        if branch_match:
+            branch_num = branch_match.group(1)
+            branch_id = f"b{branch_num}"
+            
+            # Check if branch exists
+            if branch_id in state["branches"]:
+                state["active_branch"] = branch_id  # Set as active branch
+                state["messages"].append(HumanMessage(content=f"Search similar YC companies to branch {branch_id}: {state['branches'][branch_id]['heading']}"))
+            else:
+                state["feedback"] = f"Branch {branch_id} does not exist."
+                state["switch_thread"] = True
+                return state
+        else:
+            # Command format was incorrect
+            state["feedback"] = "Please specify a branch ID (e.g., 'search b1')."
+            state["switch_thread"] = True
+            return state
+        
+        # Call the function to find similar companies
+        return find_similar_companies(state)
     
     # Check for special commands
     if "combine" in choice.lower():
@@ -2606,6 +2632,104 @@ def standardize_product_branch_data(branch_data: dict) -> dict:
     
     return standardized
 
+# Add a new function for triggering relevancy search
+def find_similar_companies(state: IdeationState) -> IdeationState:
+    """Find similar YC companies for the current product idea."""
+    # Check if we have an active branch (concept or product)
+    branch_id = state["active_branch"]
+    if not branch_id or branch_id not in state["branches"]:
+        state["feedback"] = "No active branch selected to find similar companies."
+        return state
+    
+    # Get the branch data
+    branch = state["branches"][branch_id]
+    
+    # Check if the branch is a product category
+    if branch.get("category") != "product":
+        state["feedback"] = "Similar company search is only available for product ideas, not concepts."
+        state["messages"].append(AIMessage(content=f"Sorry, branch {branch_id}: '{branch['heading']}' is not a product idea. Similar company search is only available for product ideas."))
+        state["switch_thread"] = True
+        return state
+    
+    # Find relevant companies based on the branch data
+    companies = find_relevant_companies(branch, top_n=5)
+    
+    # Initialize matcher for formatting
+    matcher = YCCompanyMatcher()
+    
+    # If we found companies, add them to the messages
+    if companies:
+        formatted_results = matcher.format_results(companies)
+        state["messages"].append(AIMessage(content=f"Here are similar YC companies to product '{branch['heading']}':\n\n{formatted_results}"))
+        state["feedback"] = f"Found {len(companies)} similar companies."
+
+        # Display the results in the terminal
+        display_search_results(companies, branch['heading'])
+    else:
+        state["messages"].append(AIMessage(content=f"No similar YC companies found for product '{branch['heading']}'."))
+        state["feedback"] = "No similar companies found."
+
+        # Display "no results" message
+        display_search_results([], branch['heading'])
+    
+    # Return to main options
+    state["current_step"] = "present_exploration_options"
+    
+    return state
+
+def display_search_results(results, branch_heading):
+    """
+    Display search results for similar YC companies in a formatted way.
+    
+    Args:
+        results: List of company results from relevancy search
+        branch_heading: Heading of the branch that was searched
+    """
+    if not results:
+        print("\n===== NO SIMILAR COMPANIES FOUND =====")
+        print(f"No YC companies similar to '{branch_heading}' were found.")
+        print("=" * 40)
+        return
+    
+    print("\n" + "=" * 80)
+    print(f"===== SIMILAR YC COMPANIES TO: {branch_heading} =====")
+    print("=" * 80)
+    
+    for i, company in enumerate(results, 1):
+        # Extract company details with fallbacks for different field names
+        name = company.get("name", company.get("title", "Unknown Company"))
+        blurb = company.get("blurb", "N/A")
+        description = company.get("description", "N/A")
+        logo_url = company.get("logo_url", company.get("profile_picture", "N/A"))
+        url = company.get("url", "N/A")
+        score = company.get("relevance_score", 0.0)
+        
+        # Print company details with formatting
+        print(f"\n{i}. {name} (Relevance Score: {score:.2f})")
+        print("-" * 50)
+        
+        # Show logo URL if available
+        if logo_url != "N/A":
+            print(f"Profile Picture: {logo_url}")
+        
+        # Show company URL if available
+        if url != "N/A":
+            print(f"URL: {url}")
+        
+        # Show blurb with line wrapping
+        if blurb != "N/A":
+            print(f"\nBlurb: {blurb}")
+        
+        # Show description with truncation for readability
+        if description != "N/A":
+            max_desc_len = 200
+            desc_display = description[:max_desc_len] + "..." if len(description) > max_desc_len else description
+            print(f"\nDescription: {desc_display}")
+        
+        print("-" * 50)
+    
+    print("=" * 80)
+    print("\n")
 
 
 def end_session(state: IdeationState) -> IdeationState:
@@ -2729,6 +2853,13 @@ def run_cli_workflow():
     while exploring:
         # Display available branches
         display_available_branches(state)
+
+        # NEW: If we just performed a search operation, display the results
+        # You could add a flag to state to track this, or check the feedback
+        if state["feedback"] and ("similar companies" in state["feedback"] or "search" in state["context"].get("thread_choice", "").lower()):
+            # The search results were already displayed by the find_similar_companies function
+            # so we don't need to call display_search_results again here
+            pass
         
         # Show the exploration options
         print("\nChoose next action:")
@@ -2738,6 +2869,7 @@ def run_cli_workflow():
         print("add idea b#: Add your own idea to a branch (e.g., add idea b1)")
         print("delete b#: Delete a branch and all its sub-branches (e.g., delete b1)")
         print("combine b# b# [b#...]: Combine multiple concepts (e.g., combine b1 b2)")
+        print("search b#: Find similar product ideas already existing in the market (e.g., search b1)")
         print("stop: End the ideation session")
         
         # Get user choice
@@ -2989,6 +3121,7 @@ workflow.add_node("process_deletion_confirmation", lambda state: process_deletio
 workflow.add_node("process_combine_request", lambda state: process_combine_request(state, state["context"].get("thread_choice", "")))
 workflow.add_node("process_edit_request", lambda state: process_edit_request(state, state["context"].get("thread_choice", "")))
 workflow.add_node("process_branch_edit", lambda state: process_branch_edit(state, state["context"].get("edit_data", {})))
+workflow.add_node("find_similar_companies", find_similar_companies)
 
 # Add edges with conditional logic for regeneration
 workflow.add_edge("request_input", "generate_problem_statement")
@@ -3017,6 +3150,7 @@ workflow.add_conditional_edges(
         "process_branch_selection": not state.get("switch_thread", False) and state["current_step"] == "process_branch_selection",  # Process branch selection
         "process_combine_request": not state.get("switch_thread", False) and "combine" in state["context"].get("thread_choice", "").lower(),  # Process combine request
         "process_edit_request": not state.get("switch_thread", False) and "edit" in state["context"].get("thread_choice", "").lower(),  # Process edit request
+        "find_similar_companies": not state.get("switch_thread", False) and "search" in state["context"].get("thread_choice", "").lower(),  # Process search similar companies request
         "end_session": state["current_step"] == "end_session"  # End the session
     }
 )
@@ -3075,6 +3209,9 @@ workflow.add_edge("process_branch_edit", "present_exploration_options")
 
 # Add direct edge for combine request (no confirmation step)
 workflow.add_edge("process_combine_request", "present_exploration_options")
+
+# Add an edge from find_similar_companies back to present_exploration_options
+workflow.add_edge("find_similar_companies", "present_exploration_options")
 
 # Set entry point
 workflow.set_entry_point("request_input")

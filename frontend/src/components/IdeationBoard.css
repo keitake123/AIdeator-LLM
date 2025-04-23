@@ -1,0 +1,59 @@
+.ideation-board {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.add-initial-card {
+  padding: 20px;
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  background: none;
+  cursor: pointer;
+  color: #666;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+.add-initial-card:hover {
+  border-color: #999;
+  color: #333;
+}
+
+.editing .card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.edit-title {
+  font-size: 1.1rem;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.edit-description {
+  font-size: 0.9rem;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  min-height: 80px;
+  resize: vertical;
+}
+
+.save-button {
+  align-self: flex-end;
+  padding: 8px 16px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.save-button:hover {
+  background: #45a049;
+} 
