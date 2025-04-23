@@ -1,0 +1,129 @@
+.concept.expanded-child {
+  background-color: #fff;
+  border: 2px solid #000;
+  border-radius: 8px;
+  animation: fadeIn 0.5s ease-out;
+  z-index: 4;
+  width: 250px;
+  padding: 15px;
+  text-align: left;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  font-size: 14px;
+  word-break: break-word;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transform: translate(-50%, -50%) !important;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.concept-title {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: #000;
+  text-align: center;
+}
+
+.concept-description {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 5px;
+  line-height: 1.4;
+}
+
+.concept-icon {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  opacity: 0.7;
+}
+
+.card-actions {
+  position: absolute;
+  top: -40px;
+  left: 105%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+.expanded-child:hover .card-actions {
+  opacity: 1;
+}
+
+.action-button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #fff;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: all 0.2s ease;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.action-button:hover {
+  background-color: #f5f5f5;
+  color: #333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.action-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.action-button.add {
+  color: #1a73e8;
+}
+
+.action-button.add:hover {
+  background-color: #e8f0fe;
+  color: #1a73e8;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.concept-edit-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.concept-edit-title {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.concept-edit-description {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  min-height: 60px;
+  resize: vertical;
+} 

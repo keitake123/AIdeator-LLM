@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './MindMap.css';
+import ConceptCard from './ConceptCard';
 
 const MindMap = ({ centralQuestion, concepts }) => {
   const [positions, setPositions] = useState({});
@@ -9,6 +10,8 @@ const MindMap = ({ centralQuestion, concepts }) => {
   const [expandedNodeIndex, setExpandedNodeIndex] = useState(null);
   const [expandedConcepts, setExpandedConcepts] = useState([]);
   const [nodeSizes, setNodeSizes] = useState({});
+  const [cards, setCards] = useState([]);
+  const [nextCardId, setNextCardId] = useState(1);
   const mapRef = useRef(null);
   const conceptRefs = useRef([]);
   const centralRef = useRef(null);
@@ -441,6 +444,73 @@ const MindMap = ({ centralQuestion, concepts }) => {
     return () => clearTimeout(timer);
   }, [nodeSizes]);
 
+  // Handle adding a new card
+  const handleAddCard = (sourceNodeId) => {
+    const sourcePos = positions[sourceNodeId] || { x: 0, y: 0 };
+    
+    // Place new card 120px to the right of source card
+    const newCard = {
+      id: `card-${nextCardId}`,
+      title: "New Concept",
+      description: "Add a description...",
+      x: sourcePos.x + 120,
+      y: sourcePos.y,
+      type: 'concept'
+    };
+
+    setCards(prevCards => [...prevCards, newCard]);
+    setNextCardId(prevId => prevId + 1);
+    
+    setPositions(prev => ({
+      ...prev,
+      [newCard.id]: { x: newCard.x, y: newCard.y }
+    }));
+  };
+
+  // Handle expanding a card (generating insights)
+  const handleExpandCard = (sourceNodeId) => {
+    const sourcePos = positions[sourceNodeId] || { x: 0, y: 0 };
+    
+    // Place insight card 120px below source card
+    const newCard = {
+      id: `card-${nextCardId}`,
+      title: "Generated Insight",
+      description: "This is an AI-generated insight based on the source concept...",
+      x: sourcePos.x+120,
+      y: sourcePos.y,
+      type: 'insight'
+    };
+
+    setCards(prevCards => [...prevCards, newCard]);
+    setNextCardId(prevId => prevId + 1);
+    
+    setPositions(prev => ({
+      ...prev,
+      [newCard.id]: { x: newCard.x, y: newCard.y }
+    }));
+  };
+
+  // Handle editing a card
+  const handleEditCard = (nodeId, newTitle, newDescription) => {
+    setCards(prevCards =>
+      prevCards.map(card =>
+        card.id === nodeId
+          ? { ...card, title: newTitle, description: newDescription }
+          : card
+      )
+    );
+  };
+
+  // Handle deleting a card
+  const handleDeleteCard = (nodeId) => {
+    setCards(prevCards => prevCards.filter(card => card.id !== nodeId));
+    setPositions(prev => {
+      const newPositions = { ...prev };
+      delete newPositions[nodeId];
+      return newPositions;
+    });
+  };
+
   return (
     <div className="mind-map-container">
       <div className="mind-map" ref={mapRef}>
@@ -492,28 +562,49 @@ const MindMap = ({ centralQuestion, concepts }) => {
           const pos = positions[`expanded-${expandedNodeIndex}-${index}`];
           if (!pos) return null;
           
+          const nodeId = `expanded-${expandedNodeIndex}-${index}`;
+          
           return (
-            <div
-              key={`expanded-${expandedNodeIndex}-${index}`}
-              className="concept expanded-child"
-              data-node-id={`expanded-${expandedNodeIndex}-${index}`}
+            <ConceptCard
+              key={nodeId}
+              nodeId={nodeId}
+              title={concept.title}
+              description={concept.description}
               style={{
                 top: `calc(50% + ${pos.y}px)`,
                 left: `calc(50% + ${pos.x}px)`,
                 border: '2px solid #888'
               }}
-            >
-              <div className="concept-title">{concept.title}</div>
-              {concept.description && (
-                <div className="concept-description">{concept.description}</div>
-              )}
-              <div className="concept-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                  <path fill="none" d="M0 0h24v24H0z"/>
-                  <path d="M9.973 18h4.054c.132-1.202.745-2.194 1.74-3.277.113-.122.832-.867.917-.973a6 6 0 1 0-9.37-.002c.086.107.807.853.918.974.996 1.084 1.609 2.076 1.741 3.278zM14 20h-4v1h4v-1zm-8.246-5a8 8 0 1 1 12.49.002C17.624 15.774 16 17 16 18.5V21a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.5C8 17 6.375 15.774 5.754 15z" fill="rgba(136,136,136,0.6)"/>
-                </svg>
-              </div>
-            </div>
+              onAdd={handleAddCard}
+              onExpand={handleExpandCard}
+              onEdit={handleEditCard}
+              onDelete={handleDeleteCard}
+            />
+          );
+        })}
+        
+        {/* Dynamic cards */}
+        {cards.map(card => {
+          const pos = positions[card.id] || { x: 0, y: 0 };
+          const isDragging = draggedConcept === card.id;
+          
+          return (
+            <ConceptCard
+              key={card.id}
+              nodeId={card.id}
+              title={card.title}
+              description={card.description}
+              style={{
+                top: `calc(50% + ${pos.y}px)`,
+                left: `calc(50% + ${pos.x}px)`,
+                cursor: isDragging ? 'grabbing' : 'grab',
+                borderColor: card.type === 'insight' ? "#4CAF50" : "#888"
+              }}
+              onAdd={handleAddCard}
+              onExpand={handleExpandCard}
+              onEdit={handleEditCard}
+              onDelete={handleDeleteCard}
+            />
           );
         })}
       </div>
