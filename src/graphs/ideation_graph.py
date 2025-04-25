@@ -3,7 +3,7 @@ from langgraph.graph import Graph, StateGraph
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
-from src.nlp.relevancy_matching import find_relevant_companies, YCCompanyMatcher
+from src.nlp.relevancy_matching import find_relevant_companies, StartupMatcher
 import os 
 from dotenv import load_dotenv
 import json
@@ -2634,7 +2634,7 @@ def standardize_product_branch_data(branch_data: dict) -> dict:
 
 # Add a new function for triggering relevancy search
 def find_similar_companies(state: IdeationState) -> IdeationState:
-    """Find similar YC companies for the current product idea."""
+    """Find similar startups (YC + ProductHunt) for the current product idea."""
     # Check if we have an active branch (concept or product)
     branch_id = state["active_branch"]
     if not branch_id or branch_id not in state["branches"]:
@@ -2654,19 +2654,25 @@ def find_similar_companies(state: IdeationState) -> IdeationState:
     # Find relevant companies based on the branch data
     companies = find_relevant_companies(branch, top_n=5)
     
-    # Initialize matcher for formatting
-    matcher = YCCompanyMatcher()
+    # Initialize matcher for formatting (using the new StartupMatcher class)
+    try:
+        from src.nlp.relevancy_matching import StartupMatcher
+        matcher = StartupMatcher()
+    except ImportError:
+        # Fallback to directly importing if the module structure is different
+        from nlp.relevancy_matching import StartupMatcher
+        matcher = StartupMatcher()
     
     # If we found companies, add them to the messages
     if companies:
         formatted_results = matcher.format_results(companies)
-        state["messages"].append(AIMessage(content=f"Here are similar YC companies to product '{branch['heading']}':\n\n{formatted_results}"))
+        state["messages"].append(AIMessage(content=f"Here are similar startups to product '{branch['heading']}':\n\n{formatted_results}"))
         state["feedback"] = f"Found {len(companies)} similar companies."
 
         # Display the results in the terminal
         display_search_results(companies, branch['heading'])
     else:
-        state["messages"].append(AIMessage(content=f"No similar YC companies found for product '{branch['heading']}'."))
+        state["messages"].append(AIMessage(content=f"No similar startups found for product '{branch['heading']}'."))
         state["feedback"] = "No similar companies found."
 
         # Display "no results" message
