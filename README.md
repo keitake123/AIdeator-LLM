@@ -1,42 +1,32 @@
-# LLM Ideation Application
+# AIdeator: a LLM Ideation partner
 
-This application uses LangChain and LangGraph to create an interactive ideation experience with ChatGPT.
+AIdeator is an intelligent brainstorming tool that leverages large language models to help users generate innovative, feasible, and profitable product ideas through collaborative human-AI ideation.
 
-## Setup Instructions
+## Overview
+Starting a new product or project can be challenging. AIdeator bridges the gap between raw problem statements and fully-formed product concepts by guiding you through a structured ideation process. Through human-AI collaboration, AIdeator helps expand your thinking, challenge assumptions, and develop well-documented product ideas.
 
-1. Create a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows, use: venv\Scripts\activate
-```
+## Key Benefits
+* **Expand Your Thinking:** Break out of conventional thinking patterns with methodologies like emotional root causes, unconventional associations, and imaginary customer feedback
+* **Structure Your Ideas:** Organize thoughts into a meaningful idea map with branches and connections
+* **Market Validation:** Search for similar companies and products in the market to validate your concept
+* **Comprehensive Documentation:** Generate clear product descriptions, feature lists, and implementation strategies
+* **Collaborative Workflow:** Human-AI partnership that enhances (rather than replaces) human creativity
 
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+## How It Works
+AIdeator uses a structured workflow to guide your ideation process:
 
-3. Create a `.env` file in the root directory and add your OpenAI API key:
-```
-OPENAI_API_KEY=your_api_key_here
-```
+1. **Problem Definition:** Enter your target audience and problem to generate a focused problem statement
+2. **Problem Space Expansion:** System automatically generates an alternative problem statement by flipping core assumptions
+3. **Methodology Selection:** Choose from three brainstorming methodologies:
+* Emotional Root Causes
+* Unconventional Associations
+* Imaginary Customers' Feedback
+4. **Idea Exploration:** Expand concepts through a dynamic mindmap interface
+5. **Concept Combination:** Mix and match different branches to create innovative hybrid solutions
+6. **Market Research:** Find similar companies to validate your concept and identify competitive gaps
+7. **Documentation:** Generate comprehensive product specifications and roadmaps
 
-4. Run the application:
-```bash
-python src/main.py
-```
-
-## Project Structure
-
-- `src/`: Main application code
-  - `main.py`: Application entry point
-  - `chains/`: LangChain components
-  - `graphs/`: LangGraph workflow definitions
-  - `utils/`: Utility functions
-- `requirements.txt`: Project dependencies
-- `.env`: Environment variables (not tracked in git)
-
-## Features
-
-- Interactive ideation sessions with ChatGPT
-- Structured conversation flows using LangGraph
-- State management for multi-turn conversations 
+## Additional Documentations
+[User Workflow](./documentations/user_workflow.ipynb)
+[Prmopt Development](./documentations/prompt_development.ipynb)
+[Evaluations](./documentations/evaluations.ipynb)
