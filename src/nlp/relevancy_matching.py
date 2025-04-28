@@ -19,7 +19,7 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)-8s %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
-logger = logging.getLogger("YCRelevancyMatcher")
+logger = logging.getLogger("StartupRelevancyMatcher")
 
 # --- NLTK data download (once) -----------------------
 for pkg, path in [
@@ -50,25 +50,64 @@ class TextPreprocessor:
         ]
 
 # --- BM25 matcher ------------------------------------
-class YCCompanyMatcher:
-    def __init__(self, data_path: str = "data/company_details.json"):
-        self.data_path = data_path
+class StartupMatcher:
+    def __init__(self, 
+                 yc_data_path: str = "data/company_details.json", 
+                 ph_data_path: str = "data/producthunt_all_years.json"):
+        self.yc_data_path = yc_data_path
+        self.ph_data_path = ph_data_path
         self.processor = TextPreprocessor()
         self._load_data()
         self._build_index()
 
     def _load_data(self) -> None:
-        if not os.path.isfile(self.data_path):
-            logging.error(f"Data file not found: {self.data_path}")
-            raise FileNotFoundError(self.data_path)
-
-        try:
-            with open(self.data_path, "r", encoding="utf-8") as f:
-                self.companies: List[Dict[str, Any]] = json.load(f)
-            logging.info(f"Loaded {len(self.companies)} companies from {self.data_path}")
-        except json.JSONDecodeError:
-            logging.error(f"Failed to parse JSON from {self.data_path}")
-            raise
+        # Initialize companies list
+        self.companies = []
+        
+        # Load YC data
+        if os.path.isfile(self.yc_data_path):
+            try:
+                with open(self.yc_data_path, "r", encoding="utf-8") as f:
+                    yc_companies = json.load(f)
+                
+                # Ensure each company has a source field
+                for company in yc_companies:
+                    company['source'] = company.get('source', 'yc')
+                
+                self.companies.extend(yc_companies)
+                logging.info(f"Loaded {len(yc_companies)} YC companies from {self.yc_data_path}")
+            except json.JSONDecodeError:
+                logging.error(f"Failed to parse JSON from {self.yc_data_path}")
+        else:
+            logging.warning(f"YC data file not found: {self.yc_data_path}")
+        
+        # Load ProductHunt data
+        if os.path.isfile(self.ph_data_path):
+            try:
+                with open(self.ph_data_path, "r", encoding="utf-8") as f:
+                    ph_data = json.load(f)
+                    
+                # ProductHunt data is stored by year, flatten it
+                ph_companies = []
+                for year, companies in ph_data.items():
+                    for company in companies:
+                        # Ensure source field
+                        company['source'] = company.get('source', 'producthunt')
+                        ph_companies.append(company)
+                
+                self.companies.extend(ph_companies)
+                logging.info(f"Loaded {len(ph_companies)} ProductHunt products from {self.ph_data_path}")
+            except json.JSONDecodeError:
+                logging.error(f"Failed to parse JSON from {self.ph_data_path}")
+        else:
+            logging.warning(f"ProductHunt data file not found: {self.ph_data_path}")
+        
+        # Check if we have any data to work with
+        if not self.companies:
+            logging.error("No company data found in either source")
+            raise FileNotFoundError("No company data available")
+            
+        logging.info(f"Combined dataset contains {len(self.companies)} companies/products")
 
     def _build_index(self) -> None:
         # combine and preprocess each company's text
@@ -79,7 +118,12 @@ class YCCompanyMatcher:
             blurb = comp.get("blurb", "")
             description = comp.get("description", "")
             
-            raw = " ".join([name, blurb, description])
+            # For ProductHunt data, we might have 'features' as a list
+            features = ""
+            if isinstance(comp.get("features", ""), list):
+                features = " ".join(comp.get("features", []))
+            
+            raw = " ".join([name, blurb, description, features])
             tokens = self.processor.tokenize(raw)
             self.docs.append(tokens)
 
@@ -104,17 +148,18 @@ class YCCompanyMatcher:
         if not results:
             return "No relevant companies found."
             
-        output = "### Top Similar YC Companies\n\n"
+        output = "### Top Similar Startups\n\n"
         for rank, comp in enumerate(results, start=1):
             # Extract fields with fallbacks for different field names
-            name = comp.get("name", comp.get("title", "Unknown Company"))
+            name = comp.get("name", comp.get("title", "Unknown"))
             blurb = comp.get("blurb", "N/A")
             description = comp.get("description", "N/A")
             logo_url = comp.get("logo_url", comp.get("profile_picture", "N/A"))
             url = comp.get("url", "N/A")
             score = comp.get("relevance_score", 0.0)
+            source = comp.get("source", "unknown")
             
-            output += f"**{rank}. {name}** (Relevance: {score:.2f})\n"
+            output += f"**{rank}. {name}** (Relevance: {score:.2f}, Source: {source})\n"
             
             # Add profile picture link (before the blurb)
             if logo_url != "N/A":
@@ -135,7 +180,7 @@ class YCCompanyMatcher:
 # --- Integration with ideation_graph.py --------------
 def find_relevant_companies(product_idea: Dict[str, Any], top_n: int = 5) -> List[Dict[str, Any]]:
     """
-    Take a product idea dictionary and find relevant YC companies.
+    Take a product idea dictionary and find relevant startups from both YC and ProductHunt.
     
     Args:
         product_idea: A dictionary containing product idea details
@@ -146,9 +191,9 @@ def find_relevant_companies(product_idea: Dict[str, Any], top_n: int = 5) -> Lis
     """
     # Initialize the matcher
     try:
-        matcher = YCCompanyMatcher()
+        matcher = StartupMatcher()
     except Exception as e:
-        logging.error(f"Failed to initialize YC company matcher: {e}")
+        logging.error(f"Failed to initialize startup matcher: {e}")
         return []
     
     # Extract relevant text from product idea
@@ -167,7 +212,10 @@ def find_relevant_companies(product_idea: Dict[str, Any], top_n: int = 5) -> Lis
         # Include features if available
         features = product_idea.get("features", [])
         if features:
-            query_parts.append(" ".join(features))
+            if isinstance(features, list):
+                query_parts.append(" ".join(features))
+            else:
+                query_parts.append(features)
     else:
         # Concept category fields
         if "explanation" in product_idea:
@@ -192,3 +240,59 @@ def find_relevant_companies(product_idea: Dict[str, Any], top_n: int = 5) -> Lis
     except Exception as e:
         logging.error(f"Error matching companies: {e}")
         return []
+
+# Add a function to display formatted results in terminal
+def display_search_results(results, branch_heading):
+    """
+    Display search results for similar startups in a formatted way.
+    
+    Args:
+        results: List of company results from relevancy search
+        branch_heading: Heading of the branch that was searched
+    """
+    if not results:
+        print("\n===== NO SIMILAR COMPANIES FOUND =====")
+        print(f"No companies similar to '{branch_heading}' were found.")
+        print("=" * 40)
+        return
+    
+    print("\n" + "=" * 80)
+    print(f"===== SIMILAR STARTUPS TO: {branch_heading} =====")
+    print("=" * 80)
+    
+    for i, company in enumerate(results, 1):
+        # Extract company details with fallbacks for different field names
+        name = company.get("name", company.get("title", "Unknown"))
+        blurb = company.get("blurb", "N/A")
+        description = company.get("description", "N/A")
+        logo_url = company.get("logo_url", company.get("profile_picture", "N/A"))
+        url = company.get("url", "N/A")
+        score = company.get("relevance_score", 0.0)
+        source = company.get("source", "unknown").upper()
+        
+        # Print company details with formatting
+        print(f"\n{i}. {name} (Relevance Score: {score:.2f}, Source: {source})")
+        print("-" * 50)
+        
+        # Show logo URL if available
+        if logo_url != "N/A":
+            print(f"Profile Picture: {logo_url}")
+        
+        # Show company URL if available
+        if url != "N/A":
+            print(f"URL: {url}")
+        
+        # Show blurb with line wrapping
+        if blurb != "N/A":
+            print(f"\nBlurb: {blurb}")
+        
+        # Show description with truncation for readability
+        if description != "N/A":
+            max_desc_len = 200
+            desc_display = description[:max_desc_len] + "..." if len(description) > max_desc_len else description
+            print(f"\nDescription: {desc_display}")
+        
+        print("-" * 50)
+    
+    print("=" * 80)
+    print("\n")
