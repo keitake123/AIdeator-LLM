@@ -3,7 +3,6 @@ import './App.css';
 import IdeationForm from './components/IdeationForm';
 import MindMap from './components/MindMap';
 import IdeaCard from './components/IdeaCard';
-import IdeationBoard from './components/IdeationBoard';
 import DraggableContainer from './components/DraggableContainer';
 
 function App() {
@@ -31,7 +30,6 @@ function App() {
                 concepts={mindMapData.concepts}
               />
             )}
-            <IdeationBoard />
           </main>
         </div>
       </div>

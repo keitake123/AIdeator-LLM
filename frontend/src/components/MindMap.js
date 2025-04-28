@@ -258,7 +258,7 @@ const MindMap = ({ centralQuestion, concepts }) => {
         zIndex: 1,
         overflow: 'visible'
       }}>
-        {/* Main lines - from central node to concept nodes */}
+        {/* Main lines - from central node to original concept nodes */}
         {concepts.map((_, index) => {
           const centralPos = getNodePosition('central');
           const conceptPos = getNodePosition(`concept-${index}`);
@@ -301,6 +301,33 @@ const MindMap = ({ centralQuestion, concepts }) => {
               y1={parentIntersect.y}
               x2={childIntersect.x}
               y2={childIntersect.y}
+              stroke="#888"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          );
+        })}
+        
+        {/* Connections for dynamically added cards - always connect to main concept nodes */}
+        {cards.map(card => {
+          // Always get the main concept node as the source
+          const mainConceptNodeId = card.mainConceptNodeId || 'concept-3'; // Default to concept-3 if not specified
+          
+          const conceptPos = getNodePosition(mainConceptNodeId);
+          const cardPos = getNodePosition(card.id);
+          
+          if (!conceptPos || !cardPos) return null;
+          
+          const conceptIntersect = getIntersection(cardPos, conceptPos, conceptPos);
+          const cardIntersect = getIntersection(conceptPos, cardPos, cardPos);
+          
+          return (
+            <line
+              key={`card-line-${card.id}`}
+              x1={conceptIntersect.x}
+              y1={conceptIntersect.y}
+              x2={cardIntersect.x}
+              y2={cardIntersect.y}
               stroke="#888"
               strokeWidth="2"
               strokeLinecap="round"
@@ -444,18 +471,194 @@ const MindMap = ({ centralQuestion, concepts }) => {
     return () => clearTimeout(timer);
   }, [nodeSizes]);
 
+  // Helper function to check if a position would cause an overlap with existing nodes
+  const wouldOverlap = (newPos, nodeWidth = 250, nodeHeight = 120, minDistance = 20) => {
+    // Check for overlaps with concept nodes
+    for (let i = 0; i < concepts.length; i++) {
+      const pos = positions[`concept-${i}`] || { x: 0, y: 0 };
+      
+      // Calculate distance between centers
+      const dx = Math.abs(newPos.x - pos.x);
+      const dy = Math.abs(newPos.y - pos.y);
+      
+      // Check if the nodes would overlap (with minimum spacing between them)
+      if (dx < (nodeWidth + minDistance) / 2 && dy < (nodeHeight + minDistance) / 2) {
+        return true;
+      }
+    }
+    
+    // Check for overlaps with expanded nodes
+    if (expandedNodeIndex !== null) {
+      for (let i = 0; i < expandedConcepts.length; i++) {
+        const pos = positions[`expanded-${expandedNodeIndex}-${i}`];
+        if (!pos) continue;
+        
+        const dx = Math.abs(newPos.x - pos.x);
+        const dy = Math.abs(newPos.y - pos.y);
+        
+        if (dx < (nodeWidth + minDistance) / 2 && dy < (nodeHeight + minDistance) / 2) {
+          return true;
+        }
+      }
+    }
+    
+    // Check for overlaps with existing cards
+    for (const card of cards) {
+      const pos = positions[card.id];
+      if (!pos) continue;
+      
+      const dx = Math.abs(newPos.x - pos.x);
+      const dy = Math.abs(newPos.y - pos.y);
+      
+      if (dx < (nodeWidth + minDistance) / 2 && dy < (nodeHeight + minDistance) / 2) {
+        return true;
+      }
+    }
+    
+    // Check for overlap with central node
+    const centralNodeSize = { width: 200, height: 120 }; // Approximate central node size
+    if (Math.abs(newPos.x) < (centralNodeSize.width + minDistance) / 2 && 
+        Math.abs(newPos.y) < (centralNodeSize.height + minDistance) / 2) {
+      return true;
+    }
+    
+    return false;
+  };
+
+  // Find a non-overlapping position near the given source position
+  const findNonOverlappingPosition = (sourcePos, preferredDirection = 'right') => {
+    // First try the preferred direction
+    let newPos = { 
+      x: sourcePos.x + (preferredDirection === 'right' ? 180 : preferredDirection === 'left' ? -180 : 0),
+      y: sourcePos.y + (preferredDirection === 'down' ? 150 : preferredDirection === 'up' ? -150 : 0)
+    };
+    
+    // If the preferred direction doesn't overlap, use it
+    if (!wouldOverlap(newPos)) {
+      return newPos;
+    }
+    
+    // Otherwise, try different directions and distances in a spiral pattern
+    const directions = ['right', 'down', 'left', 'up'];
+    const distances = [180, 220, 260, 300, 340];
+    
+    for (const distance of distances) {
+      for (const direction of directions) {
+        newPos = {
+          x: sourcePos.x + (direction === 'right' ? distance : direction === 'left' ? -distance : 0),
+          y: sourcePos.y + (direction === 'down' ? distance : direction === 'up' ? -distance : 0)
+        };
+        
+        if (!wouldOverlap(newPos)) {
+          return newPos;
+        }
+        
+        // Try diagonal positions too
+        if (direction === 'right' || direction === 'left') {
+          for (const vertDir of ['up', 'down']) {
+            const vertDist = distance * 0.7;
+            newPos = {
+              x: sourcePos.x + (direction === 'right' ? distance : -distance),
+              y: sourcePos.y + (vertDir === 'down' ? vertDist : -vertDist)
+            };
+            
+            if (!wouldOverlap(newPos)) {
+              return newPos;
+            }
+          }
+        }
+      }
+    }
+    
+    // If we couldn't find a non-overlapping position, return a position far away as last resort
+    return {
+      x: sourcePos.x + 400,
+      y: sourcePos.y + 300
+    };
+  };
+
+  // Get the bottom-most position of all nodes to place new nodes below
+  const getBottomPosition = () => {
+    let maxY = -1000; // Start with a low value
+    let nodeX = 0; // Default X position
+
+    // Check concept nodes
+    for (let i = 0; i < concepts.length; i++) {
+      const pos = positions[`concept-${i}`] || { x: 0, y: 0 };
+      if (pos.y > maxY) {
+        maxY = pos.y;
+        nodeX = pos.x; // Remember x position of the lowest node
+      }
+    }
+
+    // Check expanded nodes
+    if (expandedNodeIndex !== null) {
+      for (let i = 0; i < expandedConcepts.length; i++) {
+        const pos = positions[`expanded-${expandedNodeIndex}-${i}`];
+        if (pos && pos.y > maxY) {
+          maxY = pos.y;
+          nodeX = pos.x;
+        }
+      }
+    }
+
+    // Check cards
+    for (const card of cards) {
+      const pos = positions[card.id];
+      if (pos && pos.y > maxY) {
+        maxY = pos.y;
+        nodeX = pos.x;
+      }
+    }
+
+    // If we don't have any nodes yet, place at default position
+    if (maxY === -1000) {
+      return { x: 0, y: 200 };
+    }
+
+    // Return a position below the bottom-most node with a spacing of 180px
+    return { 
+      x: nodeX,
+      y: maxY + 180 
+    };
+  };
+
   // Handle adding a new card
   const handleAddCard = (sourceNodeId) => {
-    const sourcePos = positions[sourceNodeId] || { x: 0, y: 0 };
+    // Always connect to a main concept node, regardless of the source
+    // Extract the concept index if source is a main concept, otherwise use Concept 3 as default
+    let mainConceptNodeId = 'concept-3'; // Default to Concept 3 if we can't determine
     
-    // Place new card 120px to the right of source card
+    if (sourceNodeId.startsWith('concept-')) {
+      // If source is already a main concept node, use it
+      mainConceptNodeId = sourceNodeId;
+    } else if (sourceNodeId.startsWith('expanded-')) {
+      // If source is an expanded node, get its parent concept
+      const parts = sourceNodeId.split('-');
+      if (parts.length >= 2) {
+        mainConceptNodeId = `concept-${parts[1]}`;
+      }
+    } else if (sourceNodeId.startsWith('card-')) {
+      // If source is a card, get its parent concept from the stored data
+      const sourceCard = cards.find(card => card.id === sourceNodeId);
+      if (sourceCard && sourceCard.mainConceptNodeId) {
+        mainConceptNodeId = sourceCard.mainConceptNodeId;
+      }
+    }
+    
+    // Get position below all existing nodes
+    const newPos = getBottomPosition();
+    
+    // Create the new card
     const newCard = {
       id: `card-${nextCardId}`,
       title: "New Concept",
       description: "Add a description...",
-      x: sourcePos.x + 120,
-      y: sourcePos.y,
-      type: 'concept'
+      x: newPos.x,
+      y: newPos.y,
+      type: 'concept',
+      sourceNodeId: sourceNodeId, // Store immediate parent for positioning
+      mainConceptNodeId: mainConceptNodeId // Store main concept for connections
     };
 
     setCards(prevCards => [...prevCards, newCard]);
@@ -463,22 +666,49 @@ const MindMap = ({ centralQuestion, concepts }) => {
     
     setPositions(prev => ({
       ...prev,
-      [newCard.id]: { x: newCard.x, y: newCard.y }
+      [newCard.id]: { x: newPos.x, y: newPos.y }
     }));
   };
 
   // Handle expanding a card (generating insights)
   const handleExpandCard = (sourceNodeId) => {
-    const sourcePos = positions[sourceNodeId] || { x: 0, y: 0 };
+    // Always connect to a main concept node, regardless of the source
+    // Extract the concept index if source is a main concept, otherwise use Concept 3 as default
+    let mainConceptNodeId = 'concept-3'; // Default to Concept 3 if we can't determine
     
-    // Place insight card 120px below source card
+    if (sourceNodeId.startsWith('concept-')) {
+      // If source is already a main concept node, use it
+      mainConceptNodeId = sourceNodeId;
+    } else if (sourceNodeId.startsWith('expanded-')) {
+      // If source is an expanded node, get its parent concept
+      const parts = sourceNodeId.split('-');
+      if (parts.length >= 2) {
+        mainConceptNodeId = `concept-${parts[1]}`;
+      }
+    } else if (sourceNodeId.startsWith('card-')) {
+      // If source is a card, get its parent concept from the stored data
+      const sourceCard = cards.find(card => card.id === sourceNodeId);
+      if (sourceCard && sourceCard.mainConceptNodeId) {
+        mainConceptNodeId = sourceCard.mainConceptNodeId;
+      }
+    }
+    
+    // Get position below all existing nodes
+    const newPos = getBottomPosition();
+    
+    // Adjust the x position a bit to the right to distinguish insight nodes
+    newPos.x += 80;
+    
+    // Create the new card
     const newCard = {
       id: `card-${nextCardId}`,
       title: "Generated Insight",
       description: "This is an AI-generated insight based on the source concept...",
-      x: sourcePos.x+120,
-      y: sourcePos.y,
-      type: 'insight'
+      x: newPos.x,
+      y: newPos.y,
+      type: 'insight',
+      sourceNodeId: sourceNodeId, // Store immediate parent for positioning
+      mainConceptNodeId: mainConceptNodeId // Store main concept for connections
     };
 
     setCards(prevCards => [...prevCards, newCard]);
@@ -486,7 +716,7 @@ const MindMap = ({ centralQuestion, concepts }) => {
     
     setPositions(prev => ({
       ...prev,
-      [newCard.id]: { x: newCard.x, y: newCard.y }
+      [newCard.id]: { x: newPos.x, y: newPos.y }
     }));
   };
 
@@ -575,6 +805,7 @@ const MindMap = ({ centralQuestion, concepts }) => {
                 left: `calc(50% + ${pos.x}px)`,
                 border: '2px solid #888'
               }}
+              onMouseDown={(e) => handleMouseDown(e, nodeId)}
               onAdd={handleAddCard}
               onExpand={handleExpandCard}
               onEdit={handleEditCard}
@@ -600,6 +831,7 @@ const MindMap = ({ centralQuestion, concepts }) => {
                 cursor: isDragging ? 'grabbing' : 'grab',
                 borderColor: card.type === 'insight' ? "#4CAF50" : "#888"
               }}
+              onMouseDown={(e) => handleMouseDown(e, card.id)}
               onAdd={handleAddCard}
               onExpand={handleExpandCard}
               onEdit={handleEditCard}
