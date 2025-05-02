@@ -8,6 +8,7 @@ const MindMap = ({ centralQuestion, concepts }) => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [activeNodes, setActiveNodes] = useState(concepts.map(() => true));
   const [expandedNodeIndex, setExpandedNodeIndex] = useState(null);
+  const [expandedParentConceptIndex, setExpandedParentConceptIndex] = useState(null);
   const [expandedConcepts, setExpandedConcepts] = useState([]);
   const [nodeSizes, setNodeSizes] = useState({});
   const [cards, setCards] = useState([]);
@@ -15,6 +16,8 @@ const MindMap = ({ centralQuestion, concepts }) => {
   const mapRef = useRef(null);
   const conceptRefs = useRef([]);
   const centralRef = useRef(null);
+  const [mergeMode, setMergeMode] = useState(false);
+  const [selectedForMerge, setSelectedForMerge] = useState([]);
 
   // Initialize refs for concept nodes
   useEffect(() => {
@@ -41,6 +44,7 @@ const MindMap = ({ centralQuestion, concepts }) => {
   const expandNode = (index) => {
     console.log("Expanding node", index);
     setExpandedNodeIndex(index);
+    setExpandedParentConceptIndex(index);
     
     // Create 5 new concept nodes with titles and descriptions
     const newConcepts = [
@@ -308,31 +312,66 @@ const MindMap = ({ centralQuestion, concepts }) => {
           );
         })}
         
-        {/* Connections for dynamically added cards - always connect to main concept nodes */}
+        {/* Connections for cards (both normal and merged) */}
         {cards.map(card => {
-          // Always get the main concept node as the source
-          const mainConceptNodeId = card.mainConceptNodeId || 'concept-3'; // Default to concept-3 if not specified
-          
-          const conceptPos = getNodePosition(mainConceptNodeId);
-          const cardPos = getNodePosition(card.id);
-          
-          if (!conceptPos || !cardPos) return null;
-          
-          const conceptIntersect = getIntersection(cardPos, conceptPos, conceptPos);
-          const cardIntersect = getIntersection(conceptPos, cardPos, cardPos);
-          
-          return (
-            <line
-              key={`card-line-${card.id}`}
-              x1={conceptIntersect.x}
-              y1={conceptIntersect.y}
-              x2={cardIntersect.x}
-              y2={cardIntersect.y}
-              stroke="#888"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          );
+          if (card.mergedFrom && Array.isArray(card.mergedFrom)) {
+            // Handle merged cards - connect to each source node
+            return card.mergedFrom.map((sourceId, i) => {
+              // Skip if the source is a card that was deleted during merge
+              if (sourceId.startsWith('card-') && !cards.some(c => c.id === sourceId)) {
+                return null;
+              }
+              
+              const sourcePos = getNodePosition(sourceId);
+              const targetPos = getNodePosition(card.id);
+              
+              if (!sourcePos || !targetPos) return null;
+              
+              const sourceIntersect = getIntersection(targetPos, sourcePos, sourcePos);
+              const targetIntersect = getIntersection(sourcePos, targetPos, targetPos);
+              
+              return (
+                <line
+                  key={`merged-line-${card.id}-${i}`}
+                  x1={sourceIntersect.x}
+                  y1={sourceIntersect.y}
+                  x2={targetIntersect.x}
+                  y2={targetIntersect.y}
+                  stroke="#1a73e8"
+                  strokeWidth="2"
+                  strokeDasharray="5,5"
+                  style={{ pointerEvents: 'none' }}
+                />
+              );
+            });
+          } else {
+            // Regular card - connect to main concept
+            const mainConceptNodeId = card.mainConceptNodeId || 'concept-3'; // Default to concept-3 if not specified
+            
+            // Skip if disconnected
+            if (!card.mainConceptNodeId) return null;
+            
+            const conceptPos = getNodePosition(mainConceptNodeId);
+            const cardPos = getNodePosition(card.id);
+            
+            if (!conceptPos || !cardPos) return null;
+            
+            const conceptIntersect = getIntersection(cardPos, conceptPos, conceptPos);
+            const cardIntersect = getIntersection(conceptPos, cardPos, cardPos);
+            
+            return (
+              <line
+                key={`card-line-${card.id}`}
+                x1={conceptIntersect.x}
+                y1={conceptIntersect.y}
+                x2={cardIntersect.x}
+                y2={cardIntersect.y}
+                stroke="#888"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            );
+          }
         })}
       </svg>
     );
@@ -526,197 +565,184 @@ const MindMap = ({ centralQuestion, concepts }) => {
   };
 
   // Find a non-overlapping position near the given source position
-  const findNonOverlappingPosition = (sourcePos, preferredDirection = 'right') => {
-    // First try the preferred direction
-    let newPos = { 
-      x: sourcePos.x + (preferredDirection === 'right' ? 180 : preferredDirection === 'left' ? -180 : 0),
-      y: sourcePos.y + (preferredDirection === 'down' ? 150 : preferredDirection === 'up' ? -150 : 0)
-    };
-    
-    // If the preferred direction doesn't overlap, use it
-    if (!wouldOverlap(newPos)) {
-      return newPos;
+  const findNonOverlappingPosition = (sourcePos, nodeWidth = 250, nodeHeight = 120, minDistance = 20) => {
+    // Try original position
+    if (!wouldOverlap(sourcePos, nodeWidth, nodeHeight, minDistance)) {
+      return sourcePos;
     }
-    
-    // Otherwise, try different directions and distances in a spiral pattern
-    const directions = ['right', 'down', 'left', 'up'];
-    const distances = [180, 220, 260, 300, 340];
-    
-    for (const distance of distances) {
-      for (const direction of directions) {
-        newPos = {
-          x: sourcePos.x + (direction === 'right' ? distance : direction === 'left' ? -distance : 0),
-          y: sourcePos.y + (direction === 'down' ? distance : direction === 'up' ? -distance : 0)
-        };
-        
-        if (!wouldOverlap(newPos)) {
-          return newPos;
-        }
-        
-        // Try diagonal positions too
-        if (direction === 'right' || direction === 'left') {
-          for (const vertDir of ['up', 'down']) {
-            const vertDist = distance * 0.7;
-            newPos = {
-              x: sourcePos.x + (direction === 'right' ? distance : -distance),
-              y: sourcePos.y + (vertDir === 'down' ? vertDist : -vertDist)
-            };
-            
-            if (!wouldOverlap(newPos)) {
-              return newPos;
-            }
-          }
-        }
+
+    // Try stacking downward in fixed vertical steps, preserving X
+    for (let i = 1; i <= 10; i++) {
+      const testPos = {
+        x: sourcePos.x,
+        y: sourcePos.y + i * (nodeHeight + minDistance)
+      };
+      if (!wouldOverlap(testPos, nodeWidth, nodeHeight, minDistance)) {
+        return testPos;
       }
     }
-    
-    // If we couldn't find a non-overlapping position, return a position far away as last resort
+
+    // If vertical stacking fails, try nudging slightly left/right (but preserve vertical alignment)
+    const xOffsets = [-30, 30, -60, 60];
+    for (let dx of xOffsets) {
+      const testPos = {
+        x: sourcePos.x + dx,
+        y: sourcePos.y + (nodeHeight + minDistance)
+      };
+      if (!wouldOverlap(testPos, nodeWidth, nodeHeight, minDistance)) {
+        return testPos;
+      }
+    }
+
+    // Fallback far below
     return {
-      x: sourcePos.x + 400,
-      y: sourcePos.y + 300
+      x: sourcePos.x,
+      y: sourcePos.y + 400
     };
   };
 
-  // Get the bottom-most position of all nodes to place new nodes below
-  const getBottomPosition = () => {
-    let maxY = -1000; // Start with a low value
-    let nodeX = 0; // Default X position
+  const getBottomPosition = (sourceNodeId) => {
+    let maxY = -1000;
+    let xSum = 0;
+    let count = 0;
 
-    // Check concept nodes
-    for (let i = 0; i < concepts.length; i++) {
-      const pos = positions[`concept-${i}`] || { x: 0, y: 0 };
-      if (pos.y > maxY) {
-        maxY = pos.y;
-        nodeX = pos.x; // Remember x position of the lowest node
-      }
-    }
+    let relevantKeys = Object.keys(positions);
 
-    // Check expanded nodes
-    if (expandedNodeIndex !== null) {
-      for (let i = 0; i < expandedConcepts.length; i++) {
-        const pos = positions[`expanded-${expandedNodeIndex}-${i}`];
-        if (pos && pos.y > maxY) {
-          maxY = pos.y;
-          nodeX = pos.x;
+    // Handle expanded node groups
+    if (sourceNodeId && sourceNodeId.startsWith('expanded-')) {
+      const prefix = sourceNodeId.split('-').slice(0, 2).join('-'); // e.g. 'expanded-2'
+      relevantKeys = relevantKeys.filter(key => key.startsWith(prefix));
+
+      // Calculate average X and max Y for the group
+      for (const key of relevantKeys) {
+        const pos = positions[key];
+        if (pos) {
+          maxY = Math.max(maxY, pos.y);
+          xSum += pos.x;
+          count++;
         }
       }
+
+      const avgX = count > 0 ? xSum / count : 0;
+
+      return {
+        x: avgX,
+        y: maxY + 150 // Consistent vertical spacing
+      };
     }
 
-    // Check cards
-    for (const card of cards) {
-      const pos = positions[card.id];
+    // If we have a specific source node, place below it
+    if (sourceNodeId && positions[sourceNodeId]) {
+      const sourcePos = positions[sourceNodeId];
+      return {
+        x: sourcePos.x,
+        y: sourcePos.y + 150 // Place directly below the source
+      };
+    }
+
+    // Fallback for non-expanded nodes without a specific source
+    for (const key of relevantKeys) {
+      const pos = positions[key];
       if (pos && pos.y > maxY) {
         maxY = pos.y;
-        nodeX = pos.x;
       }
     }
 
-    // If we don't have any nodes yet, place at default position
-    if (maxY === -1000) {
-      return { x: 0, y: 200 };
-    }
-
-    // Return a position below the bottom-most node with a spacing of 180px
-    return { 
-      x: nodeX,
-      y: maxY + 180 
+    return {
+      x: 0, // Center position for non-grouped nodes
+      y: maxY + 150
     };
   };
 
-  // Handle adding a new card
   const handleAddCard = (sourceNodeId) => {
-    // Always connect to a main concept node, regardless of the source
-    // Extract the concept index if source is a main concept, otherwise use Concept 3 as default
-    let mainConceptNodeId = 'concept-3'; // Default to Concept 3 if we can't determine
+    const newCardId = `card-${nextCardId}`;
     
-    if (sourceNodeId.startsWith('concept-')) {
-      // If source is already a main concept node, use it
-      mainConceptNodeId = sourceNodeId;
-    } else if (sourceNodeId.startsWith('expanded-')) {
-      // If source is an expanded node, get its parent concept
-      const parts = sourceNodeId.split('-');
-      if (parts.length >= 2) {
-        mainConceptNodeId = `concept-${parts[1]}`;
-      }
-    } else if (sourceNodeId.startsWith('card-')) {
-      // If source is a card, get its parent concept from the stored data
-      const sourceCard = cards.find(card => card.id === sourceNodeId);
-      if (sourceCard && sourceCard.mainConceptNodeId) {
-        mainConceptNodeId = sourceCard.mainConceptNodeId;
-      }
-    }
+    // Get position based on source node's group
+    const newPos = getBottomPosition(sourceNodeId);
     
-    // Get position below all existing nodes
-    const newPos = getBottomPosition();
+    // Check for overlaps and adjust if needed
+    const finalPos = findNonOverlappingPosition(newPos);
     
-    // Create the new card
-    const newCard = {
-      id: `card-${nextCardId}`,
-      title: "New Concept",
-      description: "Add a description...",
-      x: newPos.x,
-      y: newPos.y,
-      type: 'concept',
-      sourceNodeId: sourceNodeId, // Store immediate parent for positioning
-      mainConceptNodeId: mainConceptNodeId // Store main concept for connections
-    };
-
-    setCards(prevCards => [...prevCards, newCard]);
-    setNextCardId(prevId => prevId + 1);
+    // Determine the main concept to connect to
+    const mainConceptNodeId = `concept-${expandedParentConceptIndex ?? 3}`;
     
     setPositions(prev => ({
       ...prev,
-      [newCard.id]: { x: newPos.x, y: newPos.y }
+      [newCardId]: finalPos
     }));
+
+    setCards(prev => [...prev, {
+      id: newCardId,
+      title: 'New Concept',
+      description: 'Add a description...',
+      sourceNodeId, // Store the immediate parent for positioning
+      mainConceptNodeId, // Store the main concept for connections
+      noIcons: false // Default to noIcons: false
+    }]);
+
+    setNextCardId(prev => prev + 1);
+  };
+
+  // Special function to position merged nodes far to the left
+  const positionMergedNode = (selectedNodeIds) => {
+    const nodePositions = selectedNodeIds.map(id => positions[id]).filter(Boolean);
+
+    if (nodePositions.length < 2) {
+      return getBottomPosition(selectedNodeIds[0] || 'concept-0');
+    }
+
+    // Compute the bounding box of the selected nodes
+    const minX = Math.min(...nodePositions.map(p => p.x));
+    const maxY = Math.max(...nodePositions.map(p => p.y));
+    const minY = Math.min(...nodePositions.map(p => p.y));
+    const avgY = (minY + maxY) / 2;
+
+    // Always place merged node to the left, aligned vertically to center
+    let target = {
+      x: minX - 300,      // Position to the left
+      y: avgY             // Vertically centered
+    };
+
+    let tries = 0;
+    while (wouldOverlap(target) && tries < 5) {
+      target.x -= 40;     // Push further left
+      tries++;
+    }
+
+    return target;
   };
 
   // Handle expanding a card (generating insights)
   const handleExpandCard = (sourceNodeId) => {
-    // Always connect to a main concept node, regardless of the source
-    // Extract the concept index if source is a main concept, otherwise use Concept 3 as default
-    let mainConceptNodeId = 'concept-3'; // Default to Concept 3 if we can't determine
+    // Get source node position from positions state
+    const sourcePos = positions[sourceNodeId];
+    if (!sourcePos) return; // Exit early if the position doesn't exist yet
     
-    if (sourceNodeId.startsWith('concept-')) {
-      // If source is already a main concept node, use it
-      mainConceptNodeId = sourceNodeId;
-    } else if (sourceNodeId.startsWith('expanded-')) {
-      // If source is an expanded node, get its parent concept
-      const parts = sourceNodeId.split('-');
-      if (parts.length >= 2) {
-        mainConceptNodeId = `concept-${parts[1]}`;
-      }
-    } else if (sourceNodeId.startsWith('card-')) {
-      // If source is a card, get its parent concept from the stored data
-      const sourceCard = cards.find(card => card.id === sourceNodeId);
-      if (sourceCard && sourceCard.mainConceptNodeId) {
-        mainConceptNodeId = sourceCard.mainConceptNodeId;
-      }
-    }
-    
-    // Get position below all existing nodes
-    const newPos = getBottomPosition();
-    
-    // Adjust the x position a bit to the right to distinguish insight nodes
-    newPos.x += 80;
+    // Position the new node directly to the left of the source node
+    const newPos = {
+      x: sourcePos.x - 300,  // Move to the left
+      y: sourcePos.y         // Same vertical position
+    };
     
     // Create the new card
+    const newCardId = `card-${nextCardId}`;
     const newCard = {
-      id: `card-${nextCardId}`,
-      title: "Generated Insight",
-      description: "This is an AI-generated insight based on the source concept...",
-      x: newPos.x,
-      y: newPos.y,
-      type: 'insight',
-      sourceNodeId: sourceNodeId, // Store immediate parent for positioning
-      mainConceptNodeId: mainConceptNodeId // Store main concept for connections
+      id: newCardId,
+      title: "Enter idea title",
+      description: "",
+      sourceNodeId: sourceNodeId,
+      mainConceptNodeId: null,  // No connection
+      isExpandable: true,
+      noIcons: true              // Disables the hover icon options
     };
 
     setCards(prevCards => [...prevCards, newCard]);
-    setNextCardId(prevId => prevId + 1);
+    setNextCardId(prev => prev + 1);
     
+    // Use exact position without overlap adjustments
     setPositions(prev => ({
       ...prev,
-      [newCard.id]: { x: newPos.x, y: newPos.y }
+      [newCardId]: newPos  // Direct positioning without adjustments
     }));
   };
 
@@ -740,6 +766,123 @@ const MindMap = ({ centralQuestion, concepts }) => {
       return newPositions;
     });
   };
+
+  // Add function to check if node is mergeable
+  const isMergeable = (nodeId) => {
+    // Allow merging only for expanded nodes and additional cards
+    return nodeId.startsWith('expanded-') || nodeId.startsWith('card-');
+  };
+
+  // Handle toggling merge mode for a node
+  const handleToggleMergeMode = (nodeId) => {
+    if (!isMergeable(nodeId)) return;
+
+    setSelectedForMerge(prev => {
+      // If already selected, remove it
+      if (prev.includes(nodeId)) {
+        return prev.filter(id => id !== nodeId);
+      }
+      // If not selected, add it
+      return [...prev, nodeId];
+    });
+  };
+
+  // Handle clicking on a card when in merge mode
+  const handleCardClick = (nodeId) => {
+    if (mergeMode && isMergeable(nodeId)) {
+      handleToggleMergeMode(nodeId);
+    }
+  };
+
+  // Handle merging selected nodes
+  const handleMergeNodes = () => {
+    if (selectedForMerge.length < 2) return;
+
+    const nodesToMerge = selectedForMerge.map(nodeId => {
+      // First check in cards
+      const card = cards.find(c => c.id === nodeId);
+      if (card) return { title: card.title, description: card.description };
+
+      // Then check in expanded concepts
+      const [_, conceptIndex, childIndex] = nodeId.split('-');
+      const concept = expandedConcepts?.[Number(childIndex)];
+      if (concept) return { title: concept.title, description: concept.description };
+
+      return { title: "Unknown", description: "" };
+    });
+
+    const mergedTitle = "Merged Concept";
+    const mergedDescription = nodesToMerge
+      .map(node => `${node.title}: ${node.description}`)
+      .join('\n\n');
+
+    // Create new merged card
+    const newCardId = `card-${nextCardId}`;
+    
+    // Use specialized function to position merged nodes
+    const finalPosition = positionMergedNode(selectedForMerge);
+
+    setCards(prev => [...prev, {
+      id: newCardId,
+      title: mergedTitle,
+      description: mergedDescription,
+      isMerged: true,
+      mergedFrom: [...selectedForMerge],
+      mergedCount: selectedForMerge.length,
+      sourceNodes: nodesToMerge.map((node, index) => ({
+        title: node.title,
+        description: node.description,
+        originalId: selectedForMerge[index],
+        position: positions[selectedForMerge[index]] // Store original positions for triangle formation
+      })),
+      mergeDirection: 'left', // Always positioned to the left
+      isExpandable: false,
+      isMerged: true,
+      noIcons: false // Default to noIcons: false
+    }]);
+
+    // Set position for new merged card
+    setPositions(prev => ({
+      ...prev,
+      [newCardId]: finalPosition
+    }));
+
+    // Only delete dynamic cards, leave expanded concepts untouched
+    selectedForMerge.forEach(nodeId => {
+      if (nodeId.startsWith('card-')) {
+        handleDeleteCard(nodeId);
+      }
+    });
+
+    // Reset merge state
+    setSelectedForMerge([]);
+    setMergeMode(false);
+    setNextCardId(prev => prev + 1);
+  };
+
+  // Add a function to cancel merge mode
+  const cancelMergeMode = () => {
+    setSelectedForMerge([]);
+    setMergeMode(false);
+  };
+
+  // Add keyboard handlers for merge operations
+  useEffect(() => {
+    if (selectedForMerge.length < 2) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleMergeNodes();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        cancelMergeMode();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [selectedForMerge]); // Note: You might need to add other dependencies based on your linter
 
   return (
     <div className="mind-map-container">
@@ -810,6 +953,9 @@ const MindMap = ({ centralQuestion, concepts }) => {
               onExpand={handleExpandCard}
               onEdit={handleEditCard}
               onDelete={handleDeleteCard}
+              isSelectedForMerge={selectedForMerge.includes(nodeId)}
+              onToggleMergeMode={() => handleToggleMergeMode(nodeId)}
+              onClick={() => handleCardClick(nodeId)}
             />
           );
         })}
@@ -817,7 +963,6 @@ const MindMap = ({ centralQuestion, concepts }) => {
         {/* Dynamic cards */}
         {cards.map(card => {
           const pos = positions[card.id] || { x: 0, y: 0 };
-          const isDragging = draggedConcept === card.id;
           
           return (
             <ConceptCard
@@ -828,18 +973,47 @@ const MindMap = ({ centralQuestion, concepts }) => {
               style={{
                 top: `calc(50% + ${pos.y}px)`,
                 left: `calc(50% + ${pos.x}px)`,
-                cursor: isDragging ? 'grabbing' : 'grab',
-                borderColor: card.type === 'insight' ? "#4CAF50" : "#888"
               }}
               onMouseDown={(e) => handleMouseDown(e, card.id)}
               onAdd={handleAddCard}
               onExpand={handleExpandCard}
               onEdit={handleEditCard}
               onDelete={handleDeleteCard}
+              isSelectedForMerge={selectedForMerge.includes(card.id)}
+              onToggleMergeMode={() => handleToggleMergeMode(card.id)}
+              onClick={() => handleCardClick(card.id)}
+              isMerged={card.isMerged}
+              mergedCount={card.mergedCount}
+              sourceNodes={card.sourceNodes}
+              isExpandable={card.isExpandable}
+              noIcons={card.noIcons}
             />
           );
         })}
       </div>
+      
+      {/* Updated merge controls with keyboard hints */}
+      {selectedForMerge.length >= 2 && (
+        <div className="merge-controls">
+          <div className="merge-controls-content">
+            <button 
+              className="merge-button"
+              onClick={handleMergeNodes}
+            >
+              Merge {selectedForMerge.length} nodes
+            </button>
+            <button 
+              className="cancel-button"
+              onClick={cancelMergeMode}
+            >
+              Cancel
+            </button>
+            <div className="keyboard-hints">
+              Press <kbd>Enter</kbd> to merge • <kbd>Esc</kbd> to cancel
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
