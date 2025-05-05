@@ -27,7 +27,9 @@ AIdeator uses a structured workflow to guide your ideation process:
 7. **Documentation:** Generate comprehensive product specifications and roadmaps
 
 ## Additional Documentations
-[User Workflow](./documentations/user_workflow.ipynb)
+[User Scenarios](./documentations/user_scenarios.ipynb)
+
+[Product Workflow](./documentations/product_workflow.ipynb)
 
 [Prmopt Development](./documentations/prompt_development.ipynb)
 
