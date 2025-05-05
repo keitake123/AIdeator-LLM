@@ -28,5 +28,7 @@ AIdeator uses a structured workflow to guide your ideation process:
 
 ## Additional Documentations
 [User Workflow](./documentations/user_workflow.ipynb)
+
 [Prmopt Development](./documentations/prompt_development.ipynb)
+
 [Evaluations](./documentations/evaluations.ipynb)

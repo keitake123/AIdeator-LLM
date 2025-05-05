@@ -1,9 +1,15 @@
+import sys
+import os
+
+# Add the parent directory (src) to the Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from typing import TypedDict, Annotated, Sequence, List, Dict, Optional
 from langgraph.graph import Graph, StateGraph
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
-from src.nlp.relevancy_matching import find_relevant_companies, StartupMatcher
+from nlp.relevancy_matching import find_relevant_companies, StartupMatcher
 import os 
 from dotenv import load_dotenv
 import json
@@ -586,8 +592,79 @@ def process_user_choice(state: IdeationState, choice: str) -> IdeationState:
     
     return state
 
+def analyze_and_select_methodology(state: IdeationState) -> IdeationState:
+    """Analyze the problem statement and select the most appropriate methodology."""
+    # Get the final problem statement
+    problem_statement = state["final_problem_statement"]
+    
+    # Create a prompt to analyze the problem statement
+    prompt = ChatPromptTemplate.from_messages([
+        SystemMessage(content=SYSTEM_TEMPLATE),
+        ("human", """Analyze this problem statement and determine the most appropriate methodology to use:
+"{problem_statement}"
+
+Based on your analysis, select ONE of the following methodologies:
+1. Emotional Root Causes - if the problem is closely related to human emotions, behaviors, or psychological factors
+2. Imaginary Customers' Feedback - if the problem is very practical, functional, or requires user-centric perspective
+3. Unconventional Associations - if the problem requires creativity, out-of-the-box thinking, or novel connections
+
+Reply with ONLY the number (1, 2, or 3) corresponding to the most appropriate methodology.""")
+    ])
+    
+    # Format the prompt with the problem statement
+    formatted_prompt = prompt.format_messages(
+        problem_statement=problem_statement
+    )
+    
+    # Invoke the LLM to analyze and select
+    response = llm.invoke(formatted_prompt)
+    content = response.content.strip()
+    
+    # Extract the methodology choice (fallback to 1 if parsing fails)
+    methodology = 1  # Default to Emotional Root Causes
+    
+    if "1" in content or "emotional" in content.lower():
+        methodology = 1
+        methodology_name = "Emotional Root Causes"
+        thread_id = "thread_1"
+    elif "2" in content or "imaginary" in content.lower() or "customer" in content.lower():
+        methodology = 2
+        methodology_name = "Imaginary Customers' Feedback"
+        thread_id = "thread_3"
+    elif "3" in content or "unconventional" in content.lower() or "association" in content.lower():
+        methodology = 3
+        methodology_name = "Unconventional Associations"
+        thread_id = "thread_2"
+    
+    # Set the active thread based on the selected methodology
+    state["active_thread"] = thread_id
+    
+    # Add a simple message about the selected methodology
+    state["messages"].append(AIMessage(content=f"Based on your problem statement, I'll use the {methodology_name} approach for ideation."))
+    
+    # Initialize thread message history if this is the first time
+    if thread_id not in state["threads"] or not state["threads"][thread_id]["messages"]:
+        # Set up the thread
+        state["threads"][thread_id] = {
+            "id": thread_id,
+            "name": methodology_name,
+            "description": "",  # Description can be added if needed
+            "messages": [SystemMessage(content=SYSTEM_TEMPLATE)],
+            "branches": {}
+        }
+        
+        # Add the problem statement to thread messages
+        thread_message = HumanMessage(content=f"Let's explore the problem statement through the lens of {methodology_name}.")
+        state["threads"][thread_id]["messages"].append(thread_message)
+    
+    # Set current step to thread exploration
+    state["current_step"] = "thread_exploration"
+    
+    return state
+
+# Modify the present_exploration_options function to set up the threads but not wait for user choice
 def present_exploration_options(state: IdeationState) -> IdeationState:
-    """Present the exploration options to the user, including all combined concepts threads."""
+    """Set up the exploration threads without presenting options to the user."""
     # If this is the first time, set up the threads and mindmap
     if not state["threads"]:
         # Display confirmation of the selected problem statement
@@ -627,22 +704,8 @@ def present_exploration_options(state: IdeationState) -> IdeationState:
                 "children": []
             })
     
-    # Set up for thread choice
-    state["awaiting_thread_choice"] = True
-    
-    # Get all thread options including combined concepts
-    thread_options = get_thread_options_display(state)
-    
-    # Transform into dictionary for input_instructions
-    options_dict = {}
-    for option in thread_options:
-        options_dict[str(option["index"])] = f"{option['name']}: {option['description']}"
-    
-    state["input_instructions"] = {
-        "thread_choice": "Choose an exploration approach:",
-        "options": options_dict
-    }
-    state["current_step"] = "await_thread_choice"
+    # Rather than waiting for user choice, proceed to automatic methodology selection
+    state["current_step"] = "analyze_and_select_methodology"
     
     return state
 
@@ -2843,15 +2906,23 @@ def run_cli_workflow():
     print(f"\nYou selected: {choice}")
     print(f"Final problem statement: {state['final_problem_statement']}\n")
     
-    # Step 3: Present exploration options (instead of confirming problem statement)
-    print("Now let's explore this problem from different angles.")
+    # Step 3: Present exploration options and set up threads
+    print("Setting up ideation approaches...")
     state = present_exploration_options(state)
-
-    # Display the thread options using the helper function
-    print("\nExploration approaches:")
-    thread_options = get_thread_options_display(state)
-    for option in thread_options:
-        print(option["display"])
+    
+    # NEW: Step 4: Analyze and select methodology automatically
+    print("Analyzing problem statement to determine the best ideation approach...")
+    state = analyze_and_select_methodology(state)
+    
+    # Display which methodology was selected
+    thread_id = state["active_thread"]
+    if thread_id and thread_id in state["threads"]:
+        methodology_name = state["threads"][thread_id]["name"]
+        print(f"Selected methodology: {methodology_name}")
+    
+    # Step 5: Perform thread exploration with the selected methodology
+    print(f"\nGenerating ideas using the selected approach...")
+    state = thread_exploration(state)
     
     # Start multi-thread exploration using state graph workflow
     exploring = True
@@ -2860,16 +2931,8 @@ def run_cli_workflow():
         # Display available branches
         display_available_branches(state)
 
-        # NEW: If we just performed a search operation, display the results
-        # You could add a flag to state to track this, or check the feedback
-        if state["feedback"] and ("similar companies" in state["feedback"] or "search" in state["context"].get("thread_choice", "").lower()):
-            # The search results were already displayed by the find_similar_companies function
-            # so we don't need to call display_search_results again here
-            pass
-        
         # Show the exploration options
         print("\nChoose next action:")
-        print("1-3: Select a thread (exploration approach)")
         print("b#: Select a branch (e.g., b1, b2, b3)")
         print("edit b#: Edit a branch (e.g., edit b1)")
         print("add idea b#: Add your own idea to a branch (e.g., add idea b1)")
@@ -3037,6 +3100,17 @@ def run_cli_workflow():
                 
                 continue
             
+        # Process search similar companies request
+        if "search" in user_choice.lower():
+            state = find_similar_companies(state)
+            
+            # Display feedback
+            if state["feedback"]:
+                print(f"\n{state['feedback']}")
+                state["feedback"] = ""
+                
+            continue
+            
         # Process branch selection
         elif user_choice.startswith('b'):
             # Branch selection
@@ -3066,40 +3140,9 @@ def run_cli_workflow():
                     print(f"\n{state['feedback']}")
                     state["feedback"] = ""
         else:
-            # Thread selection or other action
-            old_thread = state["active_thread"]
-            old_step = state["current_step"]
-            
-            # Process thread choice
-            state = process_thread_choice_multi(state, user_choice)
-            
-            # If stopping, break the loop
-            if state["current_step"] == "end_session":
-                exploring = False
-                continue
-                
-            # If switching threads, continue the loop to show options again
-            if state.get("switch_thread", False):
-                if state["feedback"]:
-                    print(f"\n{state['feedback']}")
-                    state["feedback"] = ""
-                continue
-                
-            # If we selected a thread to explore, simulate the thread exploration
-            if state["current_step"] == "thread_exploration":
-                thread_id = state["active_thread"]
-                thread_name = state["threads"][thread_id]["name"]
-                
-                print(f"\nNow exploring: {thread_name}")
-                print(f"This thread has its own separate conversation history.")
-                
-                # Simulate thread exploration
-                state = thread_exploration(state)
-                
-                # Display feedback
-                if state["feedback"]:
-                    print(f"\n{state['feedback']}")
-                    state["feedback"] = ""
+            # Invalid input
+            print(f"\nInvalid input: {user_choice}")
+            print("Please select a branch (bX) or use one of the available commands.")
     
     print("\n===== WORKFLOW COMPLETED =====\n")
     
@@ -3128,6 +3171,7 @@ workflow.add_node("process_combine_request", lambda state: process_combine_reque
 workflow.add_node("process_edit_request", lambda state: process_edit_request(state, state["context"].get("thread_choice", "")))
 workflow.add_node("process_branch_edit", lambda state: process_branch_edit(state, state["context"].get("edit_data", {})))
 workflow.add_node("find_similar_companies", find_similar_companies)
+workflow.add_node("analyze_and_select_methodology", analyze_and_select_methodology)
 
 # Add edges with conditional logic for regeneration
 workflow.add_edge("request_input", "generate_problem_statement")
@@ -3145,7 +3189,8 @@ workflow.add_conditional_edges(
 )
 
 # Add conditional edges for exploration options workflow
-workflow.add_edge("present_exploration_options", "process_thread_choice")
+workflow.add_edge("present_exploration_options", "analyze_and_select_methodology")
+workflow.add_edge("analyze_and_select_methodology", "thread_exploration")
 
 # Add conditional edges for thread exploration and switching
 workflow.add_conditional_edges(
@@ -3224,6 +3269,8 @@ workflow.set_entry_point("request_input")
 
 # Compile the graph (only once)
 app = workflow.compile()
+
+print(app.get_graph().draw_mermaid())
 
 # Example usage function
 def start_ideation_session() -> IdeationState:
