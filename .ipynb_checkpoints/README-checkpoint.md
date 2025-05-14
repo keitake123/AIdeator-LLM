@@ -35,4 +35,4 @@ AIdeator uses a structured workflow to guide your ideation process:
 
 [Evaluations](./documentations/evaluations.ipynb)
 
-[Setup and Frontend Visualization](./Setup&Frontend_visualization.ipynb)
+[Setup and Frontend Visualization](./documentations/Setup&Frontend_visualization.ipynb)
